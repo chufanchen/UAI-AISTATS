@@ -395,3 +395,222 @@ The experiments investigate two main questions: 1) how different policy paramete
   booktitle = {Conference on Uncertainty in Artificial Intelligence},
 }
 ```
+
+## [A Unifying Framework for Action-Conditional Self-Predictive Reinforcement Learning](https://arxiv.org/abs/2406.02035)  
+**Authors**: Khimya Khetarpal, Zhaohan Daniel Guo, Bernardo Avila Pires, Yunhao Tang, Clare Lyle, Mark Rowland, Nicolas Heess, Diana Borsa, Arthur Guez, Will Dabney
+**Conference**: AISTATS 2025  
+**Tags**: Self Predictive Learning
+---
+
+### Core Idea
+This paper proposes a unifying theoretical framework for action-conditional self-predictive reinforcement learning (RL) objectives, specifically analyzing Bootstrap Your Own Latent (BYOL) variants within a continuous-time Ordinary Differential Equation (ODE) model. It bridges the gap between prior theoretical work, which assumed a fixed policy ($\text{BYOL-}\Pi$), and practical implementations that explicitly condition predictions on future actions ($\text{BYOL-AC}$). The work also introduces a novel variance-like objective ($\text{BYOL-VAR}$) and unifies the understanding of all three objectives through two complementary lenses: a model-based perspective (low-rank approximation of dynamics) and a model-free perspective (fitting value functions).
+
+---
+
+### Problem Statement
+The primary problem addressed is the disconnect between theoretical analyses of self-predictive representation learning in RL and their practical instantiations. Previous theoretical work on BYOL objectives, such as by Tang et al. (2023), focused on a fixed-policy-dependent objective ($\text{BYOL-}\Pi$), marginalizing over actions. However, real-world BYOL implementations typically use an action-conditional objective ($\text{BYOL-AC}$), where predictions are explicitly conditioned on future actions. This discrepancy means the theoretical insights from $\text{BYOL-}\Pi$ may not fully explain the empirical success and behavior of $\text{BYOL-AC}$. Key questions include: what representations do action-conditional objectives converge to? How do they relate to policy-dependent ones? And how do these representations impact RL performance?
+
+---
+
+### Motivation
+The motivation stems from several critical areas in RL:
+1.  **Empirical Success of Action-Conditional BYOL:** $\text{BYOL-AC}$ variants have shown significant practical success in representation learning for RL, yet their underlying theoretical properties remain under-investigated.
+2.  **Characterizing Representations:** A deeper understanding is needed to characterize which learned representations are best suited for different RL quantities, such as state-value ($V$), action-value ($Q$), or advantage functions.
+3.  **Convergence Properties:** Identifying the types of representations that different objectives converge to and their connections to corresponding transition dynamics (e.g., policy-induced vs. per-action dynamics) is crucial for theoretical grounding.
+4.  **Trade-offs in Learning Objectives:** Understanding the inherent trade-offs induced by various representation learning objectives in different RL settings can lead to better algorithm design.
+5.  **Bridging Theory and Practice:** Closing the analytical gap between simplified theoretical models and complex practical algorithms provides a stronger foundation for developing more effective RL agents.
+
+---
+
+### Method Overview
+The paper's methodology revolves around extending and applying the ODE framework for self-predictive learning to action-conditional settings.
+1.  **Action-Conditional BYOL (BYOL-AC) Analysis:** The core BYOL-AC objective, defined as minimizing the prediction error of future latent representations conditioned on actions, is formulated:
+    $$ \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot|x), y \sim T_a(\cdot|x)} \left[ \| P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 \right] $$
+    This objective is then analyzed using a two-timescale optimization process within the ODE framework, where optimal action-conditional predictors $P_a^*$ are found before taking a semi-gradient step for $\Phi$.
+2.  **Introduction of BYOL-VAR:** Based on a discovered "variance relation" between the representations learned by $\text{BYOL-}\Pi$ and $\text{BYOL-AC}$, a novel objective, $\text{BYOL-VAR}$, is introduced. It is formulated as the difference between the $\text{BYOL-AC}$ and $\text{BYOL-}\Pi$ objectives:
+    $$ \min_{\Phi} \text{BYOL-VAR}(\Phi, P, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E} \left[ \| P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 - \| P^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 \right] $$
+3.  **Unified Theoretical Analysis:** All three objectives ($\text{BYOL-}\Pi$, $\text{BYOL-AC}$, $\text{BYOL-VAR}$) are studied through two complementary lenses:
+    *   **Model-Based View:** This perspective shows that each objective is equivalent to learning a low-rank approximation of specific dynamics matrices (e.g., $T_\pi$, $T_a$, or $(T_a - T_\pi)$).
+    *   **Model-Free View:** This perspective establishes relationships between the objectives and their respective abilities to fit certain 1-step value, Q-value, and advantage functions.
+4.  **Empirical Validation:** The theoretical findings are validated in two settings:
+    *   **Linear Function Approximation:** Demonstrates how the learned representations fit true value, Q-value, and advantage functions as predicted by theory.
+    *   **Deep Reinforcement Learning:** Compares the performance of agents augmented with these objectives in various Minigrid and classic control environments using V-MPO and DQN.
+
+The analysis relies on several simplifying assumptions (Orthogonal Initialization, Uniform State Distribution, Symmetric Dynamics, Uniform Policy, Common Eigenvectors) to derive precise convergence properties within the ODE framework.
+
+---
+
+### Theoretical Contributions
+The paper's theoretical contributions are substantial, primarily extending previous ODE analyses and providing novel insights into the relationships between different BYOL objectives:
+
+1.  **Analysis of BYOL-AC Convergence:**
+    *   **Non-collapse Property:** It proves that under Assumption 1 (Orthogonal Initialization), the $\text{BYOL-AC}$ ODE preserves the orthogonality of $\Phi$ (Lemma 3), avoiding degenerate solutions.
+    *   **Lyapunov Function:** It identifies a Lyapunov function for the $\text{BYOL-AC}$ ODE as the negative of a trace objective, $f_{\text{BYOL-AC}}(\Phi) := |\mathcal{A}|^{-1} \sum_a \text{Tr} \left[ \Phi^\top T_a \Phi \Phi^\top T_a \Phi \right]$ (Lemma 4), guaranteeing convergence to a critical point.
+    *   **Characterization of $\Phi^*_{ac}$:** Theorem 2 states that under Assumptions 1-6, the columns of $\Phi^*_{ac}$ (the maximizer of $f_{\text{BYOL-AC}}(\Phi)$) span the same subspace as the top-$k$ eigenvectors of $|\mathcal{A}|^{-1} \sum_a T_a^2$. This contrasts with $\text{BYOL-}\Pi$, whose $\Phi^*$ spans the top-$k$ eigenvectors of $(T^\pi)^2$.
+
+2.  **Variance Relation between BYOL-Π and BYOL-AC Representations:**
+    *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining $\Phi^*_{ac}$ (mean of squares: $\mathbb{E}_a[D_a^2]$) and $\Phi^*$ (square of mean: $(\mathbb{E}_a[D_a])^2$) are related by a variance equation:
+        $$ \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a) $$
+        This implies $\text{BYOL-AC}$ learns representations that are not only important for the average transition dynamics but also capture features that distinguish between actions.
+
+3.  **Introduction and Analysis of BYOL-VAR:**
+    *   **Novel Objective:** Introduces $\text{BYOL-VAR}$ (Eq. 9) as the difference between $\text{BYOL-AC}$ and $\text{BYOL-}\Pi$ losses.
+    *   **Convergence and Characterization:** Proves its non-collapse property (Lemma 5), identifies its Lyapunov function as $f_{\text{BYOL-VAR}}(\Phi) := f_{\text{BYOL-AC}}(\Phi) - f_{\text{BYOL-}\Pi}(\Phi)$ (Lemma 6), and shows that $\Phi^*_{VAR}$ (its maximizer) spans the top-$k$ eigenvectors of $|\mathcal{A}|^{-1} \sum_a T_a^2 - (T^\pi)^2$ (Theorem 3).
+    *   **Complete Variance Relation (Remark 2):** Explicitly states the full relationship: $\mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a)$, linking $\text{BYOL-AC}$, $\text{BYOL-}\Pi$, and $\text{BYOL-VAR}$ to the second moment, the square of the first moment, and the variance of the per-action eigenvalues, respectively. $\text{BYOL-VAR}$ focuses solely on action-distinguishing features.
+
+4.  **Two Unifying Perspectives:**
+    *   **Model-Based View (Theorem 4):** Demonstrates that maximizing the trace objectives (over orthogonal $\Phi$) for $\text{BYOL-}\Pi$, $\text{BYOL-AC}$, and $\text{BYOL-VAR}$ is equivalent to finding a low-rank approximation of $T^\pi$, $T_a$, and $(T_a - T^\pi)$ respectively, in terms of Frobenius norm:
+        $$ -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \min_P \| T^\pi - \Phi P \Phi^\top \|_F + C $$
+        $$ -\text{f}_{\text{BYOL-AC}}(\Phi) = |\mathcal{A}|^{-1} \sum_a \min_{P_a} \| T_a - \Phi P_a \Phi^\top \|_F + C $$
+        $$ -\text{f}_{\text{BYOL-VAR}}(\Phi) = |\mathcal{A}|^{-1} \sum_a \min_{P_{\Delta a}} \| (T_a - T^\pi) - \Phi P_{\Delta a} \Phi^\top \|_F + C $$
+    *   **Model-Free View (Theorem 5):** Shows that these objectives are also equivalent to fitting certain 1-step value functions (under isotropic Gaussian reward):
+        $$ -\text{f}_{\text{BYOL-}\Pi}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ \min_{\theta,\omega} \| T^\pi R - \Phi\theta \|^2 + \| T^\pi \Phi \Phi^\top R - \Phi\omega \|^2 \right] + C $$
+        $$ -\text{f}_{\text{BYOL-AC}}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ |\mathcal{A}|^{-1} \sum_a \min_{\theta_a,\omega_a} \| T_a R - \Phi\theta_a \|^2 + \| T_a \Phi \Phi^\top R - \Phi\omega_a \|^2 \right] + C $$
+        $$ -\text{f}_{\text{BYOL-VAR}}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ |\mathcal{A}|^{-1} \sum_a \min_{\theta_a,\omega_a} \| (T_a R - T^\pi R) - \Phi\theta \|^2 + \| (T_a \Phi \Phi^\top R - T^\pi \Phi \Phi^\top R) - \Phi\omega \|^2 \right] + C $$
+        This implies $\text{BYOL-}\Pi$, $\text{BYOL-AC}$, and $\text{BYOL-VAR}$ are essentially trying to fit 1-step value, Q-value, and advantage functions, respectively.
+
+---
+
+### Experiments
+The empirical section corroborates the theoretical findings and evaluates the performance of the proposed objectives in both linear and deep RL settings.
+
+1.  **Linear Function Approximation (Sec 6.1):**
+    *   **Setup:** Randomly generated MDPs with 10 states, 4 actions, and symmetric per-action dynamics. A 4-dimensional compressed representation was learned for each objective.
+    *   **Trace Objective Minimization (Table 1):** Empirically confirmed Theorem 4 and 5 by showing that each method minimized its *corresponding* negative trace objective (e.g., $\Phi$ minimized $-\text{f}_{\text{BYOL-}\Pi}$, $\Phi_{ac}$ minimized $-\text{f}_{\text{BYOL-AC}}$, and $\Phi_{var}$ minimized $-\text{f}_{\text{BYOL-VAR}}$) with high probability (99-100%).
+    *   **Value Function Fitting (Table 2):** Evaluated how well the learned representations fit traditional V-MSE, Q-MSE, and Advantage-MSE.
+        *   $\Phi$ and $\Phi_{ac}$ performed competitively in fitting state-value (V-MSE of 6.32 vs. 6.48) and action-value (Q-MSE of 8.31 vs. 8.01).
+        *   $\Phi_{var}$ was optimal for fitting the true Advantage MSE (0.43, 100% best), confirming its role in capturing action-distinguishing features. $\Phi_{ac}$ also showed better Advantage fitting than $\Phi$.
+    *   **Robustness to Policy Perturbation (Appendix C):** $\Phi_{ac}$ (BYOL-AC) was found to be significantly more robust to changes in the initial policy used for representation learning compared to $\Phi$ (BYOL-Π) and $\Phi_{var}$ (BYOL-VAR).
+
+2.  **Deep Reinforcement Learning (Sec 6.2):**
+    *   **Agents and Environments:** Used V-MPO (policy-gradient, online) in Minigrid (DoorKey, MemoryS13/17, MultiRoom) and DQN (off-policy) in classic control domains (CartPole, MountainCar, Acrobot).
+    *   **V-MPO Results (Figure 2):** $\Phi_{ac}$ consistently outperformed other baselines in 3 out of 4 Minigrid tasks, and was on par in one. $\Phi$ was competitive but generally slightly worse. $\Phi_{var}$ performed poorly in all tasks, likely due to the non-linear predictors causing the objective to behave like a min-max adversarial optimization, removing features useful for general RL tasks.
+    *   **DQN Results (Figure 3):** $\Phi_{ac}$ outperformed $\Phi$ in CartPole and MountainCar, and performed on par in Acrobot. $\Phi_{var}$ was not evaluated due to its poor V-MPO performance.
+
+---
+
+### Key Takeaways
+1.  **BYOL-AC's Superiority:** Both theoretically and empirically, the action-conditional $\text{BYOL-AC}$ objective generally yields a better representation ($\Phi_{ac}$) for RL agents compared to the fixed-policy $\text{BYOL-}\Pi$ ($\Phi$). $\Phi_{ac}$ captures spectral information about per-action transition dynamics ($T_a$), which proves more beneficial in practice.
+2.  **Variance Relationship Unifies Objectives:** The core theoretical insight is the "variance equation" (Remark 1 & 2) that connects the representations learned by $\text{BYOL-}\Pi$, $\text{BYOL-AC}$, and the novel $\text{BYOL-VAR}$. $\text{BYOL-AC}$ relates to the second moment of per-action eigenvalues, $\text{BYOL-}\Pi$ to the square of the first moment, and $\text{BYOL-VAR}$ to their variance. This provides a deep understanding of what each objective prioritizes in feature learning.
+3.  **Dual Unifying Perspectives:** The model-based and model-free lenses provide valuable intuitions.
+    *   **Model-Based:** $\text{BYOL-}\Pi$ learns a low-rank approximation of $T^\pi$, $\text{BYOL-AC}$ approximates $T_a$, and $\text{BYOL-VAR}$ approximates the residual $(T_a - T^\pi)$. This directly links objectives to fundamental dynamics.
+    *   **Model-Free:** Each objective effectively minimizes a loss for fitting a certain 1-step value function: $\text{BYOL-}\Pi$ for value ($V$), $\text{BYOL-AC}$ for Q-value ($Q$), and $\text{BYOL-VAR}$ for advantage functions. This demonstrates their suitability for different RL quantities.
+4.  **BYOL-VAR's Niche:** While $\text{BYOL-VAR}$ performed poorly in deep RL (likely due to non-linearities and adversarial optimization behavior), its theoretical connection to advantage functions and its focus on action-distinguishing features suggest potential utility in specialized applications, such as learning action representations or for option discovery in hierarchical RL.
+5.  **Robustness:** $\Phi_{ac}$ also exhibited higher robustness to initial policy perturbations, suggesting its learned features are more transferable across minor policy shifts.
+
+In essence, the paper provides a comprehensive analytical and empirical framework for understanding action-conditional self-predictive learning, highlighting $\text{BYOL-AC}$ as a robust and superior approach for learning representations in RL.
+
+### 📚 Citation
+
+```bibtex
+@inproceedings{khetarpal2024,
+  author    = {Khimya Khetarpal and Z. Guo and B. '. Pires and Yunhao Tang and Clare Lyle and Mark Rowland and N. Heess and Diana Borsa and A. Guez and Will Dabney},
+  year      = {2024},
+  title     = {A Unifying Framework for Action-Conditional Self-Predictive Reinforcement Learning},
+  booktitle = {arXiv.org},
+  doi       = {10.48550/arXiv.2406.02035},
+}
+```
+
+## [Narrowing the Gap between Adversarial and Stochastic MDPs via Policy Optimization](https://arxiv.org/abs/2406.02035)  
+**Authors**: Daniil Tiapkin, Evgenii Chzhen, Gilles Stoltz
+**Conference**: AISTATS 2025  
+**Tags**: Adversarial Markov Decision Processes
+---
+
+### Core Idea
+The paper proposes Adversarial Policy Optimization based on Monotonic Value Propagation (APO-MVP), an algorithm for learning in episodic, obliviously adversarial Markov Decision Processes (MDPs) with full information. The core idea is to narrow the gap between regret bounds for adversarial and stochastic MDPs by using policy optimization combined with dynamic programming, avoiding the use of occupancy measures, and achieving a $\tilde{O}(\text{poly}(H)\sqrt{SAT})$ regret bound. This improves upon prior state-of-the-art results in adversarial tabular MDPs by a factor of $\sqrt{S}$, matching the minimax lower bound in dependencies on state ($S$), action ($A$), and episode ($T$) counts.
+
+---
+
+### Problem Statement
+The paper addresses the problem of learning optimal policies in an $H$-episodic (obliviously) adversarial Markov Decision Process (MDP). An MDP is defined by a finite set of states $S$ (cardinality $S$), a finite set of actions $A$ (cardinality $A$), a sequence of Markov transition kernels $P = (P_h)_{h \in [H-1]}$ where $P_h: S \times A \to \Delta(S)$, and a fixed-in-advance sequence of bounded time-inhomogeneous $H$-episodic reward functions $(r_t)_{t>1}$ where $r_t = (r_{t,h})_{h \in [H]}$ and $r_{t,h}: S \times A \to [0,1]$. The number of episodes $T$ is fixed and known, and each episode starts from an initial state $s_1$.
+
+At each episode $t$ and stage $h$, the learner chooses a stage policy $\pi_{t,h}: S \to \Delta(A)$, samples an action $a_{t,h} \sim \pi_{t,h}(\cdot | s_{t,h})$, moves to the next state $s_{t,h+1} \sim P_h(\cdot | s_{t,h}, a_{t,h})$ (if $h < H$), and finally observes the reward function $r_t$ at the end of the episode.
+
+The objective is to minimize the regret $R_T$, defined as the difference between the accumulated value of the best static policy in hindsight and the accumulated value achieved by the learner's policies:
+$$R_T = \max_{\pi} \sum_{t=1}^T (V^{\pi, r_t, P}_1(s_1) - V^{\pi_t, r_t, P}_1(s_1))$$
+where $V^{\pi, r_t, P}_h(s)$ denotes the value function of policy $\pi$ at episode $t$, stage $h$, starting from state $s$.
+
+---
+
+### Motivation
+Previous approaches to adversarial MDPs, particularly those with unknown transition kernels, largely relied on online linear optimization (OLO) strategies in the space of *occupancy measures* (e.g., O-REPS algorithms). While successful, these methods faced two significant drawbacks:
+1.  **Computational Complexity:** They often required solving high-dimensional convex programs at each episode, leading to non-explicit policy updates and practical implementation challenges.
+2.  **Suboptimal Regret Dependency:** When extended to handle unknown transition kernels, these methods incurred an additional $\sqrt{S}$ factor in their regret bounds compared to the state-of-the-art in stochastic (non-adversarial) MDPs.
+
+Another line of research focused on *policy-optimization-based approaches*, which are more practical due to their connection to algorithms like TRPO and PPO. However, these methods also historically suffered from the additional $\sqrt{S}$ factor in the regret bound for finite MDP settings.
+
+The key motivation for this work is to address the open question of whether the dependency on the number of states ($S$) can be matched between adversarial and stochastic MDPs, while simultaneously providing a more practical and easily implementable algorithm that avoids occupancy measures.
+
+---
+
+### Method Overview
+The proposed algorithm, APO-MVP (Adversarial Policy Optimization based on Monotonic Value Propagation), combines dynamic programming with a black-box online linear optimization (OLO) strategy. It operates in random epochs, leveraging ideas from Zhang et al. (2021, 2023) and Jonckheere et al. (2023).
+
+The algorithm proceeds as follows:
+
+1.  **Epoch Switching:** The learning process is divided into random epochs $E_e \subseteq [T]$. An epoch switch occurs when, for any state-action pair $(s,a)$ at stage $h$, the empirical count $n_{t,h}(s,a)$ (number of times $(s,a)$ was visited at stage $h$) reaches a power of two, i.e., $2^{\ell-1}$ for some integer $\ell > 1$.
+2.  **Model Estimation and Bonuses:** At the beginning of each epoch $e$, empirical transition kernels $\hat{P}^{(e)} = (\hat{P}^{(e)}_h)_{h \in [H-1]}$ and bonus functions $b^{(e)} = (b^{(e)}_h)_{h \in [H]}$ are computed and fixed for the entire epoch.
+    *   The estimated transition probability $\hat{P}_{t,h}(s'|s,a)$ for the current epoch is $1/S$ if $n_{\tau,h}(s,a)=0$ (where $\tau$ is the episode of the last epoch switch), and $\frac{n_{\tau,h}(s,a,s')}{n_{\tau,h}(s,a)}$ otherwise.
+    *   The bonus function $b_{t,h}(s,a)$ is defined as $H$ if the local epoch counter $\ell=0$ (meaning $n_{t,h}(s,a)$ is low), and $\sqrt{\frac{2H^2 \ln(J)}{2^{\ell-1}}} \wedge H$ otherwise, where $J = 2SATH \log_2(2T)/\delta$.
+3.  **Policy Interaction:** For each episode $t$ in the current epoch $e_t$:
+    *   The agent plays policies $\pi_t = (\pi_{t,h})_{h \in [H]}$ to interact with the environment, observing states and actions.
+    *   Empirical counts $n_{t,h}(s,a,s')$ and $n_{t,h}(s,a)$ are updated based on observed transitions.
+4.  **Value and Advantage Estimation (Backward Pass):** At the end of episode $t$, once the reward function $r_t$ is revealed, optimistic estimates of Q-value and value functions are computed in a backward fashion using Bellman's equations, incorporating the fixed estimated transitions $\hat{P}^{(e_t)}$ and bonus functions $b^{(e_t)}$:
+    *   For $h=H$: $Q_{t,H}(s,a) = r_{t,H}(s,a)$ and $V_{t,H}(s) = \pi_{t,H} \cdot Q_{t,H}(s)$.
+    *   For $h \in [H-1]$: $Q_{t,h}(s,a) = r_{t,h}(s,a) + b^{(e_t)}_h(s,a) + \hat{P}^{(e_t)}_h \cdot V_{t,h+1}(s,a)$ and $V_{t,h}(s) = \pi_{t,h} \cdot Q_{t,h}(s)$.
+    *   Estimated advantage functions are calculated as $A_{t,h}(s,a) = Q_{t,h}(s,a) - V_{t,h}(s)$.
+    *   A crucial technical remark is that value function clipping to $[0,H]$ is *not* used to preserve the performance-difference lemma, incurring an additional $H$ factor in the regret but simplifying the adversarial analysis.
+5.  **Policy Update (Online Linear Optimization):** Policies for the next episode, $\pi_{t+1}$, are determined by feeding the history of estimated advantage functions from the current epoch to a black-box OLO strategy $\phi$. Specifically, for each $(s,h) \in S \times [H]$:
+    *   $\pi_{t+1,h}(\cdot | s) = \phi_t((A_{\tau,h}(s, \cdot))_{\tau \in E_{e_t} \cap [t-1]})$.
+    *   The paper considers polynomial-potential and exponential-potential based OLO strategies, which provide closed-form expressions for the policies and satisfy specific performance guarantees (Definition 6).
+
+**Computational Complexity:** The algorithm's computational complexity is dominated by the dynamic programming step, which is $O(S^2AH)$ per episode. The policy optimization phase adds $O(SAH)$ operations, making the overall per-episode complexity $O(S^2AH)$. The space complexity is $O(S^2AH)$, standard for model-based RL.
+
+---
+
+### Theoretical Contributions
+The paper makes the following key theoretical contributions:
+
+1.  **Improved Regret Bound:** APO-MVP achieves a regret bound of $\tilde{O}(\text{poly}(H)\sqrt{SAT})$ in the setting of adversarial episodic MDPs with full information. Specifically, with probability at least $1-3\delta$, the regret $R_T$ is bounded by:
+    $$R_T \le \sqrt{H^7SAT} \log_2(2T) (2 \log_2(2T) + 16\sqrt{\ln(A)}) + 7\sqrt{H^4SAT \ln(2SATH \log_2(2T)/\delta)} + 2\sqrt{2H^6 T \log_2(2T) \ln(2/\delta)} + 2H^3SA$$
+    where $\tilde{O}(\cdot)$ hides all absolute constants and polylogarithmic multiplicative terms.
+
+2.  **Bridging the $\sqrt{S}$ Gap:** This result improves upon the previously best-known regret bound for adversarial tabular MDPs with unknown transitions, which was $\tilde{O}(\sqrt{H^4S^2AT})$ (Rosenberg and Mansour, 2019b). APO-MVP effectively removes a $\sqrt{S}$ factor, significantly narrowing the gap between adversarial and stochastic MDPs, as stochastic MDPs typically achieve $\tilde{O}(\sqrt{H^3SAT})$.
+
+3.  **Matching Minimax Lower Bounds (in S, A, T):** The derived regret bound matches the minimax lower bound $\Omega(\sqrt{H^3SAT})$ for stochastic MDPs with respect to dependencies on $S$, $A$, and $T$, up to logarithmic factors. The main remaining gap is in the dependency on the horizon $H$.
+
+4.  **Modular and General Analysis:** The analysis of APO-MVP is modular, decomposing the total regret into four terms (A, B, C, D) corresponding to optimism, adversarial OLO performance, concentration of transition estimates, and bonus summation. This modularity allows for the integration of black-box OLO strategies and leverages recent advances in stochastic MDP analysis (Zhang et al., 2023) and adversarial learning (Jonckheere et al., 2023).
+
+5.  **Avoidance of Occupancy Measures:** Unlike previous state-of-the-art methods, APO-MVP does not rely on occupancy measures, which are often difficult to work with in practice, especially with unknown transition kernels. This direct policy optimization approach contributes to its practical implementability.
+
+---
+
+### Experiments
+The paper does not include any experimental results. The authors state this in their checklist (point 3a).
+
+---
+
+### Key Takeaways
+1.  **Practical and Sample-Efficient Algorithm:** APO-MVP is a practical algorithm for adversarial MDPs, combining dynamic programming with OLO in the policy space. It avoids the use of complex occupancy measures, making it easier to implement than prior methods.
+2.  **Reduced State-Dependency Regret:** The algorithm achieves a $\tilde{O}(\text{poly}(H)\sqrt{SAT})$ regret bound, which improves the dependency on the number of states $S$ by a factor of $\sqrt{S}$ compared to previous state-of-the-art methods in the adversarial setting.
+3.  **Matching Stochastic Rates:** The achieved regret bound matches the minimax lower bound for stochastic MDPs in terms of $S$, $A$, and $T$ dependencies, effectively bridging a long-standing gap in theoretical understanding between adversarial and stochastic settings. This suggests that policy optimization can be more sample-efficient in large state spaces for this problem class.
+4.  **Modular Analysis Framework:** The paper's analytical decomposition of regret into adversarial and stochastic components, coupled with the use of black-box OLO strategies and monotonic value propagation techniques, offers a flexible framework for future research in adversarial MDPs.
+5.  **Limitations and Open Problems:**
+    *   **High H-dependency:** The regret bound's dependency on the episode length $H$ is relatively high, $\tilde{O}(\sqrt{H^7})$. Reducing this dependency while maintaining the optimal $S, A, T$ rates remains an open problem.
+    *   **Full Monitoring Assumption:** The current analysis assumes full monitoring (observing $s_{t,h+1}$ for all $h$). Extending the approach to bandit monitoring (only observing rewards) is a non-trivial challenge, and it is unknown if a $\sqrt{SAT}$ regret is achievable in the adversarial case with bandit feedback.
+    *   **Oblivious Adversary:** The $\sqrt{S}$ factor improvement relies on the assumption of an oblivious adversary. A fully adversarial setup would likely reintroduce the $\sqrt{S}$ factor due to concentration issues if $\ell_1$-norm bounds were used.
+
+
+
+### 📚 Citation
+```bibtex
+@inproceedings{tiapkin2024,
+  author    = {Daniil Tiapkin and Evgenii Chzhen and Gilles Stoltz},
+  year      = {2024},
+  title     = {Narrowing the Gap between Adversarial and Stochastic MDPs via Policy Optimization},
+  booktitle = {arXiv.org},
+  doi       = {10.48550/arXiv.2407.05704},
+}
+```
