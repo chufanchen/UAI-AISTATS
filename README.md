@@ -614,3 +614,317 @@ The paper does not include any experimental results. The authors state this in t
   doi       = {10.48550/arXiv.2407.05704},
 }
 ```
+
+## [Hybrid Transfer Reinforcement Learning: Provable Sample Efficiency from Shifted-Dynamics Data](https://arxiv.org/abs/2411.03810)  
+**Authors**: Chengrui Qu, Laixi Shi, Kishan Panaganti, Pengcheng You, Adam Wierman
+**Conference**: AISTATS 2025  
+**Tags**: Hybrid Transfer RL, Distribution shift, Sample Complexity
+---
+
+### 🧠 Core Idea
+
+This paper introduces a novel Hybrid Transfer Reinforcement Learning (HTRL) setting where an agent learns in a target environment while leveraging an offline dataset collected from a source environment with shifted dynamics. The core idea is to theoretically demonstrate how to provably enhance sample efficiency in this setting, despite an initial hardness result for general shifted dynamics. The proposed algorithm, HySRL, achieves problem-dependent sample complexity by first identifying the unknown dynamics shift and then designing an exploration strategy that intelligently reuses source data, outperforming pure online RL under specific conditions.
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+Online Reinforcement Learning (RL) typically requires extensive, high-stakes online interaction data, making it sample inefficient and often impractical for real-world applications. While leveraging historical data from related or outdated source environments could improve efficiency, it remains unclear how to effectively use such data, especially when the source and target environments have unknown shifted dynamics, to achieve provable sample efficiency gains. Existing frameworks lack theoretical guarantees for this specific transfer setting, and naive transfer can even lead to "negative transfer." The paper aims to answer whether data from a shifted source environment can provably enhance sample efficiency when learning in a target environment.
+
+---
+
+### 🎯 Motivation
+
+The high sample complexity of online RL is a significant practical barrier. Transfer learning offers a promising direction, but using historical data from environments with dynamics shifts (e.g., imperfect simulators, outdated operational data) poses challenges. Prior empirical studies show mixed results, with some demonstrating benefits and others indicating negative transfer. This highlights a critical need for theoretical understanding and provable guarantees in transfer RL with dynamics shifts, which existing hybrid RL (where source and target dynamics are identical) or cross-domain RL (which often lack sample complexity analysis) frameworks do not adequately address. The paper is motivated to provide such theoretical insights and design an algorithm with provable sample efficiency.
+
+---
+
+### 🛠️ Method Overview
+
+The paper proposes HySRL, a two-stage transfer algorithm designed for HTRL with $\beta$-separable shifts. A Markov Decision Process (MDP) is defined as $M = (S, A, H, p, r, \rho)$, where $S$ is state space size, $A$ is action space size, $H$ is horizon, $p$ is transition probability, $r$ is reward, and $\rho$ is initial state distribution. The target MDP is $M_{tar} = (S, A, H, p_{tar}, r, \rho)$ and the source MDP is $M_{src} = (S, A, H, p_{src}, r, \rho)$, differing only in transition probabilities.
+
+The key assumption for HySRL's provable gains is the $\beta$-separable shift (Definition 1): for some $\beta \in (0, 1]$, for all $(s, a) \in S \times A$, $p_{src}(\cdot | s, a) \neq p_{tar}(\cdot | s, a) \implies TV(p_{src}(\cdot | s, a), p_{tar}(\cdot | s, a)) \geq \beta$. This means transitions are either identical or differ by at least $\beta$ in total variation distance. The shifted region $B$ is defined as $B \triangleq \{(s, a) \in S \times A | p_{src}(\cdot | s, a) \neq p_{tar}(\cdot | s, a)\}$. The algorithm also assumes $\sigma$-reachability (Assumption 1): $\max_{\pi} \max_{h \in [H]} p^{\pi}_h(s, a) \geq \sigma$, $\forall(s, a) \in S \times A$.
+
+HySRL (Algorithm 1) operates in two main steps:
+
+1. Reward-free Shift Identification (Algorithm 2):
+This phase aims to accurately estimate $p_{tar}$ and identify the shifted region $\hat{B}$. It employs a reward-free exploration strategy inspired by RF-Express.
+
+It recursively updates an uncertainty function $W^t_h(s, a)$ (Eq. 1):
+
+$$
+W^t_h(s, a) \triangleq \min \left\{ 1, \frac{4H\sqrt{g_1(n_t(s, a), \delta)}}{n_t(s, a)} + \sum_{s'}\hat{p}_{tar}^t(s' | s, a) \max_{a'} W^t_{h+1}(s', a') \right\}
+$$
+
+where $g_1(n, \delta) \triangleq \log(6SAH/\delta) + S \log(8e(n + 1))$ and $n_t(s, a)$ is the visitation count for $(s, a)$ in $t$ episodes.
+The policy $\pi^{t+1}_h(\cdot) = \arg \max_{a \in A} W^t_h(\cdot, a)$ is chosen to gather online data.
+The algorithm stops when the uncertainty measure is sufficiently small: $3\sqrt{\rho_{\pi^{t+1}_1} W^t_1} + \rho_{\pi^{t+1}_1} W^t_1 \leq \sigma\beta/8$.
+The estimated shifted region is $\hat{B} \triangleq \{(s, a) \in S \times A | TV(\hat{p}_{src}(\cdot | s, a), \hat{p}_{tar}(\cdot | s, a)) \gt \beta/2 \}$. This step guarantees $\hat{B}=B$ with high probability (Lemma 1).
+
+2. Hybrid UCB Value Iteration (Algorithm 3):
+Once $\hat{B}$ is identified, this phase leverages the source data for efficient exploration.
+
+It defines empirical transitions $\tilde{p}^t(\cdot | s, a)$ and visitation counts $\tilde{n}_t(s, a)$:
+If $(s, a) \in \hat{B}$, $\tilde{n}_t(s, a) \triangleq n_t(s, a)$ (online count) and $\tilde{p}^t(\cdot | s, a) \triangleq \hat{p}_{tar}^t(\cdot | s, a)$ (empirical target transition).
+If $(s, a) \notin \hat{B}$, $\tilde{n}_t(s, a) \triangleq n_{src}(s, a)$ (source count) and $\tilde{p}^t(\cdot | s, a) \triangleq \hat{p}_{src}(\cdot | s, a)$ (empirical source transition).
+
+
+It computes optimistic Q-functions $Q^t_h(s, a)$ (Eq. 3a) and value functions $V^t_h(s)$:
+$$
+Q^t_h(s, a) \triangleq \min \left\{ H, r(s, a) + 3\sqrt{\frac{Var_{\tilde{p}^t}(V^t_{h+1})(s, a) g_2(\tilde{n}_t(s, a), \delta)}{\tilde{n}_t(s, a)}} + \frac{14H^2 g_1(\tilde{n}_t(s, a), \delta)}{\tilde{n}_t(s, a)} + \frac{1}{H}\tilde{p}^t(V^t_{h+1} - V^t_{h+1})(s, a) + \tilde{p}^t V^t_{h+1}(s, a) \right\}
+$$
+where $g_2(n, \delta) \triangleq \log(6SAH/\delta) + \log(8e(n + 1))$. $V^t_{h+1}$ and $V^t_{h+1}$ are upper and lower confidence bounds on optimal value functions.
+The policy $\pi^{t+1}_h(\cdot) = \arg \max_{a \in A} Q^t_h(\cdot, a)$ is used for exploration.
+An optimality gap function $G^t_h(s, a)$ (Eq. 4) is tracked:
+$$
+G^t_h(s, a) \triangleq \min \left\{ H, 6\sqrt{\frac{Var_{\tilde{p}^t}(V^t_{h+1})(s, a) g_2(\tilde{n}_t(s, a), \delta)}{\tilde{n}_t(s, a)}} + \frac{35H^2 g_1(\tilde{n}_t(s, a), \delta)}{\tilde{n}_t(s, a)} + (1 + \frac{3}{H})\tilde{p}^t \pi^{t+1}_{h+1} G^t_{h+1}(s, a) \right\}
+$$
+Algorithm 3 stops when $\rho_{\pi^{t+1}_1} G^t_1 \leq \epsilon$, guaranteeing $\epsilon$-optimality (Lemma 8).
+
+---
+
+### 📐 Theoretical Contributions
+
+The paper provides two main theoretical contributions:
+
+1. Minimax Lower Bound for General HTRL (Theorem 1):
+
+For any source MDP $M_{src}$, the minimax lower bound on the sample complexity for finding an $\epsilon$-optimal policy in a target MDP $M_{tar} \in \mathcal{M}_{\alpha}$ (where $\mathcal{M}_{\alpha}$ is a set of MDPs with total variation distance from $M_{src}$ bounded by $\alpha$) is $\Omega(H^3SA/\epsilon^2)$. This matches the best known lower bound for pure online RL, demonstrating that, without further conditions on the dynamics shift, general shifted-dynamics data (even with subtle shifts) does not provably reduce sample complexity in the worst case. This result motivates the focus on more practical settings with prior information.
+
+2. Problem-Dependent Sample Complexity for $\beta$-separable Shifts (Theorem 2):
+
+Under the assumptions of $\beta$-separable shift and $\sigma$-reachability, and with sufficient source data $D_{src}$ (at least $eO(H^3/\epsilon^2 + S/\beta^2)$ samples for each $(s, a)$), HySRL can find an $\epsilon$-optimal policy for $M_{tar}$ with total online samples collected from $M_{tar}$ of:
+
+$$
+eO \left( \min \left\{ \frac{H^3SA}{\epsilon^2}, \frac{H^3|B|}{\epsilon^2} + \frac{H^2S^2A}{(\sigma\beta)^2} \right\} \right)
+$$
+
+This formula shows that:
+
+When $\epsilon \geq \Omega(\sqrt{H/S}\sigma\beta)$, the sample complexity is $eO(H^3SA/\epsilon^2)$, matching pure online RL, thus provably avoiding negative transfer.
+When $\epsilon \lt \Omega(\sqrt{H/S}\sigma\beta)$, the sample complexity becomes $eO(H^3|B|/\epsilon^2 + H^2S^2A/(\sigma\beta)^2)$. Crucially, if the shifted region $|B|$ is significantly smaller than the full state-action space $SA$ (i.e., $|B| \ll SA$), this bound is strictly better than pure online RL. This demonstrates that HySRL achieves provable sample efficiency gains when the dynamics shift only affects a small portion of the environment. The additional term $H^2S^2A/(\sigma\beta)^2$ reflects the cost of identifying the shifted region $B$.
+
+---
+
+### 📊 Experiments
+
+The proposed algorithm, HySRL, is evaluated against the state-of-the-art online RL baseline, BPI-UCBVI (Ménard et al., 2021), in a GridWorld environment ($S=16, A=4, H=20$). The source environment had $1 \times 10^5$ episodes of pre-collected data and differed from the target environment by including three additional absorbing states in the target.
+
+Key findings include:
+
+- Superior Sample Efficiency: HySRL learns the optimal policy with approximately $1 \times 10^6$ samples from the target environment, while BPI-UCBVI converges significantly slower, demonstrating the substantial sample efficiency improvement from leveraging shifted-dynamics source data.
+- Robustness to Inaccurate $\beta$: An ablation study showed that HySRL's performance degradation was minor even when the input $\beta$ (0.45) did not precisely match the true $\beta$ (ranging from 0.05 to 0.4). HySRL still outperformed BPI-UCBVI within finite samples, indicating its practical robustness.
+
+---
+
+### 📈 Key Takeaways
+
+- Hardness of General HTRL: Without prior information about the degree of dynamics shift, general hybrid transfer RL cannot provably reduce sample complexity compared to pure online RL in the worst case.
+- Value of Prior Information: When prior information about the minimum degree of dynamics shift ($\beta$-separable shift) is available, provable sample efficiency gains are achievable.
+- HySRL's Effectiveness: The proposed HySRL algorithm, by first identifying the shifted region and then using a carefully designed hybrid exploration strategy, can effectively leverage shifted-dynamics offline data.
+- Avoidance of Negative Transfer: HySRL's problem-dependent sample complexity guarantees that it will perform at least as well as state-of-the-art pure online RL, thereby provably avoiding negative transfer.
+- Significant Gains for Sparse Shifts: When the dynamics shift impacts only a small portion of the state-action space ($|B| \ll SA$), HySRL provides significant sample efficiency improvements.
+- Practical Insights: The work provides theoretical foundations for understanding how to effectively incorporate source data in transfer RL, particularly for scenarios where domain variations are localized.
+
+---
+
+### 📚 Citation
+
+```bibtex
+@inproceedings{qu2024,
+  author    = {Chengrui Qu and Laixi Shi and Kishan Panaganti and Pengcheng You and Adam Wierman},
+  year      = {2024},
+  title     = {Hybrid Transfer Reinforcement Learning: Provable Sample Efficiency from Shifted-Dynamics Data},
+  booktitle = {arXiv.org},
+  doi       = {10.48550/arXiv.2411.03810},
+}
+```
+
+## [Decision-Point Guided Safe Policy Improvement](hhttps://arxiv.org/abs/2410.09361)  
+**Authors**: Abhishek Sharma, Leo Benac, Sonali Parbhoo, Finale Doshi-Velez
+**Conference**: AISTATS 2025  
+**Tags**: Batch Reinforcement Learning, Safe Policy Improvement
+---
+
+### 🧠 Core Idea
+
+Decision Points RL (DPRL) is a safe batch reinforcement learning (RL) algorithm that ensures a learned policy performs at least as well as the behavior policy that generated the dataset. The core idea is to restrict policy improvements to a subset of state-action pairs, or regions in continuous states, termed "Decision Points." These are defined as state-action pairs $(s,a)$ that have been observed at least $N_\wedge$ times and where the estimated Q-value for action $a$ in state $s$ under the behavior policy, $\hat{Q}_{\pi_b}(s,a)$, is greater than or equal to the estimated V-value for state $s$ under the behavior policy, $\hat{V}_{\pi_b}(s)$. For states where high-confidence improvements cannot be identified (i.e., not a decision point), DPRL defers to the current behavior policy. This selective improvement strategy, combined with deferral, leads to significantly tighter theoretical guarantees, with data-dependent bounds that do not scale with the size of the state and action spaces, unlike prior work.
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+The main challenge in Safe Policy Improvement (SPI) within batch RL is to identify and implement policy changes that yield improvements while carefully balancing the inherent risk, especially when many state-action pairs are infrequently visited. Existing approaches face several limitations:
+
+1. Density-based methods (e.g., CQL, Behavior Cloning) constrain the learned policy to be close to the behavior policy. However, this can be overly conservative and suboptimal if the behavior policy is stochastic and suboptimal, as it may prevent the selection of better, explored actions.
+2. Pessimism-based planning (e.g., PQI) incorporates pessimism into value estimates proportional to uncertainty. This can also be overly conservative by penalizing actions leading to rarely visited states, even if the action itself is frequently observed.
+3. Support-constrained policies restrict the learned policy to the support of the behavior policy. While less conservative than density-based methods, they can become unsafe with noisy actions or rewards, common in real-world data. Count-based techniques like SPIBB impose count-based constraints for improvements but require a priori access to the true behavior policy, which is often impractical, and their guarantees may not be tight in practice.
+4. Scalability: Many existing methods' improvement guarantees scale with the size of the state and action spaces ($|S||A|$), leading to loose bounds in large, sparse environments.
+5. Practicality: Real-world batch RL deployments often require incremental changes that are easily reviewable and implementable (e.g., by a clinician). Current methods may not naturally yield such interpretable modifications.
+
+---
+
+### 🎯 Motivation
+
+Batch RL is crucial for applications where direct interaction with the environment is risky (e.g., medicine, robotics) or expensive. However, its effectiveness hinges on a sufficiently exploratory behavior policy. In scenarios with limited exploration, or where expert behavior exhibits systematic errors, learning an truly optimal policy might not be feasible without risking the adoption of an unsafe policy that performs worse than the existing behavior. Therefore, providing safe, high-confidence modifications relative to the existing behavior policy is a more practical and often sufficient goal.
+
+The key motivations behind DPRL are:
+
+1. Targeted Improvements: Instead of broadly constraining the learned policy, DPRL identifies only those specific state-action pairs where confident improvements can be made. This addresses the conservativeness of density- and pessimism-based methods.
+2. Confidence through Data Density: By focusing on "Decision Points"—state-action pairs with a high visitation count ($n(s,a) \geq N_\wedge$) and estimated advantage ($\hat{Q}_{\pi_b}(s,a) \geq \hat{V}_{\pi_b}(s)$)—DPRL ensures that any deviation from the behavior policy is made with high confidence.
+3. Strategic Deferral: For states where such confident improvements cannot be established, DPRL explicitly defers to the behavior policy. This prevents risky actions in sparsely visited or uncertain regions, offering a robust safety mechanism.
+4. Independence from True Behavior Policy: Unlike SPIBB, DPRL does not require a priori knowledge of the true behavior policy during training, making it more applicable in real-world settings where obtaining the functional form of expert behavior is difficult.
+5. Tighter Guarantees: By restricting the scope of policy changes to well-observed regions, DPRL achieves tighter, data-dependent theoretical bounds that scale with the number of sufficiently observed state-action pairs ($C(N_\wedge)$) rather than the entire state-action space ($|S||A|$).
+6. Actionable Policies: The resulting policy often involves a small number of high-impact changes, making it easier for human experts (e.g., clinicians) to review, understand, and implement.
+
+---
+
+### 🛠️ Method Overview
+
+DPRL adapts its approach based on whether the state space is discrete or continuous.
+
+#### Discrete Case (DPRL-D)
+
+1. Define Decision Points: From the given dataset $\mathcal{D}$, DPRL first identifies "Decision Points" at which a change from the behavior policy $\pi_b$ is considered. This involves defining:
+
+$\mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\}$: The set of "advantageous actions" for a state $s$. An action $a$ is advantageous if its empirical count $n(s,a)$ is at least a threshold $N_\wedge$, and its estimated Q-value under the behavior policy $\hat{Q}_{\pi_b}(s,a)$ is greater than or equal to the estimated state value $\hat{V}_{\pi_b}(s)$.
+$\mathcal{S}^{DP} = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s \neq \emptyset\}$: The set of states where at least one advantageous action exists. These are the states identified as "decision points."
+$\Phi = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s = \emptyset\}$: The set of states where no confident advantageous action can be found, implying deferral to $\pi_b$.
+Empirical Q-values $\hat{Q}_{\pi_b}(s,a)$ and $\hat{V}_{\pi_b}(s)$ are estimated using first-visit Monte Carlo averages from the dataset.
+
+2. Construct Elevated Semi-MDP (SMDP): An "elevated" SMDP $\tilde{\mathcal{M}} = (\mathcal{S}^{DP}, \mathcal{A}, \tilde{P}, \tilde{R}, \tilde{\gamma})$ is constructed. The state space is restricted to $\mathcal{S}^{DP}$. The transition function $\tilde{P}(s'|s,a)$, reward function $\tilde{R}(s,a)$, and discount factor $\tilde{\gamma}(s,a,s')$ are estimated using data from $\mathcal{D}$ that connect decision points:
+
+$\tilde{P}(s'|s,a) = \frac{\sum_{k=1}^T \tilde{n}(s, a, s', k)}{\sum_{s'' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s'', k)}$
+$\tilde{\gamma}(s,a,s') = \frac{\sum_{k=1}^T \tilde{n}(s, a, s', k)\gamma^k}{\sum_{k=1}^T \tilde{n}(s, a, s', k)}$
+$\tilde{R}(s,a) = \frac{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \sum_{n=1}^N \tilde{r}(n, s, a, s', k)}{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s', k)}$
+where $\tilde{n}(s, a, s', k)$ is the count of trajectories starting from $(s,a)$ and reaching $s'$ as the first decision point after $k$ steps, and $\tilde{r}(n, s, a, s', k)$ is the discounted sum of rewards along such a segment.
+
+3. Policy Optimization: Policy iteration is applied to the constructed SMDP $\tilde{\mathcal{M}}$ over a restricted policy set $\Pi_{\text{DP}}$. This set $\Pi_{\text{DP}}$ contains deterministic policies that can only select advantageous actions: $\pi(a|s) = 0 \quad \forall a \notin \mathcal{A}_{DP}^s$. In each iteration $i$, the policy $\pi^{(i)}$ is evaluated to get $V^{(i)}_{\tilde{\mathcal{M}}}$, which is then improved to $\pi^{(i+1)}$:
+$$
+\pi^{(i+1)}(s) = \arg \max_{a \in \mathcal{A}^{DP}_s} \left( \tilde{R}(s, a) + \mathbb{E}_{\tilde{P}(s'|s,a)} [\tilde{\gamma}(s, a, s')V^{(i)}_{\tilde{\mathcal{M}}}(s')] \right)
+$$
+This process converges to a policy $\pi^{(K)}$.
+
+4. Final Policy Construction: The final policy $\pi_{\text{DP}}(s)$ is defined as:
+$$
+\pi_{\text{DP}}(s) = \begin{cases} \text{DEFER} \quad \text{if } s \in \Phi \\ \pi^{(K)}(s) \quad \text{otherwise} \end{cases}
+$$
+where "DEFER" implies adhering to the behavior policy $\pi_b$.
+
+#### Continuous Case (DPRL-C)
+For continuous state spaces, DPRL-C uses a non-parametric, neighborhood-based approach. The dataset $\mathcal{D}$ is stored, and queries are made using Ball-Tree data structures for efficient neighbor search.
+
+1. Neighborhood Definition: For a given state $s$ and action $a$:
+
+- $N(s)$: Set of neighbors of $s$ within a ball of radius $r$.
+- $n(s) = |N(s)|$: Count of neighbors of $s$.
+- $N(s,a)$: Set of state-action neighbors of $(s,a)$ within a radius $r$ (only if actions match).
+- $n(s,a) = |N(s,a)|$: Count of state-action neighbors.
+
+The distance metric $d((s,a), (s',a')) = d(s,s')$ if $a=a'$, and $\infty$ otherwise, with $d(s,s') = \|s-s'\|$.
+
+
+2. Define Advantageous Actions: Similar to the discrete case, the set of advantageous actions $\mathcal{A}^{DP}_s$ for a state $s$ is defined as:
+$\mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\}$
+Here, $\hat{Q}_{\pi_b}(s, a)$ and $\hat{V}_{\pi_b}(s)$ are estimated by averaging the returns of neighbors in $N(s,a)$ and $N(s)$ respectively.
+
+3. Final Policy Construction: The policy $\pi_{\text{DP}}(s)$ is implicitly defined:
+$$
+\pi_{\text{DP}}(s) = \begin{cases} \text{DEFER} \quad \text{if } \mathcal{A}^{DP}_s = \emptyset \\ \arg \max_{a \in \mathcal{A}^{DP}_s} \hat{Q}_{\pi_b}(s, a) \quad \text{otherwise} \end{cases}
+$$
+The hyperparameters $r$ (radius) and $N_\wedge$ control the bias-variance trade-off and the sparsity of improvements. A smaller $r$ leads to lower bias but fewer decision points, while a larger $r$ increases bias but potentially more decision points. $N_\wedge$ ensures a minimum number of samples for reliable estimation.
+
+---
+
+### 📐 Theoretical Contributions
+
+DPRL provides robust theoretical guarantees for safe policy improvement.
+
+1. Theorem 1 (DPRL Discrete)
+
+Let $\pi_{\text{DP}}$ be the policy obtained by the DPRL-D algorithm. Then $\pi_{\text{DP}}$ is a safe policy improvement over the behavior policy $\pi_b$, with probability at least $1 - \delta$:
+$$
+ \rho(\pi_{\text{DP}}) - \rho(\pi_b) \geq - \frac{V_{\text{max}}}{1 - \gamma} \sqrt{\frac{1}{N_\wedge} \log \frac{C(N_\wedge)}{\delta}}
+$$
+where $V_{\text{max}}$ is the maximum possible value, $\gamma$ is the discount factor, $N_\wedge$ is the minimum count threshold for decision points, and $C(N_\wedge)$ is the count of state-action pairs observed at least $N_\wedge$ times in the dataset:
+$$
+C(N_\wedge) = \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \mathbf{I}[n(s, a) \geq N_\wedge]
+$$
+Proof Sketch: The proof leverages the Performance Difference Lemma, which relates the value difference $\rho(\pi_{\text{DP}}) - \rho(\pi_b)$ to the expected advantage $A_{\pi_b}(s,a) = Q_{\pi_b}(s,a) - V_{\pi_b}(s)$ under $\pi_{\text{DP}}$. The key is to bound the empirical advantage $\hat{A}_{\pi_b}(s,a) = \hat{Q}_{\pi_b}(s,a) - \hat{V}_{\pi_b}(s)$. By expressing $\hat{Q}_{\pi_b}$ and $\hat{V}_{\pi_b}$ as first-visit Monte Carlo averages of returns, the analysis uses McDiarmid's inequality. For states where DPRL defers to $\pi_b$ (i.e., $s \in \Phi$), the advantage is zero. For decision points ($s \in \text{SDP}$) where $\pi_{\text{DP}}$ acts, $\hat{A}_{\pi_b}(s,a)$ is positive by construction, and the true $A_{\pi_b}(s,a)$ is bounded using McDiarmid's inequality for samples with at least $N_\wedge$ observations. A union bound is then applied over the $C(N_\wedge)$ state-action pairs where improvements are considered.
+
+Discussion and Comparison to Baselines:
+
+- Data-Dependent Bound: The bound's dependence on $C(N_\wedge)$ is crucial. This term is typically much smaller than $|\mathcal{S}||\mathcal{A}|$ in real-world sparse datasets, leading to significantly tighter guarantees than prior work (e.g., SPIBB, PQI, Kim and Oh (2023)) whose bounds directly depend on $|\mathcal{S}||\mathcal{A}|$.
+- Hyperparameter Control: The $N_\wedge$ parameter directly controls the confidence-performance trade-off. Higher $N_\wedge$ means higher confidence but potentially fewer improvements.
+- No Behavior Policy Access: Unlike SPIBB, DPRL achieves its guarantees without requiring explicit knowledge of the behavior policy $\pi_b$ during training, only for empirical evaluation.
+- Independence from Density Threshold: Unlike Liu et al. (2020), DPRL's bound does not depend on a density threshold $b = N_\wedge/|\mathcal{D}|$. This means the bound does not loosen when the dataset size $|\mathcal{D}|$ increases while the set of well-observed state-action pairs remains constant, making it more robust to superfluous data in low-density regions.
+
+2. Theorem 2 (DPRL Continuous)
+Let $M(r, N_\wedge)$ be the number of balls of radius $r$ needed to cover the subset of $\mathcal{S} \times \mathcal{A}$ where each $(s,a)$ has at least $N_\wedge$ data points in its ball $B_r(s,a)$, and let $\epsilon_r$ be the maximum error in estimating Q-values within a ball of radius $r$. Then $\pi_{\text{DP}}$ is a safe policy improvement over $\pi_b$ with probability at least $1 - \delta$:
+$$
+\rho(\pi_{\text{DP}}) - \rho(\pi_b) \geq - \frac{V_{\text{max}}}{1 - \gamma} \left( \sqrt{\frac{1}{2N_\wedge} \log \frac{M(r, N_\wedge)}{\delta}} - 3\epsilon_r \right)
+$$
+Discussion and Comparison to Baselines:
+
+- Volume Measure: $M(r, N_\wedge)$ quantifies the "volume" of the state-action space where policy improvement is guaranteed. For sparse datasets, $M(r, N_\wedge)$ will be much smaller than the total covering number $M(r)$ of the entire space.
+- Neighborhood Error: The $3\epsilon_r$ term accounts for the error introduced by using neighborhood-based estimates of Q-values.
+- Hyperparameter Influence: $N_\wedge$ affects the bound directly and indirectly through $M(r, N_\wedge)$. A higher $N_\wedge$ leads to more confident estimations and a smaller $M(r, N_\wedge)$. The radius $r$ influences the bias-variance trade-off: smaller $r$ means lower bias (smaller $\epsilon_r$) but potentially a larger $M(r, N_\wedge)$ (more distinct "dense" regions).
+- Non-Parametric Advantage: This bound presents a non-parametric alternative to bounds for parametric methods (e.g., Liu et al. (2020)), which depend on the size of the function class $|\mathcal{F}|$. While parametric methods optimize for a global estimation error, DPRL-C optimizes for a local estimation error. For datasets with non-uniform exploration, DPRL-C can achieve tighter bounds because $M(r, N_\wedge)$ can be small in dense regions, whereas global error $\epsilon_{\mathcal{F}}$ for parametric methods might remain large.
+- Actionability: $M(r, N_\wedge)$ can be estimated using clustering algorithms like DBSCAN, making the bound more actionable in practice.
+
+---
+
+### 📊 Experiments
+
+DPRL's performance and safety were evaluated across various synthetic and real-world datasets, comparing against SPIBB, PQI, and CQL.
+
+Discrete State and Action Spaces (Toy MDP, GridWorld):
+
+- Challenging MDPs: Two toy MDPs (Figure 1) demonstrate issues with prior approaches. One ("Forest" MDP) shows PQI failing to achieve high 5% CVaR (Conditional Value at Risk) due to over-pessimism in potentially good, sparse regions. The other highlights how density-regularization (CQL) can fail with stochastic, suboptimal behavior. DPRL's ability to set an $N_\wedge$ parameter allows it to ignore actions that cannot be reliably estimated.
+- DPRL's Tighter Bounds: On both the MDPs and a $10 \times 10$ GridWorld, DPRL consistently provided tighter safety bounds (Figure 1, center). This is attributed to the $C(N_\wedge)$ term in its bound being much smaller than $|S||A|$ in sparse environments, and its data-dependent nature preventing degradation with increasing $|S|$.
+- Safety and Performance: In GridWorld (Figure 2, right), DPRL maintained high CVaR (safety) without significantly affecting the mean value (performance), outperforming baselines.
+- Bias-Variance Trade-off: The $N_\wedge$ parameter effectively manages the bias-variance trade-off (Figure 2, center). Increasing $N_\wedge$ decreases the fraction of states where the optimal action is considered (increased bias) but increases the fraction of states where a "better" action is chosen (reduced variance in value estimation), leading to safer outcomes.
+- Robustness to Behavior Policy Estimation: A critical finding (Figure 3) is that SPIBB's performance (CVaR) significantly degrades when the true behavior policy is replaced with an estimated one. DPRL, which does not require the true behavior policy during training, consistently outperforms estimated SPIBB.
+
+Continuous State, Discrete Action Spaces (Atari, MIMIC III):
+
+- High-Dimensional Settings:
+    - Atari: On five Atari environments (Qbert, Pong, Freeway, Bowling, Amidar), DPRL consistently learned good policies from suboptimal behavior data (where the "expert" took the worst action 50% of the time), achieving competitive returns compared to baselines (Figure 5, Figure 7).
+    - MIMIC III (Hypotension Management): In a real-world medical dataset for hypotensive patients in ICU (11 core features + 18 handcrafted features, 16 discrete actions), DPRL achieved the highest estimated value via Off-Policy Evaluation (OPE) compared to the behavior baseline and other methods (Figure 4, left).
+
+
+- Actionability through Deferral: For the chosen hyperparameters ($N_\wedge = 50, r=10$), DPRL deferred to the behavior policy in over 95% of states (Figure 4, right). This highly sparse policy is actionable for clinicians, allowing them to focus on reviewing a minimal set of recommended changes.
+
+---
+
+### 📈 Key Takeaways
+
+- Decision Points as a Foundation for Safe RL: DPRL introduces a novel framework for safe batch RL by identifying "Decision Points"—specific state-action pairs or regions where policy improvements can be made with high confidence due to sufficient data density and an estimated advantage over the behavior policy.
+- Tighter, Data-Dependent Guarantees: DPRL provides significantly tighter theoretical bounds for safe policy improvement. Unlike prior methods that scale with the entire state-action space ($|\mathcal{S}||\mathcal{A}|$), DPRL's bounds scale with $C(N_\wedge)$ (the number of sufficiently observed state-action pairs) for discrete states and $M(r, N_\wedge)$ (volume of dense regions) for continuous states, making them more relevant for real-world sparse datasets.
+- Independence from True Behavior Policy: A key practical advantage is that DPRL does not require a priori access to the true behavior policy during training, unlike methods like SPIBB, whose performance significantly degrades when the behavior policy must be estimated.
+- Effective Safety-Performance Trade-off: The hyperparameter $N_\wedge$ (and $r$ in the continuous case) allows for explicit control over the balance between safety (high confidence in improvements) and performance.
+- Practical Applicability and Actionability: Empirical evaluations on synthetic MDPs, GridWorld, Atari environments, and a real-world medical dataset (MIMIC III) demonstrate DPRL's strong performance, superior safety guarantees (measured by CVaR), and ability to produce actionable policies through selective deferral to the behavior policy. The high deferral rate in complex real-world tasks (e.g., MIMIC III) makes the learned policy interpretable and reviewable by experts.
+
+Limitations and Future Work:
+
+- DPRL, particularly DPRL-C, is non-parametric and requires storing the entire dataset, which can be computationally costly for very large datasets. Future work could explore data compression techniques (e.g., coresets).
+- The use of Euclidean distance for continuous states could be extended to more sophisticated metrics like bisimulation distance, and their influence on safety bounds should be investigated.
+- DPRL-C currently performs only 1-step planning over the behavior. Extending it to multi-step planning while maintaining safety guarantees is a promising direction.
+
+---
+
+### 📚 Citation
+
+```bibtex
+@inproceedings{qu2024,
+  author    = {Chengrui Qu and Laixi Shi and Kishan Panaganti and Pengcheng You and Adam Wierman},
+  year      = {2024},
+  title     = {Hybrid Transfer Reinforcement Learning: Provable Sample Efficiency from Shifted-Dynamics Data},
+  booktitle = {arXiv.org},
+  doi       = {10.48550/arXiv.2411.03810},
+}
+```
