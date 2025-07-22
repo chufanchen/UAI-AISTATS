@@ -1115,10 +1115,10 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 }
 ```
 
-## [Monte-Carlo tree search with uncertainty propagation via optimal transport](URL)  
+## [Monte-Carlo tree search with uncertainty propagation via optimal transport](https://arxiv.org/abs/2309.10737)
 **Authors**: Tuan Dam, Pascal Stenger, Lukas Schneider, J. Pajarinen, Carlo D'Eramo, Odalric-Ambrym Maillard 
 **Conference**: ICML 2025
-**Tags**: MCTS, Optimal Transport
+**Tags**: MCTS, Optimal Transport, Wasserstein Barycenter
 
 ---
 
@@ -1127,6 +1127,7 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 
 ### 🧠 Core Idea
 
+This paper introduces Wasserstein Monte-Carlo Tree Search (W-MCTS), a novel MCTS algorithm designed for highly stochastic and partially observable Markov Decision Processes (MDPs) and Partially Observable MDPs (POMDPs). The core idea is to model both value and action-value nodes in the search tree as Gaussian distributions, enabling the propagation of uncertainty estimates throughout the tree via a novel backup operator. This operator computes value nodes as the $L_1$-Wasserstein barycenter of their action-value children nodes. The paper establishes a connection between this Wasserstein barycenter, when combined with $\alpha$-divergence as the distance measure, and the generalized mean backup operator previously introduced in Power-UCT. W-MCTS is complemented by two exploration strategies: optimistic selection and Thompson sampling. The authors provide theoretical guarantees of asymptotic convergence to the optimal policy and demonstrate superior empirical performance over state-of-the-art baselines in several challenging environments.
 
 ---
 
@@ -1173,5 +1174,131 @@ The theoretical findings are complemented by extensive empirical evaluations in 
   title     = {Monte-Carlo tree search with uncertainty propagation via optimal transport},
   booktitle = {arXiv.org},
   doi       = {10.48550/arXiv.2309.10737},
+}
+```
+
+## [A Dual Approach to Constrained Markov Decision Processes with Entropy Regularization](https://arxiv.org/abs/2110.08923)  
+**Authors**: Donghao Ying, Yuhao Ding, J. Lavaei
+**Conference**:  AISTATS 2022
+**Tags**: Constrained MDP, Entropy Regularization, Lagrangian dual function
+
+---
+<details>
+  <summary>Read More</summary>
+
+### 🧠 Core Idea
+
+This paper studies entropy-regularized Constrained Markov Decision Processes (CMDPs) under the soft-max parameterization. The core idea is to leverage entropy regularization to induce favorable optimization properties in the Lagrangian dual problem. Specifically, the authors show that the Lagrangian dual function becomes smooth (i.e., differentiable with a Lipschitz continuous gradient). This smoothness allows the application of accelerated first-order methods to the dual problem, leading to strong global convergence guarantees for both the dual optimality gap and, importantly, the primal optimality gap and constraint violation. The work provides the first theoretical analysis certifying the effectiveness of entropy regularization in CMDPs from an optimization perspective.
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+The paper addresses the optimization problem for an agent aiming to maximize an entropy-regularized value function while satisfying multiple constraints on the expected total utility. This can be formally stated as:
+
+$$
+\max_{\pi \in \Pi} V^\pi_\tau(\rho) \quad \text{s.t.} \quad U^\pi_g(\rho) \geq b
+$$
+
+where $V^\pi_\tau(\rho) := V^\pi(\rho) + \tau \cdot H(\rho, \pi)$ is the entropy-regularized value function, $V^\pi(\rho)$ is the standard discounted sum of rewards, $H(\rho, \pi)$ is the discounted entropy, $\tau \geq 0$ is the regularization weight, $U^\pi_g(\rho) := (U^\pi_{g_1}(\rho), \dots, U^\pi_{g_n}(\rho)) \in \mathbb{R}^n$ are the discounted utilities for $n$ constraint functions $g_i$, and $b \in \mathbb{R}^n$ are the corresponding thresholds. $\Pi$ denotes the class of soft-max parameterized policies. This primal problem is generally non-convex due to a non-concave objective and non-convex constraints, making it challenging to solve directly.
+
+---
+
+### 🎯 Motivation
+
+Sequential decision-making in safety-critical systems often requires satisfying various constraints beyond simple objective optimization, leading to the study of CMDPs. While policy search methods have shown empirical success in CMDPs, and theoretical progress has been made on their non-asymptotic global convergence, these works typically do not incorporate entropy regularization. Entropy regularization is a popular technique in unconstrained reinforcement learning for encouraging exploration, preventing premature convergence, and improving robustness. Recent theoretical work has also demonstrated that entropy regularization can lead to benign optimization landscapes and faster convergence rates in unconstrained MDPs. However, the theoretical benefits of entropy regularization for CMDPs, even in tabular settings with exact value evaluation, remained largely unknown. This paper aims to bridge this gap by investigating the optimization properties induced by entropy regularization in CMDPs.
+
+---
+
+### 🛠️ Method Overview
+
+The proposed method, "Accelerated Gradient Projection Method with NPG Subroutine" (Algorithm 1), is a two-loop primal-dual algorithm:
+
+1. Outer Loop (Accelerated Gradient Projection for Dual Variable):
+This loop updates the dual variable $\lambda \in \mathbb{R}^n_{\ge 0}$ using an accelerated gradient projection method onto a compact convex set $\Lambda = \{\lambda \mid 0 \le \lambda_i \le \frac{V_*^\tau - V_\tau^\pi(\rho)}{\xi_i}, \forall i \in [n] \}$.
+
+- At each iteration $k$, an extrapolation point $\mu^{(k)} = \lambda^{(k)} + \beta_k (\lambda^{(k)} - \lambda^{(k-1)})$ is computed.
+- An approximate gradient $\tilde{\nabla} D(\mu^{(k)})$ of the dual function $D(\lambda) = \max_{\pi \in \Pi} L(\pi, \lambda)$ is estimated, where $L(\pi, \lambda) := V^\pi_\tau(\rho) + \lambda^T (U_g^\pi(\rho) - b)$. The gradient is given by $\nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b$, where $\pi_\lambda = \arg\max_{\pi \in \Pi} L(\pi, \lambda)$.
+- A gradient projection step is performed: $\lambda^{(k+1)} = P_\Lambda(\mu^{(k)} - \alpha_k \tilde{\nabla} D(\mu^{(k)}))$, where $P_\Lambda(\cdot)$ is the projection onto $\Lambda$.
+- The step-size $\alpha_k = 1/\mathcal{L}$ and extrapolation weight $\beta_k = (k-1)/(k+2)$ are used, where $\mathcal{L}$ is the smoothness constant of $D(\lambda)$.
+
+2. Inner Loop (Natural Policy Gradient Subroutine for Primal Variable): 
+This subroutine (Algorithm 2, NPGSub) is called in the outer loop to find the Lagrangian maximizer $\pi_\lambda$ for a given dual variable $\lambda$. It uses the Natural Policy Gradient (NPG) method tailored for entropy-regularized MDPs.
+
+- The policy update rule is given by:
+
+$$
+\pi^{(t+1)}(a|s) \propto \left(\pi^{(t)}(a|s)\right)^{1 - \frac{\eta\tau}{1-\gamma}} \exp \left( \frac{\eta Q_\tau^{\pi^{(t)}}(s, a)}{1-\gamma} \right)
+$$
+where $Q_\tau^\pi(s, a)$ is the soft Q-function.
+
+- This inner loop is run for a sufficient number of iterations $N_2 = O(\log T)$ to ensure a high-accuracy gradient estimation for the outer loop.
+- Upon termination of the outer loop, the final primal policy $\pi$ is recovered from the last dual variable $\lambda^{(N_1)}$ by running the NPG subroutine for $N_3 = O(\log(1/\epsilon_1))$ iterations.
+
+The algorithm relies on the soft-max policy parameterization, which is crucial for the NPG update's direct form and the theoretical properties.
+
+---
+
+### 📐 Theoretical Contributions
+
+The paper provides several key theoretical contributions, rigorously proving the benefits of entropy regularization for CMDPs:
+
+1. Quadratic Lower Bound for Lagrangian: Proposition 3.5 shows that for all policies $\pi$ and $\lambda \ge 0$, the Lagrangian function $L(\pi, \lambda)$ is strongly concave (has a negative curvature) with respect to $\pi$ at its maximizer $\pi_\lambda$:
+$L(\pi_\lambda, \lambda) - L(\pi, \lambda) \ge \frac{\tau d^2}{2(1-\gamma)\ln 2} \| \pi - \pi_\lambda \|_2^2$
+where $d$ is a lower bound on the discounted state visitation distribution, and $\tau$ is the entropy weight. This strong concavity is vital for stability and Lipschitz continuity.
+
+2. Smoothness of Dual Function: Proposition 3.6 proves that, under the Slater condition (Assumption 3.1) and a uniform exploration assumption (Assumption 3.4, where $d^\pi_\rho(s) \ge d &gt; 0$), the Lagrangian dual function $D(\lambda)$ is both differentiable and $\mathcal{L}$-smooth on its feasible domain $\Lambda$. The gradient is $\nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b$, and the smoothness constant is:
+$\mathcal{L} = 2 \ln 2 \left( \frac{\sqrt{n|S||A|}}{(1-\gamma)^2} + \frac{\sqrt{n|S||A|}}{\tau (1-\gamma) d} \right)$
+This smoothness is a crucial enabler for accelerated gradient-based methods.
+
+3. Decomposition of Duality Gap: Proposition 3.7 demonstrates a critical relationship between the dual optimality gap and primal metrics. If $\lambda$ is an $\epsilon$-optimal dual multiplier (i.e., $D(\lambda) - D_*^\tau \le \epsilon$), then the associated Lagrangian maximizer $\pi_\lambda$ satisfies:
+   - Policy distance: $\|\pi_\lambda - \pi_*^\tau\|_2 \le C_1\sqrt{\epsilon}$
+   - Primal optimality gap: $|V_\tau^{\pi_\lambda}(\rho) - V_*^\tau| \le 2\epsilon + \mathcal{L}_c C_1 C_2 \sqrt{\epsilon}$
+   - Constraint violation: $\max_{i \in [n]} [b_i - U_{g_i}^{\pi_\lambda}(\rho)]_+ \le \mathcal{L}_c C_1 \sqrt{\epsilon}$
+This shows that an $O(\epsilon)$ dual error translates to an $O(\sqrt{\epsilon})$ primal error, a non-trivial result enabled by entropy regularization.
+
+4. Global Convergence Rates: Theorem 5.2 establishes the global convergence rates for Algorithm 1:
+   - Dual optimality gap: $D(\lambda) - D_*^\tau = O(1/T^2)$
+   - Primal optimality gap: $|V_\tau^{\pi}(\rho) - V_*^\tau| = O(1/T)$
+   - Constraint violation: $\max_{i \in [n]} [b_i - U_{g_i}^{\pi}(\rho)]_+ = O(1/T)$
+   - Policy distance: $\|\pi - \pi_*^\tau\|_2 = O(1/T)$
+The total iteration complexity is $O(T \log T)$, where $T$ is the number of outer loop iterations. This implies an overall $O(1/\epsilon)$ rate to achieve $\epsilon$-accuracy in primal metrics.
+
+
+5. Convergence for Standard CMDPs: Corollary 5.4 shows that by choosing a small regularization parameter $\tau = O(\epsilon)$, the proposed method can compute an $O(\epsilon)$-optimal solution for the standard (unregularized) CMDP problem in $O(1/\epsilon^2)$ total iterations.
+
+6. Single Constraint CMDPs: For the special case of a single constraint ($n=1$), Theorem 6.1 and Corollary 6.2 show that a bisection-based dual approach (Algorithm 3) achieves an even faster linear convergence rate in terms of outer loop iterations. Specifically, it achieves primal error bounds of $O(\sqrt{\epsilon} + \epsilon_1)$ and dual error $O(\epsilon)$ in $O(\log^2(1/\epsilon) + \log(1/\epsilon_1))$ total iterations. For standard CMDPs, it achieves $O(\epsilon)$ primal optimality and constraint violation in $O(\log^2(1/\epsilon))$ iterations.
+
+---
+
+### 📊 Experiments
+
+The provided paper does not include an experimental section. The analysis is purely theoretical, focusing on the optimization properties and convergence rates.
+
+---
+
+### 📈 Key Takeaways
+
+- Entropy regularization significantly improves the optimization landscape of CMDPs by rendering their Lagrangian dual function smooth and convex, enabling the use of advanced first-order optimization methods.
+- The paper provides a crucial theoretical link showing that an $\epsilon$-optimal dual solution in entropy-regularized CMDPs translates to an $O(\sqrt{\epsilon})$ error for primal optimality and constraint violation.
+- The proposed accelerated dual-descent method with NPG as a subroutine achieves fast global convergence rates, specifically $O(1/T)$ for primal metrics and $O(1/T^2)$ for the dual function, for entropy-regularized CMDPs.
+- For CMDPs with a single constraint, a bisection method can achieve a linear convergence rate for the dual problem, leading to an overall logarithmic total iteration complexity.
+- By carefully choosing the regularization parameter $\tau$, these results can be extended to provide near-optimal solutions for standard (unregularized) CMDPs with provable convergence rates.
+- The work is foundational for understanding and developing more efficient algorithms for constrained reinforcement learning, particularly in settings where exact value/gradient evaluation is possible.
+
+---
+</details>
+### 📚 Citation
+
+```bibtex
+@inproceedings{ying2022dual,
+  title={A dual approach to constrained markov decision processes with entropy regularization},
+  author={Ying, Donghao and Ding, Yuhao and Lavaei, Javad},
+  booktitle={International Conference on Artificial Intelligence and Statistics},
+  pages={1887--1909},
+  year={2022},
+  organization={PMLR}
 }
 ```
