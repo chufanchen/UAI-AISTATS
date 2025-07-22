@@ -920,11 +920,212 @@ Limitations and Future Work:
 ### 📚 Citation
 
 ```bibtex
-@inproceedings{qu2024,
-  author    = {Chengrui Qu and Laixi Shi and Kishan Panaganti and Pengcheng You and Adam Wierman},
-  year      = {2024},
-  title     = {Hybrid Transfer Reinforcement Learning: Provable Sample Efficiency from Shifted-Dynamics Data},
+@article{sharma2024decision,
+  title={Decision-point guided safe policy improvement},
+  author={Sharma, Abhishek and Benac, Leo and Parbhoo, Sonali and Doshi-Velez, Finale},
+  journal={arXiv preprint arXiv:2410.09361},
+  year={2024}
+}
+```
+
+## [Log-Sum-Exponential Estimator for Off-Policy Evaluation and Learning](https://arxiv.org/abs/2506.06873)
+**Authors**: Armin Behnamnia, Gholamali Aminian, Alireza Aghaei, Chengchun_Shi1, Vincent Y. F. Tan, Hamid R. Rabiee
+**Conference**: ICML 2025
+**Tags**:  off-policy learning, off-policy evaluation, log sum exponential, regret bound, generalization bound, concentration, bias and variance
+
+---
+
+### 🧠 Core Idea
+
+The paper introduces a novel estimator, the Log-Sum-Exponential (LSE) estimator, for Off-Policy Evaluation (OPE) and Off-Policy Learning (OPL) from logged bandit feedback (LBF) datasets. The core idea is to leverage the robustness properties of the LSE operator, particularly for negative parameters, to address challenges such as high variance, noisy (estimated) propensity scores, and heavy-tailed reward distributions that commonly plague traditional Inverse Propensity Score (IPS) estimators. The LSE estimator implicitly performs a form of shrinkage on large weighted reward values, leading to improved stability and performance.
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+Off-policy evaluation and learning from logged bandit feedback face significant challenges in real-world applications. The primary issues include:
+
+1. **High Variance of Estimators**: Traditional IPS estimators often suffer from high variance, leading to unreliable performance.
+2. **Noisy or Estimated Propensity Scores**: Access to true propensity scores is frequently unavailable, necessitating their estimation, which introduces noise and further increases estimator variance.
+3. **Heavy-tailed Reward Distributions**: In many real-life applications (e.g., financial markets, web advertising), reward distributions can be heavy-tailed, meaning their variance may not be well-defined or can be extremely large due to outliers or inherent noise, making standard estimators unstable.
+
+Existing improved IPS estimators (e.g., truncated IPS, self-normalizing, exponential smoothing, power-mean) primarily focus on variance reduction but often assume bounded rewards or true propensity scores, failing to adequately address heavy-tailed conditions or handle noisy rewards/propensity scores effectively.
+
+---
+
+### 🎯 Motivation
+
+The motivation stems from the limitations of current off-policy estimators, particularly IPS and its variants, when confronted with real-world complexities such as noise and heavy-tailed data. The LSE operator, characterized by $\text{LSE}_\lambda(Z) = \frac{1}{\lambda} \log \left( \frac{1}{n} \sum_{i=1}^n e^{\lambda z_i} \right)$, inherently provides robustness for negative $\lambda$. When $\lambda \lt 0$, terms with abnormally large positive $z_i$ (noisy or outlier samples in the weighted reward) vanish in the exponential sum as $\lim_{z_i \to +\infty} e^{\lambda z_i} = 0$, thus being effectively ignored. This property makes the LSE estimator naturally robust to high-magnitude outliers in weighted rewards, a common characteristic of heavy-tailed distributions. A motivating toy example with a Pareto distribution demonstrates that LSE significantly reduces variance and MSE compared to the Monte-Carlo estimator for estimating the mean of a heavy-tailed variable, with minimal impact on bias. This intrinsic robustness for handling heavy-tailed and noisy data points motivates its application to off-policy evaluation and learning.
+
+---
+
+### 🛠️ Method Overview
+
+The proposed method introduces the Log-Sum-Exponential (LSE) estimator for off-policy tasks.
+The LSE estimator for a given target policy $\pi_\theta$ and logged bandit feedback dataset $S = (x_i, a_i, p_i, r_i)_{i=1}^n$ is defined as:
+
+$$
+ \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) := \text{LSE}_\lambda(S) = \frac{1}{\lambda} \log \left( \frac{1}{n} \sum_{i=1}^n e^{\lambda r_i w_\theta(a_i,x_i)} \right)
+$$
+where $\lambda \lt 0$ is a tunable parameter, and $w_\theta(a_i, x_i) = \frac{\pi_\theta(a_i|x_i)}{\pi_0(a_i|x_i)}$ is the importance weight for the $i$-th data point.
+
+Key aspects of the LSE estimator:
+
+- **Non-linearity**: Unlike many existing model-free estimators (e.g., IPS, truncated IPS, PM, ES, OS, IX, LS) which are linear transformations or weighted averages of individual weighted rewards, the LSE estimator is a non-linear function applied to the entire set of weighted reward samples. This non-linearity requires novel theoretical analysis techniques.
+- **Parameter $\lambda \lt 0$**:
+  - As $\lambda \to 0^-$, the LSE estimator converges to the standard IPS estimator: $\lim_{\lambda \to 0} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \frac{1}{n} \sum_{i=1}^n r_i w_\theta(a_i, x_i)$.
+  - As $\lambda \to -\infty$, it converges to the minimum observed weighted reward: $\lim_{\lambda \to -\infty} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \min_i r_i w_\theta(a_i, x_i)$.
+  - This property implies an implicit shrinkage effect for large positive weighted rewards when $\lambda$ is negative, as terms with large $r_i w_\theta(a_i, x_i)$ are suppressed by $e^{\lambda (\cdot)}$ when $\lambda \lt 0$.
+- **Connection to KL Regularization**: The LSE estimator with $\lambda \lt 0$ can be interpreted as the solution to a KL-regularized expected minimization problem, connecting it to concepts of entropy regularization.
+- **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function $V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A|X)}[r(A,X)|X]]$ by analyzing the bias and variance of $\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)$.
+- **Off-Policy Learning (OPL)**: The objective is to find an optimal policy $\pi_\theta^* = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta)$ by maximizing the LSE estimator $\hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)$ and bounding its regret, $R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^*) - V(\hat{\pi}_\theta(S))$.
+
+---
+
+### 📐 Theoretical Contributions
+
+The paper provides comprehensive theoretical guarantees for the LSE estimator under challenging conditions.
+
+1. Heavy-tail Assumption (Assumption 5.1):
+The core assumption is that for all learning policies $\pi_\theta(A|X) \in \Pi_\Theta$ and some $\epsilon \in [0, 1]$, the $(1 + \epsilon)$-th moment of the weighted reward is bounded:
+$$
+E_{P_X \otimes \pi_0(A|X) \otimes P_{R|X,A}} \left[ \left(w_\theta(A, X)R\right)^{1+\epsilon} \right] \le \nu 
+$$
+This is a significantly weaker assumption than requiring bounded second or higher moments, enabling analysis under heavy-tailed distributions where variance might be infinite.
+
+2. Regret Bounds in OPL (Theorem 5.3):
+For a finite policy set $|\Pi_\Theta| \lt \infty$, the paper establishes an upper bound on the regret $R_\lambda(\hat{\pi}_\theta, S)$. The bound explicitly shows dependence on $\lambda$, $\nu$, $n$ (sample size), $\epsilon$, $\delta$ (confidence parameter), and $|\Pi_\Theta|$.
+
+3. Convergence Rate (Proposition 5.4):
+By strategically setting $\lambda = -n^{- \frac{1}{1+\epsilon}}$, the paper demonstrates that the overall convergence rate of the regret upper bound is $O(n^{-\epsilon/(1+\epsilon)})$. Notably:
+
+- If $\epsilon = 1$ (meaning the second moment of the weighted reward is bounded), the rate becomes $O(n^{-1/2})$, matching the optimal rate for many estimators under stronger assumptions.
+- This rate is achieved even for unbounded weighted rewards, a key advantage over prior works that often require bounded rewards.
+
+4. Bias and Variance Analysis in OPE:
+
+- Bias Bounds (Proposition 5.5): Upper and lower bounds on the bias $B(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta))$ are derived. The upper bound is $O(|\lambda|^\epsilon \nu)$.
+- Asymptotic Unbiasedness (Remark 5.6): By choosing $\lambda$ to approach zero as $n \to \infty$ (e.g., $\lambda(n) = -n^{-\zeta}$ for $\zeta \gt 0$), the LSE estimator is shown to be asymptotically unbiased. Specifically, setting $\zeta = \frac{1}{1+\epsilon}$ yields an $O(n^{-\epsilon/(1+\epsilon)})$ convergence rate for bias.
+- Variance Bound (Proposition 5.7): Assuming a bounded second moment of weighted reward ($E[(w_\theta(A,X)R)^2] \le \nu_2$), the variance of the LSE estimator is bounded by $V(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \le \frac{1}{n} V(w_\theta(A,X)R) \le \frac{1}{n} \nu_2$. This demonstrates that the LSE estimator reduces variance compared to IPS.
+- A bias-variance trade-off exists with $\lambda$: decreasing $|\lambda|$ (i.e., making $\lambda$ closer to 0) decreases bias but increases variance, and vice-versa.
+
+5. Robustness of the LSE Estimator:
+
+- Noisy Reward (Theorem 5.9): The paper analyzes the regret of the LSE estimator when the reward distribution is perturbed by noise. The upper bound on regret includes a term proportional to $TV(P_{R|X,A}, \tilde{P}_{R|X,A})$, the total variation distance between the true and noisy reward distributions. This quantifies the cost of noise.
+- Estimated Propensity Scores (Appendix E, Theorem E.7): Regret bounds are also derived under scenarios where propensity scores are estimated (e.g., modeled via Gamma noise), demonstrating the estimator's robustness to this common real-world issue.
+
+
+6. Comparison with Other Estimators:
+The LSE estimator is theoretically compared (Table 2) with IPS, SN-IPS, truncated IPS, IX, PM, ES, LS, and OS estimators. LSE demonstrates superior performance in heavy-tailed scenarios, robust to noisy rewards and estimated propensity scores, and maintains differentiability, which is important for optimization. It achieves a better convergence rate under heavy-tailed conditions compared to existing methods.
+
+---
+
+### 📊 Experiments
+
+The theoretical findings are complemented by extensive empirical evaluations in both off-policy evaluation (OPE) and off-policy learning (OPL) scenarios.
+
+#### Off-policy Evaluation (OPE)
+
+- Baselines: Truncated IPS, PM, ES, IX, SNIPS, LS-LIN, LS, and OS estimators.
+- Datasets:
+  - Synthetic: Utilized a single-context LBF dataset where learning and logging policies are Gaussian distributions, and the reward function is an unbounded positive exponential function ($e^{\alpha x^2}$). The parameter $\alpha$ is varied to control the tail behavior, demonstrating the estimator's performance under heavy-tailed weighted rewards. Experiments with Lomax distributions for policies are also performed.
+  - UCI datasets: Additional experiments are conducted on various UCI datasets.
+- Metrics: Bias, variance, and Mean Squared Error (MSE).
+- Results: The LSE estimator consistently exhibits superior performance in terms of both MSE and variance, especially under heavy-tailed conditions, outperforming all baselines.
+
+#### Off-policy Learning (OPL)
+
+- Baselines: Truncated IPS, PM, ES, IX, BanditNet, LS-LIN, and OS estimators.
+- Datasets:
+  - EMNIST/FMNIST: Standard supervised-to-bandit transformation is applied to EMNIST (and FMNIST in Appendix), where each class corresponds to an action, and reward is binary (1 for correct label, 0 otherwise).
+  - KUAIREC: A real-world dataset is used for additional validation.
+- Noisy (Estimated) Propensity Scores: Modeled by introducing multiplicative inverse Gamma noise $U \sim \text{Gamma}(b,b)$ such that $b\pi_0 = \frac{1}{U}\pi_0$.
+- Noisy Reward: Simulated by a reward-switching probability $P_f$, where a reward of 1 can switch to 0 with probability $P_f$.
+- Logging Policy Quality: Varied using an inverse temperature parameter $\tau$ in the softmax layer, allowing for evaluation under more uniform and less accurate logging policies (higher $\tau$).
+- Metric: Accuracy of the learned deterministic policy.
+- Results: The LSE estimator achieves the highest accuracy with lower variance across most scenarios, including those with true, estimated propensity scores, and noisy rewards, demonstrating its practical advantages over state-of-the-art algorithms.
+
+---
+
+### 📈 Key Takeaways
+
+1. Novelty and Robustness: The paper introduces a novel Log-Sum-Exponential (LSE) estimator that is inherently robust to outliers and heavy-tailed weighted reward distributions due to the properties of the LSE operator with negative parameters.
+2. Weakened Assumptions: It provides rigorous theoretical guarantees for off-policy evaluation and learning under the weaker assumption of bounded $(1+\epsilon)$-th moments of weighted reward, unlike many existing methods requiring bounded second or higher moments.
+3. Strong Theoretical Guarantees: The LSE estimator achieves a regret convergence rate of $O(n^{-\epsilon/(1+\epsilon)})$, including the optimal $O(n^{-1/2})$ when the second moment is bounded. It is also shown to be asymptotically unbiased and exhibits variance reduction.
+4. Handling Noisy Data: The estimator's robustness is formally analyzed and demonstrated for both noisy (estimated) propensity scores and noisy reward samples, which are common issues in real-world logged datasets.
+5. Empirical Superiority: Extensive experiments on synthetic and real-world datasets confirm the practical advantages of the LSE estimator, showing improved accuracy and reduced variance/MSE compared to several state-of-the-art baselines in various challenging scenarios.
+
+---
+
+### 📚 Citation
+
+```bibtex
+@Article{Behnamnia2025LogSumExponentialEF,
+ author = {Armin Behnamnia and Gholamali Aminian and Alireza Aghaei and Chengchun Shi and Vincent Y. F. Tan and Hamid R. Rabiee},
+ booktitle = {arXiv.org},
+ journal = {ArXiv},
+ title = {Log-Sum-Exponential Estimator for Off-Policy Evaluation and Learning},
+ volume = {abs/2506.06873},
+ year = {2025}
+}
+```
+
+## [Monte-Carlo tree search with uncertainty propagation via optimal transport](URL)  
+**Authors**: Tuan Dam, Pascal Stenger, Lukas Schneider, J. Pajarinen, Carlo D'Eramo, Odalric-Ambrym Maillard 
+**Conference**: ICML 2025
+**Tags**: MCTS, Optimal Transport
+
+---
+<details>
+  <summary>Read More</summary>
+### 🧠 Core Idea
+
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+
+---
+
+### 🎯 Motivation
+
+
+---
+
+### 🛠️ Method Overview
+
+
+---
+
+### 📐 Theoretical Contributions
+
+
+---
+
+### 📊 Experiments
+
+
+---
+
+### 📈 Key Takeaways
+
+
+---
+</details>
+
+### 📚 Citation
+
+```bibtex
+@inproceedings{dam2023,
+  author    = {Tuan Dam and Pascal Stenger and Lukas Schneider and J. Pajarinen and Carlo D'Eramo and Odalric-Ambrym Maillard},
+  year      = {2023},
+  title     = {Monte-Carlo tree search with uncertainty propagation via optimal transport},
   booktitle = {arXiv.org},
-  doi       = {10.48550/arXiv.2411.03810},
+  doi       = {10.48550/arXiv.2309.10737},
 }
 ```
