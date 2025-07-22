@@ -1135,16 +1135,25 @@ This paper introduces Wasserstein Monte-Carlo Tree Search (W-MCTS), a novel MCTS
 
 #### What problem is the paper solving?
 
+Traditional MCTS methods, particularly those coupled with deep learning, have achieved remarkable success in deterministic problems (e.g., Go, Chess). However, their performance significantly degrades in environments characterized by high stochasticity (unpredictable transitions) and partial observability (incomplete state information). In such settings, value estimates become highly uncertain and inaccurate. This inaccuracy propagates through the search tree, leading to suboptimal action selection at the root node and, consequently, poor overall performance. The challenge lies in developing an MCTS framework that can explicitly model, propagate, and effectively utilize this uncertainty during the tree search and backup phases.
 
 ---
 
 ### 🎯 Motivation
 
+The motivation stems from the limitations of current MCTS approaches in handling real-world complex scenarios that are inherently stochastic and partially observable. While deep reinforcement learning has advanced planning capabilities, its application to high-uncertainty domains remains challenging due to the difficulty in obtaining reliable value function estimates. Existing MCTS methods often rely on point estimates of values, ignoring the inherent uncertainty, which can lead to issues like value overestimation. By adopting a probabilistic approach that models uncertainty as Gaussian distributions and propagates it using optimal transport (Wasserstein barycenters), W-MCTS aims to:
+
+1. Provide more accurate and robust value estimates in uncertain environments.
+2. Unify and generalize existing MCTS backup operators (like average and maximum backup) by leveraging the connection to the generalized mean.
+3. Improve exploration-exploitation balance by incorporating uncertainty directly into action selection.
+4. Extend the success of MCTS to a broader class of complex, stochastic, and partially observable problems.
 
 ---
 
 ### 🛠️ Method Overview
 
+W-MCTS operates by modeling every node in the search tree, both value (V-nodes) and action-value (Q-nodes), as Gaussian distributions \(N(m, \sigma^2)\), where \(m\) is the mean and \(\sigma^2\) is the variance (or \(\sigma\) is the standard deviation).
+The core of the method is a novel backup operator based on **Wasserstein barycenters with \(\alpha\)-divergence**.
 
 ---
 
