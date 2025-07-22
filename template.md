@@ -4,6 +4,8 @@
 **Tags**: 
 
 ---
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -41,7 +43,7 @@
 
 
 ---
-
+</details>
 ### 📚 Citation
 
 ```bibtex

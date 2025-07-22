@@ -6,6 +6,8 @@
 **Tags**: Hybrid RL, Offline RL, Online RL, Sub-optimality Gap, Regret Minimization, Theoretical RL, Concentrability Coefficient
 
 ---
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -118,6 +120,8 @@ Goals:
 
 ---
 
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -138,6 +142,9 @@ Goals:
 **Tags**: KL Regularization, Reward Misalignment, Algorithmic Information Theory, Bayesian Probability Theory
 
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -238,6 +245,8 @@ As a theoretical solution, the paper proposes regularizing to a "pessimistic Bay
 
 ---
 
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -255,6 +264,9 @@ As a theoretical solution, the paper proposes regularizing to a "pessimistic Bay
 **Conference**: UAI 2024  
 **Tags**: Policy Optimization, Uncertainty
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -385,6 +397,10 @@ The experiments investigate two main questions: 1) how different policy paramete
 5. Function-Space Advantage: Optimizing policies in function space (using functional BNNs) significantly outperforms traditional weight-space policy parameterizations, leading to greater flexibility and representation power.
 6. Future Directions: Future work includes applying functional BNNs to model-based RL as environment models to enhance uncertainty modeling, and further investigating methods for properly expressing the probability density of function distributions.
 
+---
+
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -401,6 +417,9 @@ The experiments investigate two main questions: 1) how different policy paramete
 **Conference**: AISTATS 2025  
 **Tags**: Self Predictive Learning
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### Core Idea
 This paper proposes a unifying theoretical framework for action-conditional self-predictive reinforcement learning (RL) objectives, specifically analyzing Bootstrap Your Own Latent (BYOL) variants within a continuous-time Ordinary Differential Equation (ODE) model. It bridges the gap between prior theoretical work, which assumed a fixed policy ($\text{BYOL-}\Pi$), and practical implementations that explicitly condition predictions on future actions ($\text{BYOL-AC}$). The work also introduces a novel variance-like objective ($\text{BYOL-VAR}$) and unifies the understanding of all three objectives through two complementary lenses: a model-based perspective (low-rank approximation of dynamics) and a model-free perspective (fitting value functions).
@@ -500,6 +519,10 @@ The empirical section corroborates the theoretical findings and evaluates the pe
 
 In essence, the paper provides a comprehensive analytical and empirical framework for understanding action-conditional self-predictive learning, highlighting $\text{BYOL-AC}$ as a robust and superior approach for learning representations in RL.
 
+---
+
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -517,6 +540,9 @@ In essence, the paper provides a comprehensive analytical and empirical framewor
 **Conference**: AISTATS 2025  
 **Tags**: Adversarial Markov Decision Processes
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### Core Idea
 The paper proposes Adversarial Policy Optimization based on Monotonic Value Propagation (APO-MVP), an algorithm for learning in episodic, obliviously adversarial Markov Decision Processes (MDPs) with full information. The core idea is to narrow the gap between regret bounds for adversarial and stochastic MDPs by using policy optimization combined with dynamic programming, avoiding the use of occupancy measures, and achieving a $\tilde{O}(\text{poly}(H)\sqrt{SAT})$ regret bound. This improves upon prior state-of-the-art results in adversarial tabular MDPs by a factor of $\sqrt{S}$, matching the minimax lower bound in dependencies on state ($S$), action ($A$), and episode ($T$) counts.
@@ -602,7 +628,9 @@ The paper does not include any experimental results. The authors state this in t
     *   **Full Monitoring Assumption:** The current analysis assumes full monitoring (observing $s_{t,h+1}$ for all $h$). Extending the approach to bandit monitoring (only observing rewards) is a non-trivial challenge, and it is unknown if a $\sqrt{SAT}$ regret is achievable in the adversarial case with bandit feedback.
     *   **Oblivious Adversary:** The $\sqrt{S}$ factor improvement relies on the assumption of an oblivious adversary. A fully adversarial setup would likely reintroduce the $\sqrt{S}$ factor due to concentration issues if $\ell_1$-norm bounds were used.
 
+---
 
+</details>
 
 ### 📚 Citation
 ```bibtex
@@ -620,6 +648,9 @@ The paper does not include any experimental results. The authors state this in t
 **Conference**: AISTATS 2025  
 **Tags**: Hybrid Transfer RL, Distribution shift, Sample Complexity
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -730,6 +761,8 @@ Key findings include:
 
 ---
 
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -747,6 +780,9 @@ Key findings include:
 **Conference**: AISTATS 2025  
 **Tags**: Batch Reinforcement Learning, Safe Policy Improvement
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -917,6 +953,8 @@ Limitations and Future Work:
 
 ---
 
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -934,6 +972,9 @@ Limitations and Future Work:
 **Tags**:  off-policy learning, off-policy evaluation, log sum exponential, regret bound, generalization bound, concentration, bias and variance
 
 ---
+
+<details>
+  <summary>Read More</summary>
 
 ### 🧠 Core Idea
 
@@ -1059,6 +1100,8 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 
 ---
 
+</details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -1078,8 +1121,10 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 **Tags**: MCTS, Optimal Transport
 
 ---
+
 <details>
   <summary>Read More</summary>
+
 ### 🧠 Core Idea
 
 
@@ -1116,6 +1161,7 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 
 
 ---
+
 </details>
 
 ### 📚 Citation
