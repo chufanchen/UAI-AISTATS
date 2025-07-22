@@ -1373,6 +1373,7 @@ The provided paper does not include an experimental section. The analysis is pur
 
 ---
 </details>
+
 ### 📚 Citation
 
 ```bibtex
@@ -1383,5 +1384,63 @@ The provided paper does not include an experimental section. The analysis is pur
   pages={1887--1909},
   year={2022},
   organization={PMLR}
+}
+```
+
+## [Latent Diffusion Planning for Imitation Learning](https://arxiv.org/abs/2504.16925) 
+**Authors**: Amber Xie, Oleh Rybkin, Dorsa Sadigh, Chelsea Finn
+**Conference**: ICML 2025
+**Tags**:  Imitation learning, Diffusion
+
+---
+<details>
+  <summary>Read More</summary>
+
+### 🧠 Core Idea
+
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+
+---
+
+### 🎯 Motivation
+
+
+---
+
+### 🛠️ Method Overview
+
+
+---
+
+### 📐 Theoretical Contributions
+
+
+---
+
+### 📊 Experiments
+
+
+---
+
+### 📈 Key Takeaways
+
+
+---
+</details>
+
+### 📚 Citation
+
+```bibtex
+@article{xie2025latent,
+  title={Latent diffusion planning for imitation learning},
+  author={Xie, Amber and Rybkin, Oleh and Sadigh, Dorsa and Finn, Chelsea},
+  journal={arXiv preprint arXiv:2504.16925},
+  year={2025}
 }
 ```
