@@ -1152,23 +1152,97 @@ The motivation stems from the limitations of current MCTS approaches in handling
 
 ### 🛠️ Method Overview
 
-W-MCTS operates by modeling every node in the search tree, both value (V-nodes) and action-value (Q-nodes), as Gaussian distributions \(N(m, \sigma^2)\), where \(m\) is the mean and \(\sigma^2\) is the variance (or \(\sigma\) is the standard deviation).
-The core of the method is a novel backup operator based on **Wasserstein barycenters with \(\alpha\)-divergence**.
+W-MCTS operates by modeling every node in the search tree, both value (V-nodes) and action-value (Q-nodes), as Gaussian distributions $N(m, \sigma^2)$, where $m$ is the mean and $\sigma^2$ is the variance (or $\sigma$ is the standard deviation).
+The core of the method is a novel backup operator based on **Wasserstein barycenters with $\alpha$-divergence**.
+
+1. V-posterior Definition: A V-node $V(s)$ is defined as the $L_1$-Wasserstein barycenter of its children Q-nodes $Q(s,a)$ for actions $a \in A$, given a policy $\bar{\pi}$:
+$$V(s) \in \arg \inf_{V} E_{a \sim \bar{\pi}} \left[W_1(V, Q(s, a))\right]$$
+Here, $W_1(\cdot, \cdot)$ is the $L_1$-Wasserstein distance, and the cost function used within it is the $\alpha$-divergence $D_{f_\alpha}(X||Y)$, which is a subclass of $f$-divergence defined by $f_\alpha(x) = \frac{(x^\alpha - 1) - \alpha(x - 1)}{\alpha(\alpha - 1)}$.
+
+2. Closed-Form Solutions for Gaussians (Proposition 1): For Gaussian distributions $V(s) \sim N(\bar{m}(s),\bar{\sigma}^2(s))$ and $Q(s,a) \sim N(m(s,a), \sigma^2(s,a))$, the mean and standard deviation of the V-posterior are derived as power means:
+$$\bar{m}(s) = \left(E_{a \sim \bar{\pi}} [m(s, a)^p]\right)^{\frac{1}{p}}$$
+$$\bar{\sigma}(s) = \left(E_{a \sim \bar{\pi}} [\sigma(s, a)^p]\right)^{\frac{1}{p}}$$
+where $p = 1 - \alpha$. When $p=1$, these reduce to the expected mean and standard deviation.
+
+3. Particle Filter Extension (Proposition 2): The approach is also shown to apply to particle models, where each particle $\bar{x}_i(s)$ of a V-posterior $V(s)$ is the power mean of corresponding particles $x_i(s,a)$ from Q-posteriors:
+$$\bar{x}_i(s) = \left(E_{a \sim \bar{\pi}} [x_i(s, a)^p]\right)^{\frac{1}{p}}$$
+
+4. Empirical Backup Operators: In W-MCTS, the expectation over policy $\bar{\pi}$ is approximated by the visitation count ratio $\frac{n(s,a)}{N(s)}$. The backup rules for V-nodes are:
+$$V_m(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_m(s, a, n(s, a))^p\right)^{\frac{1}{p}}$$
+$$V_{std}(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_{std}(s, a, n(s, a))^p\right)^{\frac{1}{p}}$$
+For Q-nodes, the updates are Bellman-like, using empirical averages of observed rewards and discounted V-node values of next states:
+$$Q_m(s, a, n(s, a)) \leftarrow \frac{\sum_{\text{samples }i} r_i(s, a) + \gamma \sum_{\text{samples }i} V_m(s'_i, N(s'_i))}{n(s, a)}$$
+$$Q_{std}(s, a, n(s, a)) \leftarrow \gamma \frac{\sum_{\text{samples }i} V_{std}(s'_i, n(s'_i))}{n(s, a)}$$
+(Note: The paper's empirical notation $P r(s,a)$ and $P_{s'} N(s')V_m(s', N(s'))$ is interpreted as summations over observed samples.)
+
+5. Action Selection Strategies:
+
+   - Optimistic Selection (W-MCTS-OS): Inspired by UCB, this strategy selects actions based on an upper confidence bound that incorporates the estimated standard deviation:
+$$a = \arg \max_{a_i, i \in \{1...K\}} m(s, a_i) + C\sigma_i(s, a_i)p\sqrt{\log N(s)}$$
+where $C$ is an exploration constant.
+  - Thompson Sampling (W-MCTS-TS): Actions are selected by sampling from the posterior Gaussian distributions of action-values:
+$$a = \arg \max_{a_i, i \in \{1...K\}} \{\theta_i \sim N(m(s, a_i), \sigma^2(s, a_i))\}$$
 
 ---
 
 ### 📐 Theoretical Contributions
 
+The paper provides significant theoretical contributions, particularly regarding the convergence properties of W-MCTS, leveraging analysis from non-stationary Multi-Armed Bandits (MABs).
+
+1. Wasserstein Non-stationary MAB Analysis:
+   - Assumption 1 (Gaussian Rewards & Convergence): Assumes rewards for each arm $k$ are Gaussian $N(\mu_k, V_k/T_k(n))$ and that the empirical mean $\mu_{k,n}$ converges to $\mu_k$.
+   - Theorem 1 (Expected Suboptimal Arm Plays): For Thompson Sampling, the expected number of times a suboptimal arm $k$ is played up to time $n$, $E[T_k(n)]$, is bounded polynomially:
+$$E[T_k(n)] \le \Theta \left(\frac{1 + V \log(n\Delta_k^2/V)}{\Delta_k^2}\right)$$
+where $V = \max_k \{V_k\}$ and $\Delta_k = \mu^* - \mu_k$ is the gap to the optimal mean $\mu^*$.
+   - Theorem 2 (Convergence of Expected Power Mean): The bias of the expected power mean backup operator $X_n(p)$ (at the root of the MAB) from the optimal mean $\mu^*$ converges polynomially:
+$$E[X_n(p)] - \mu^* \le |\delta^*_n| + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}}$$
+where $K$ is the number of arms, $\Delta = \max_k \{\Delta_k\}$, and $|\delta^*_n|$ accounts for non-stationarity.
+   - Theorem 3 (Concentration of Power Mean): The power mean backup operator $X_n(p)$ concentrates polynomially around the optimal mean $\mu^*$: for any $\epsilon \gt 0$, there exist constants $C_0, \alpha, \beta \gt 0$ such that for sufficiently large $n$:
+$$Pr\left( X_n(p) - \mu^* \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta}$$
+$$Pr\left( X_n(p) - \mu^* \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta}$$
+
+2. Convergence in Monte-Carlo Tree Search (W-MCTS-TS):
+   - Proposition 3 (Q-Value Concentration and Suboptimal Action Plays): Extends the MAB results to the MCTS tree. It proves polynomial concentration for the estimated Q-value mean at the root node, and a polynomial bound on the expected number of suboptimal action plays. It also shows polynomial concentration of the estimated V-value mean at the root towards the optimal Q-value.
+   - Theorem 4 (Convergence of Failure Probability): The probability of W-MCTS-TS choosing a suboptimal action at the root node decays polynomially to zero:
+$$Pr\left( a_k = a_k^* \right) \le Cn^{-\alpha}$$
+for constants $C, \alpha \gt 0$ and sufficiently large number of simulations $n$.
+   - Theorem 5 (Convergence of Expected Payoff): The expected estimated mean value function at the root node converges polynomially to the optimal Q-value:
+$$E\left[V_m^{(0)}(s(0), n)\right] - Q_m^{(0)}(s(0), a_k^*) \le \Theta \left(\frac{2(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)$$
+The paper highlights that it is the first to provide a specific polynomial convergence rate for MCTS with Thompson Sampling.
 
 ---
 
 ### 📊 Experiments
 
+The W-MCTS algorithm (both OS and TS variants) was evaluated on a suite of stochastic and partially observable environments against several baselines: UCT, Power-UCT, DNG (Bayesian MCTS using Dirichlet-NormalGamma), and D2NG (extension of DNG to POMDPs). The performance metric was the mean of total discounted reward over multiple evaluation runs.
+
+1. Fully Observable Highly-Stochastic Problems (MDPs):
+
+- Environments: FrozenLake, NChain, RiverSwim, SixArms, Taxi. These environments vary in state space size, stochasticity, and exploration requirements.
+- Results:
+  - W-MCTS-TS consistently outperformed UCT, Power-UCT, and DNG across most environments.
+  - In FrozenLake, W-MCTS-TS and W-MCTS-TS (p=1) performed best.
+  - In NChain, both W-MCTS sampling methods outperformed UCT and Power-UCT, with Thompson Sampling showing faster convergence.
+  - RiverSwim saw W-MCTS-OS converging fastest and achieving the best results.
+  - SixArms, a highly stochastic environment, was effectively solved only by W-MCTS.
+  - Taxi, a large and highly stochastic environment, was successfully handled primarily by W-MCTS-TS, which managed to pick up all three passengers, while other methods struggled.
+
+2. Partially Observable Highly-Stochastic Problems (POMDPs):
+
+- Environments: RockSample (11x11, 15x15, 15x35) and PocMan. These are challenging POMDPs requiring robust exploration and planning under uncertainty.
+- Results:
+  - RockSample: W-MCTS-TS outperformed UCT and D2NG in all three variants (different numbers of actions).
+  - PocMan: W-MCTS-TS (p=100) showed superior performance compared to UCT and D2NG for higher numbers of samples (4096, 32768, 65536 simulations).
 
 ---
 
 ### 📈 Key Takeaways
 
+1. Uncertainty Propagation: W-MCTS provides a robust framework for Monte-Carlo Tree Search in highly stochastic and partially observable environments by explicitly modeling and propagating uncertainty of value estimates via Wasserstein barycenters.
+2. Generalized Mean Connection: The novel backup operator, based on $L_1$-Wasserstein barycenters with $\alpha$-divergence, successfully unifies and generalizes common MCTS backup operators through its connection to the power mean, effectively tackling issues like value overestimation.
+3. Theoretical Guarantees: The algorithm, particularly W-MCTS with Thompson sampling, is theoretically sound, offering polynomial convergence rates to the optimal policy and accurate value functions at the root node, a significant contribution to the MCTS literature.
+4. Empirical Superiority: W-MCTS demonstrates strong empirical advantages over existing state-of-the-art MCTS and Bayesian MCTS baselines in diverse and challenging stochastic MDPs and POMDPs, highlighting its practical effectiveness.
+5. Direct Convergence: Unlike some approaches that converge to a regularized value function with potential bias, W-MCTS converges directly to the original optimal value function, leading to more accurate action selection.
 
 ---
 
@@ -1258,7 +1332,7 @@ The paper provides several key theoretical contributions, rigorously proving the
 $L(\pi_\lambda, \lambda) - L(\pi, \lambda) \ge \frac{\tau d^2}{2(1-\gamma)\ln 2} \| \pi - \pi_\lambda \|_2^2$
 where $d$ is a lower bound on the discounted state visitation distribution, and $\tau$ is the entropy weight. This strong concavity is vital for stability and Lipschitz continuity.
 
-2. Smoothness of Dual Function: Proposition 3.6 proves that, under the Slater condition (Assumption 3.1) and a uniform exploration assumption (Assumption 3.4, where $d^\pi_\rho(s) \ge d &gt; 0$), the Lagrangian dual function $D(\lambda)$ is both differentiable and $\mathcal{L}$-smooth on its feasible domain $\Lambda$. The gradient is $\nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b$, and the smoothness constant is:
+2. Smoothness of Dual Function: Proposition 3.6 proves that, under the Slater condition (Assumption 3.1) and a uniform exploration assumption (Assumption 3.4, where $d^\pi_\rho(s) \ge d \gt 0$), the Lagrangian dual function $D(\lambda)$ is both differentiable and $\mathcal{L}$-smooth on its feasible domain $\Lambda$. The gradient is $\nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b$, and the smoothness constant is:
 $\mathcal{L} = 2 \ln 2 \left( \frac{\sqrt{n|S||A|}}{(1-\gamma)^2} + \frac{\sqrt{n|S||A|}}{\tau (1-\gamma) d} \right)$
 This smoothness is a crucial enabler for accelerated gradient-based methods.
 
