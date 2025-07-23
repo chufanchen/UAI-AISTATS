@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 ## [Title](URL)  
 **Authors**: 
 **Conference**:   
