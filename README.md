@@ -66,21 +66,21 @@ The unified algorithm proceeds as follows:
 For \\( t=1, \dots, N_1 \\) online episodes:
 
 1. Augment the online dataset \\( \mathcal{D}_{t-1} \\) collected so far with the offline dataset \\( \mathcal{D}_0 \\) to form \\( \mathcal{D}\_0 \cup \mathcal{D}\_{t-1} \\).
-2. Call the oracle algorithm: \\( (\hat{V}^{\pi}_{\text{Alg}}, \hat{U}^{\pi}_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) \\).
-3. Select the online policy \\( \pi_t \\) using the optimism-in-face-of-uncertainty principle: \\( \pi_t = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} + \hat{U}^{\pi}_{\text{Alg}} \\).
+2. Call the oracle algorithm: \\( (\hat{V}^{\pi}\_{\text{Alg}}, \hat{U}^{\pi}\_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) \\).
+3. Select the online policy \\( \pi_t \\) using the optimism-in-face-of-uncertainty principle: \\( \pi\_t = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} + \hat{U}^{\pi}\_{\text{Alg}} \\).
 4. Execute \\( \pi_t \\) to collect a trajectory \\( \tau_t \\).
-5. Update the online dataset: \\( \mathcal{D}_t = \mathcal{D}_{t-1} \cup \{\tau_t\} \\).
+5. Update the online dataset: \\( \mathcal{D}\_t = \mathcal{D}\_{t-1} \cup \{\tau_t\} \\).
 
 For sub-optimality gap minimization, after \\( N_1 \\) episodes:
 
-1. Call the oracle algorithm with the full dataset: \\( (\hat{V}^{\pi}_{\text{Alg}}, \hat{U}^{\pi}_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{N_1}) \\).
-2. Output the policy \\( \hat{\pi} \\) using the pessimism principle: \\( \hat{\pi} = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} - \hat{U}^{\pi}_{\text{Alg}} \\).
+1. Call the oracle algorithm with the full dataset: \\( (\hat{V}^{\pi}\_{\text{Alg}}, \hat{U}^{\pi}\_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}\_0 \cup \mathcal{D}_{N_1}) \\).
+2. Output the policy \\( \hat{\pi} \\) using the pessimism principle: \\( \hat{\pi} = \arg \max_{\pi} \hat{V}^{\pi}\_{\text{Alg}} - \hat{U}^{\pi}_{\text{Alg}} \\).
 
 ---
 
 ### 📐 Theoretical Contributions
 
-The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^*}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^*}(\pi)/U_{M^*}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, \\( \sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}} \\), bounding the cumulative uncertainty of chosen policies.
+The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $ \sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}} $, bounding the cumulative uncertainty of chosen policies.
 
 #### 1. **Sub-optimality Bound**
 
@@ -1488,9 +1488,9 @@ The paper proposes Temporal Difference Flows (TD-Flow), which includes variants 
 
 1. Flow Matching Foundation: Flow Matching learns a time-dependent probability path $m_t$ from a source distribution $m_0$ to a target $m_1$ by training a neural network $\tilde{v}_t(\cdot \cdot \cdot ; \theta)$ to approximate the vector field $v_t$ that generates this path. The Conditional Flow Matching (CFM) loss is used:
 $$
-\ell_{mc-cfm}(\theta) = E_{\rho,t,Z,X_t} [ \| \tilde{v}_t(X_t | S, A; \theta) - u_{t|Z}(X_t | Z) \|^2 ]
+\ell_{mc-cfm}(\theta) = E_{\rho,t,Z,X_t} [ \| \tilde{v}_t(X_t | S, A; \theta) - u_{t\vert Z}(X_t \verts Z) \|^2 ]
 $$
-where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t|Z}$ is the closed-form conditional vector field.
+where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t\vert Z}$ is the closed-form conditional vector field.
 
 2. TD-Flow Variants for GHMs: The paper extends CFM to a temporal difference setting, leveraging the Bellman equation.
 3. Extension to Diffusion Models (TD-DD and TD²-DD):
@@ -1501,8 +1501,24 @@ where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t|Z}$ is the
 
 The paper provides significant theoretical insights into the convergence and variance properties of TD-Flow methods.
 
-- Convergence to Successor Measure (Theorem 1 and Corollary 1):
-- Reduced Gradient Variance (Theorem 2 and 3):
+- Convergence to Successor Measure (Theorem 1 and Corollary 1): Theorem 1 establishes that, under the ideal assumption of exact minimization of the flow-matching loss at each iteration, the probability paths $m^{(n+1)}_t$ generated by TD-CFM, Coupled TD-CFM, and TD²-CFM effectively follow an update rule $m^{(n+1)}_t(\cdot | s, a) = \mathcal{B}_t^\pi m^{(n)}_t(\cdot | s, a)$. This operator $\mathcal{B}_t^\pi m := (1 - \gamma)P_t + \gamma P^\pi m$ is shown to be a $\gamma$-contraction in 1-Wasserstein distance ($W_1$).
+$$
+ \sup_{s,a} W_1 ((\mathcal{B}_t^\pi p_t) (\cdot | s, a), (\mathcal{B}_t^\pi q_t) (\cdot | s, a)) \le \gamma \sup_{s,a} W_1 (p_t(\cdot | s, a), q_t(\cdot | s, a)) 
+$$
+This contraction property directly implies (Corollary 1) that the sequence of probability paths $\{m^{(n)}_t\}_{n \ge 0}$ produced by these methods converges to a unique fixed point $m_t^* = \mathcal{B}_t^\pi m_t^*$, which surprisingly coincides with the probability path that would be generated by Monte-Carlo Conditional Flow Matching (mc-cfm) if direct samples from $m_\pi$ were available. A subtle point is that this property holds for $n \ge 1$ for all methods, but for $n=0$ only for TD²-CFM, implying differences in their initial learning dynamics despite converging to the same fixed point.
+
+- Reduced Gradient Variance (Theorem 2 and 3): The paper's primary theoretical contribution is a detailed analysis of the gradient variance, which explains the empirical superiority of TD² methods.
+Theorem 2 compares TD-CFM and TD²-CFM, showing that:
+$$
+\sigma^2_{td-cfm} = \sigma^2_{td2-cfm} + \gamma^2 E_\rho \left[ \text{Tr Cov}_{X_1|S,A,X_t} \left[ \nabla_\theta \tilde{v}_t(X_t | S, A; \theta)^\top u_{t|1}(X_t | X_1) \right] \right]
+$$
+This indicates that TD-CFM has an additional variance term, "discounted" by $\gamma^2$. This extra variance arises from the samples generated by the algorithm itself (computational variance), as opposed to solely from the dataset.
+Theorem 3 extends this analysis to Coupled TD-CFM:
+$$
+\sigma^2_{td-cfm(c)} = \sigma^2_{td2-cfm} + \gamma^2 E_\rho \left[ \text{Tr Cov}_{Z|S,A,X_t} \left[ \nabla_\theta \tilde{v}_t(X_t | S, A; \theta)^\top u_{t|Z}(X_t | Z) \right] \right]
+$$
+where $Z = (X_0, X_1)$. Crucially, for straight conditional paths ($X_t = tX_1 + (1-t)X_0$) without crossing paths, it is shown that $\sigma^2_{td-cfm(c)} = \sigma^2_{td2-cfm}$. This explains why TD-CFM(C) performs comparably to TD²-CFM with linear paths, but its performance degrades with non-linear paths because the additional variance term re-emerges.
+This theoretical finding suggests that TD²-CFM (and TD²-DD) should exhibit more stable training, especially for large $\gamma$ (long horizons), due to their reduced gradient variance.
 
 ---
 
