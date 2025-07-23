@@ -8,7 +8,7 @@ layout: default
 **Tags**: 
 
 ---
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
