@@ -10,7 +10,7 @@ layout: default
 **Tags**: Hybrid RL, Offline RL, Online RL, Sub-optimality Gap, Regret Minimization, Theoretical RL, Concentrability Coefficient
 
 ---
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -147,7 +147,7 @@ Goals:
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -270,7 +270,7 @@ As a theoretical solution, the paper proposes regularizing to a "pessimistic Bay
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -424,7 +424,7 @@ The experiments investigate two main questions: 1) how different policy paramete
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### Core Idea
@@ -548,7 +548,7 @@ In essence, the paper provides a comprehensive analytical and empirical framewor
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### Core Idea
@@ -657,7 +657,7 @@ The paper does not include any experimental results. The authors state this in t
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -790,7 +790,7 @@ Key findings include:
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -982,7 +982,7 @@ Limitations and Future Work:
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -1131,7 +1131,7 @@ The theoretical findings are complemented by extensive empirical evaluations in 
 
 ---
 
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -1275,7 +1275,7 @@ The W-MCTS algorithm (both OS and TS variants) was evaluated on a suite of stoch
 **Tags**: Constrained MDP, Entropy Regularization, Lagrangian dual function
 
 ---
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -1402,7 +1402,7 @@ The provided paper does not include an experimental section. The analysis is pur
 **Tags**: Geometric Horizon Models, TD Learning, Flow Matching
 
 ---
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
@@ -1496,7 +1496,7 @@ $$
 **Tags**:  Imitation learning, Diffusion
 
 ---
-<details>
+<details markdown="1">
   <summary>Read More</summary>
 
 ### 🧠 Core Idea
