@@ -59,13 +59,13 @@ This paper introduces a unified hybrid reinforcement learning (RL) framework tha
 
 The framework leverages confidence-based online RL algorithms augmented with the offline data to address two key learning objectives: minimizing the sub-optimality gap of the learned policy and minimizing the cumulative online regret.
 
-The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function `\( \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` for any policy \\( \pi \\), along with a high-probability uncertainty function `\( \hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` that bounds the estimation error: `\( \hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}_{M^*} - \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` with probability at least \\( 1-\delta \\).
+The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \\( \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) for any policy \\( \pi \\), along with a high-probability uncertainty function \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) that bounds the estimation error: \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}\_{M^*} - \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) with probability at least \\( 1-\delta \\).
 
 The unified algorithm proceeds as follows:
 
 For \\( t=1, \dots, N_1 \\) online episodes:
 
-1. Augment the online dataset \\( \mathcal{D}_{t-1} \\) collected so far with the offline dataset \\( \mathcal{D}_0 \\) to form \\( \mathcal{D}_0 \cup \mathcal{D}_{t-1} \\).
+1. Augment the online dataset \\( \mathcal{D}_{t-1} \\) collected so far with the offline dataset \\( \mathcal{D}_0 \\) to form \\( \mathcal{D}\_0 \cup \mathcal{D}\_{t-1} \\).
 2. Call the oracle algorithm: \\( (\hat{V}^{\pi}_{\text{Alg}}, \hat{U}^{\pi}_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) \\).
 3. Select the online policy \\( \pi_t \\) using the optimism-in-face-of-uncertainty principle: \\( \pi_t = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} + \hat{U}^{\pi}_{\text{Alg}} \\).
 4. Execute \\( \pi_t \\) to collect a trajectory \\( \tau_t \\).
