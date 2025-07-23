@@ -40,7 +40,7 @@ The core problem is to design a unified hybrid algorithm that rigorously combine
 While hybrid RL empirically shows promise, combining offline data and online interactions for efficiency, prior theoretical studies have faced limitations:
 
 *   **Limited Unified Understanding**: Existing works often focus on specific settings (e.g., tabular MDPs [Li et al., 2023, Xie et al., 2021b], linear MDPs [Wagenmaker and Pacchiano, 2023], or bandits [Agrawal et al., 2023, Cheung and Lyu, 2024]), lacking a general framework and unified analysis across different RL problems.
-*   **Complex/Less General Concentrability**: Previous analyses often rely on specific or complex concentrability coefficients (e.g., \(C^\star$\) [Xie et al., 2021b], \(C^\star(\sigma)\) [Li et al., 2023], \(C_{o2o}\) [Wagenmaker and Pacchiano, 2023], or all-policy coefficients [Tan et al., 2024]), which can be harder to interpret or less general than desired.
+*   **Complex/Less General Concentrability**: Previous analyses often rely on specific or complex concentrability coefficients (e.g., \(C^\star\) [Xie et al., 2021b], \(C^\star(\sigma)\) [Li et al., 2023], \(C_{o2o}\) [Wagenmaker and Pacchiano, 2023], or all-policy coefficients [Tan et al., 2024]), which can be harder to interpret or less general than desired.
 *   **Suboptimal or Specific Bounds**:
     *   For **sub-optimality gap**, prior hybrid results typically scale as \( \tilde{O}(\sqrt{C_{\text{off}}/(N_0 + N_1) + \sqrt{C_{\text{on}}/N_1}}) \) (e.g., as discussed for Li et al. [2023], Tan and Xu [2024]). Pure offline yields \( \tilde{O}(\sqrt{C_{cl}/N_0}) \), and pure online \( \tilde{O}(1/\sqrt{N_1}) \).
     *   For **regret minimization**, previous works show bounds like \( \tilde{O}(\sqrt{N_1}\sqrt{C_{\text{off}}N_1/N_0} + \sqrt{C_{\text{on}}N_1}) \) (e.g., Tan and Xu [2024]), or \( \tilde{O}(N_1/\sqrt{N_0/C + N_1}) \) in specific bandit cases [Cheung and Lyu, 2024]. Pure online regret is \( \tilde{O}(\sqrt{N_1}) \).
@@ -1437,7 +1437,7 @@ m^\pi (X | s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X | S
 $$
 
 where:
-- \( \gamma \in[0,1) \) is the discount factor, which geometrically discounts the importance of future states.
+- \( \gamma \in [0,1) \) is the discount factor, which geometrically discounts the importance of future states.
 - The term \( \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi) \) denotes the probability that the state at timestep \( k+1 \) is in the set \( X \), given that the agent started in state \( s \), took action \( a \), and subsequently followed policy \( \pi \).
 - The summation \( \sum_{k=0}^\infty \) accounts for the entire future trajectory from the initial state-action pair.
 - The normalization constant \( (1−\gamma) \) ensures that \( m^\pi(S∣s,a)=1 \), making it a valid probability measure over the state space.
