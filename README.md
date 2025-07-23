@@ -1462,22 +1462,74 @@ $$
 
 #### Geometric Horizon Model
 
-A GHM or \\(\gamma\\)-model is a generative model of the normalized successor measure.
+A GHM or \\(\gamma\\)-model is a generative model of the normalized successor measure. The core objective is to train a parameterized model,  $\tilde{m}(\cdot\vert S,A;\theta)$, to approximate the true successor measure, $m^\pi$. This is framed as a minimization problem using cross-entropy. The loss function, $L(\theta)$, is defined as the expected negative log-likelihood of the true successor states under the model's distribution:
+
+$$
+\arg \min_{\theta} \mathbb{E}_{S \sim \rho, X \sim \tilde{m}^{\pi}(\cdot \vert S, \pi(S))} \left[ - \log \tilde{m}(X \vert S, A; \theta) \right].
+$$
+
+- $\rho$ is a arbitrary distribution from which the initial state-action pairs $(S,A)$ are sampled.
+- $m^\pi(\cdot \vert S,A)$: The true, unknown successor measure distribution for a given policy $\pi$, starting from $(S,A)$. We sample a future state $X$ from this distribution.
+  
+Since sampling from the $m^\pi$ is problematic, the method instead leverages the Bellman equation for the successor measure. The parameters $\theta$ are updated iteratively. To find the parameters for the next iteration, $\theta^{(n+1)}$, we solve a temporal-difference (TD) minimization problem  over transitions that need not come from policy $\pi$.
+
+$$
+\theta^{(n+1)} = \underset{\theta}{\arg\min} \mathbb{E}_{(S,A) \sim \rho, X \sim (\mathcal{T}^{\pi_{\tilde{m}^{(n)}}}) (\cdot|S,A)} \left[ -\log \tilde{m}(X \vert S, A; \theta) \right].
+$$
+The expression $X \sim (\mathcal{T}^{\pi_{\tilde{m}^{(n)}}})$ means we are generating a target sample $X$ as follows:
+
+1. From the initial state-action pair $(S,A)$, sample a next state $S'\sim P(\cdot\vert S,A)$.
+2. With probability $1−\gamma$, the target sample is this next state, $X=S'$.
+3. With probability $\gamma$, the target sample $X$ is drawn from our model's distribution starting from the next state-action pair, i.e., $X\sim \tilde{m}^{(n)}(\cdot\vert S',\pi(S'))$.
+
+#### Temporal Difference Flows
+
+The paper proposes Temporal Difference Flows (TD-Flow), which includes variants based on Conditional Flow Matching (CFM) and Denoising Diffusion Models (DDM). The goal is to learn a parametric model \\(\hat{m}(\cdot \cdot \cdot ; \theta) \approx m\_\pi\\), where $m_\pi$ is the normalized successor measure, which is the fixed point of the Bellman operator $T^\pi$: $m_\pi (\cdot \vert s, a) = (T^\pi m_\pi ) (\cdot \vert s, a) := (1 - \gamma)P (\cdot \vert s, a) + \gamma (P^\pi m_\pi ) (\cdot \vert s, a)$ where $(P^\pi m) (dx \vert s, a) = \int_{s'} P (ds' \vert s, a) m(dx \vert s', \pi(s'))$.
+
+1. Flow Matching Foundation: Flow Matching learns a time-dependent probability path $m_t$ from a source distribution $m_0$ to a target $m_1$ by training a neural network $\tilde{v}_t(\cdot \cdot \cdot ; \theta)$ to approximate the vector field $v_t$ that generates this path. The Conditional Flow Matching (CFM) loss is used:
+$$
+\ell_{mc-cfm}(\theta) = E_{\rho,t,Z,X_t} [ \| \tilde{v}_t(X_t | S, A; \theta) - u_{t|Z}(X_t | Z) \|^2 ]
+$$
+where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t|Z}$ is the closed-form conditional vector field.
+
+2. TD-Flow Variants for GHMs: The paper extends CFM to a temporal difference setting, leveraging the Bellman equation.
+3. Extension to Diffusion Models (TD-DD and TD²-DD):
 
 ---
 
 ### 📐 Theoretical Contributions
 
+The paper provides significant theoretical insights into the convergence and variance properties of TD-Flow methods.
+
+- Convergence to Successor Measure (Theorem 1 and Corollary 1):
+- Reduced Gradient Variance (Theorem 2 and 3):
 
 ---
 
 ### 📊 Experiments
 
+The paper empirically validates TD-Flow across 22 tasks from 4 DeepMind Control Suite domains (Maze, Walker, Cheetah, Quadruped).
+
+Evaluation Metrics:
+- Generative Metrics: Earth Mover's Distance (EMD) and Normalized Negative Log-Likelihood (NLL) to quantify the fidelity of the learned successor measure.
+- Downstream Task Metric: Mean Squared Error of the Value Function (MSE(V)) approximated using the learned GHM.
+- Planning Performance: Generalized Policy Improvement (GPI) integrated with behavior foundation models.
+
+Key Experimental Findings:
+1. Scaling Effective Horizon: TD² methods (TD²-CFM, TD²-DD) demonstrate impressive robustness to increasing effective horizons (up to 100, which is 5x higher than prior methods). Their performance (measured by MSE(V)) remains consistent, while other approaches show significant degradation, with TD² methods achieving nearly four orders of magnitude improvement at long horizons.
+2. Single-Policy GHM Evaluation (Table 1): TD²-based algorithms consistently outperform TD-CFM, TD-DD, and baselines (GAN, VAE) across all metrics and domains. TD²-CFM often achieves the best performance (e.g., 10x reduction in MSE(V) and 3x reduction in NLL compared to TD-CFM). Flow matching generally shows better performance than diffusion, possibly due to noise in diffusion models impacting noisy long-horizon prediction.
+3. Impact of Path Geometry (Table 2): When using curved conditional paths, TD²-CFM maintains or even improves performance, while TD-CFM(C) shows significant degradation. This empirically supports the theoretical prediction that TD²-CFM is less sensitive to the choice of conditional path geometry due to its inherent variance reduction.
+4. Planning via Generalized Policy Improvement (GPI) (Figure 3):
+- Integrating TD-Flow GHMs with pre-trained behavior foundation models for planning yields substantial performance gains.
+- TD-based GHM approaches, particularly TD-CFM(C) and TD²-CFM, achieve approx 30\%+ improvement in average returns over the base - Forward-Backward (FB) policy, demonstrating their utility for long-term decision-making.
+- FB-based GPI, in contrast, fails to improve and often deteriorates performance.
+- GHM methods exhibit robustness across different policy sampling distributions during GPI, unlike FB-GPI which fluctuates considerably.
 
 ---
 
 ### 📈 Key Takeaways
 
+Temporal Difference Flows represent a significant advancement in learning long-horizon predictive models of state. By rigorously applying the temporal difference structure to flow-matching and diffusion models, and specifically by introducing the $TD^2$ variants, the paper effectively addresses the critical challenge of bootstrapping instability and high gradient variance. This innovation enables the learning of accurate Geometric Horizon Models that can predict states over horizons 5x longer than previous state-of-the-art methods. The theoretical analysis clearly demonstrates that the efficacy of $TD^2$ methods stems from their ability to reduce gradient variance. Empirically, TD-Flow not only outperforms existing generative models for GHMs on fidelity metrics but also translates these improvements into substantial gains in downstream tasks like policy evaluation and planning through Generalized Policy Improvement, underscoring its promise for robust, long-term decision-making in complex environments.
 
 ---
 </details>
