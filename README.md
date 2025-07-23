@@ -1428,7 +1428,7 @@ Accurate and reliable long-horizon predictions are fundamental for intelligent a
 ### 🛠️ Method Overview
 
 
-#### Sccessor Measure
+#### Successor Measure
 
 The normal **successor measure** of a policy \( \pi \) describes the discounted distribution of future states visisted by \( \pi \) starting from an initial state-action pair \( (s,a) \). For any policy \( \pi \), initial state-action pair \( (s,a)\in S×A \), and any measurable subset of states \( X\subset S \), the successor measure \( m^\pi(X∣s,a) \) is defined as the discounted, cumulative probability that the state trajectory falls within the set \( X \). The formal definition is given by the following equation:
 
@@ -1459,6 +1459,10 @@ The operator \( P^\pi \) mixes the one-step transition kernel with the successor
 $$
 (P^\pi m)(\mathrm{d}x \mid s, a) = \int_{s'} P(\mathrm{d}s' \mid s, a) m(\mathrm{d}x \mid s', \pi(s')).
 $$
+
+#### Geometric Horizon Model
+
+A GHM or \(\gamma\)-model is a generative model of the normalized successor measure.
 
 ---
 
