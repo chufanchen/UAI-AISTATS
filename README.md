@@ -1421,7 +1421,7 @@ Accurate and reliable long-horizon predictions are fundamental for intelligent a
 
 #### Sccessor Measure
 
-The normal **successor measure** of a policy $\pi$ describes the discounted distribution of future states visisted by $\pi$ starting from an initial state-action pair $(s,a). For any policy $\pi$, initial state-action pair $(s,a)\in S×A$, and any measurable subset of states $X\subset S$, the successor measure $m^\pi(X∣s,a)$ is defined as the discounted, cumulative probability that the state trajectory falls within the set $X$. The formal definition is given by the following equation:
+The normal **successor measure** of a policy $\pi$ describes the discounted distribution of future states visisted by $\pi$ starting from an initial state-action pair $(s,a)$. For any policy $\pi$, initial state-action pair $(s,a)\in S×A$, and any measurable subset of states $X\subset S$, the successor measure $m^\pi(X∣s,a)$ is defined as the discounted, cumulative probability that the state trajectory falls within the set $X$. The formal definition is given by the following equation:
 
 $$
 m^\pi (X | s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi),
