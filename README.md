@@ -267,6 +267,7 @@ As a theoretical solution, the paper proposes regularizing to a "pessimistic Bay
 **Authors**: Junyu Xuan, Mengjing Wu, Zihe Liu, Jie Lu
 **Conference**: UAI 2024  
 **Tags**: Policy Optimization, Uncertainty
+
 ---
 
 <details>
@@ -420,6 +421,7 @@ The experiments investigate two main questions: 1) how different policy paramete
 **Authors**: Khimya Khetarpal, Zhaohan Daniel Guo, Bernardo Avila Pires, Yunhao Tang, Clare Lyle, Mark Rowland, Nicolas Heess, Diana Borsa, Arthur Guez, Will Dabney
 **Conference**: AISTATS 2025  
 **Tags**: Self Predictive Learning
+
 ---
 
 <details>
@@ -543,6 +545,7 @@ In essence, the paper provides a comprehensive analytical and empirical framewor
 **Authors**: Daniil Tiapkin, Evgenii Chzhen, Gilles Stoltz
 **Conference**: AISTATS 2025  
 **Tags**: Adversarial Markov Decision Processes
+
 ---
 
 <details>
@@ -651,6 +654,7 @@ The paper does not include any experimental results. The authors state this in t
 **Authors**: Chengrui Qu, Laixi Shi, Kishan Panaganti, Pengcheng You, Adam Wierman
 **Conference**: AISTATS 2025  
 **Tags**: Hybrid Transfer RL, Distribution shift, Sample Complexity
+
 ---
 
 <details>
@@ -783,6 +787,7 @@ Key findings include:
 **Authors**: Abhishek Sharma, Leo Benac, Sonali Parbhoo, Finale Doshi-Velez
 **Conference**: AISTATS 2025  
 **Tags**: Batch Reinforcement Learning, Safe Policy Improvement
+
 ---
 
 <details>
