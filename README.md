@@ -1387,6 +1387,99 @@ The provided paper does not include an experimental section. The analysis is pur
 }
 ```
 
+## [Temporal Difference Flows](https://arxiv.org/abs/2503.09817)
+**Authors**: Jesse Farebrother, Matteo Pirotta, Andrea Tirinzoni, Rémi Munos, Alessandro Lazaric, Ahmed Touati
+**Conference**: ICML 2025
+**Tags**: Geometric Horizon Models, TD Learning, Flow Matching
+
+---
+<details>
+  <summary>Read More</summary>
+
+### 🧠 Core Idea
+
+The paper introduces Temporal Difference Flows (TD-Flow), a novel generative modeling approach for learning Geometric Horizon Models (GHMs). TD-Flow leverages a new Bellman equation defined on probability paths, combined with flow-matching and denoising diffusion techniques, to address the challenge of accurately predicting future states over long horizons. The core innovation lies in structuring the learning objective and sampling procedure to reduce the variance of sample-based gradient estimates, enabling stable and high-quality predictions far beyond the capabilities of prior methods.
+
+---
+
+### ❓ Problem Statement
+
+#### What problem is the paper solving?
+
+Traditional world models in Reinforcement Learning (RL) predict future states by unrolling dynamics step-by-step. This approach suffers from compounding errors, where small inaccuracies at each step accumulate, severely limiting their effectiveness for long-horizon reasoning and planning, a phenomenon referred to as the "curse of horizon". While Geometric Horizon Models (GHMs) offer an alternative by directly learning a generative model of future states, avoiding cumulative inference errors, existing methods face significant limitations during training. Specifically, their reliance on bootstrapped predictions (sampling from the model itself during training) leads to instability and growing inaccuracy over long horizons, restricting accurate predictions to typically 20-50 steps.
+
+---
+
+### 🎯 Motivation
+
+Accurate and reliable long-horizon predictions are fundamental for intelligent agents to perform reasoning and planning in complex environments. Standard world models are inherently limited by compounding errors. GHMs, based on the successor measure and leveraging temporal difference (TD) learning, offer a promising path by directly modeling future state distributions. However, their training instability at long horizons necessitates a new approach. The paper is motivated by the insight that the iterative nature of modern generative models like flow matching and denoising diffusion, while not directly applicable to GHMs, can be adapted to better exploit the temporal difference structure of the successor measure problem. This adaptation aims to reduce the gradient variance associated with bootstrapped predictions, thereby enabling stable and accurate long-horizon predictions.
+
+---
+
+### 🛠️ Method Overview
+
+
+#### Sccessor Measure
+
+The normal **successor measure** of a policy $\pi$ describes the discounted distribution of future states visisted by $\pi$ starting from an initial state-action pair $(s,a). For any policy $\pi$, initial state-action pair $(s,a)\in S×A$, and any measurable subset of states $X\subset S$, the successor measure $m^\pi(X∣s,a)$ is defined as the discounted, cumulative probability that the state trajectory falls within the set $X$. The formal definition is given by the following equation:
+
+$$
+m^\pi (X | s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi),
+$$
+where:
+- $\gamma \in[0,1)$ is the discount factor, which geometrically discounts the importance of future states.
+- The term $\Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi)$ denotes the probability that the state at timestep $k+1$ is in the set $X$, given that the agent started in state $s$, took action $a$, and subsequently followed policy $\pi$.
+- The summation $\sum_{k=0}^\infty$ accounts for the entire future trajectory from the initial state-action pair.
+- The normalization constant $(1−\gamma)$ ensures that $m^\pi(S∣s,a)=1$, making it a valid probability measure over the state space.
+
+A key advantage of the successor measure is its ability to decouple the environment's transition dynamics from the task-specific reward function, $r(s)$. This allows for the efficient computation of the state-action value function, $Q^\pi(s,a)$, for any reward function. The relationship is expressed as:
+
+$$
+Q^\pi(s, a) = (1 - \gamma)^{-1} \mathbb{E}_{X \sim m^\pi(\cdot|s,a)}[r(X)].
+$$
+
+The successor measure is the unique fixed point of a Bellman operator, $\mathcal{T}^\pi: \mathcal{P}(S)^{S\times A} \rightarrow \mathcal{P}(S)^{S\times A}$. This operator provides a recursive definition for the successor measure, which is fundamental for its computation. The Bellman equation for the successor measure is:
+
+$$
+m^{\pi}(\cdot \mid s, a) = (\mathcal{T}^{\pi}m^{\pi})(\cdot \mid s, a) := (1 - \gamma)P(\cdot \mid s, a) + \gamma(P^{\pi}m^{\pi})(\cdot \mid s, a).
+$$
+
+The operator $P^\pi$ mixes the one-step transition kernel with the successor measure from the subsequent states. It is formally defined as:
+
+$$
+(P^\pi m)(\mathrm{d}x \mid s, a) = \int_{s'} P(\mathrm{d}s' \mid s, a) m(\mathrm{d}x \mid s', \pi(s')).
+$$
+
+---
+
+### 📐 Theoretical Contributions
+
+
+---
+
+### 📊 Experiments
+
+
+---
+
+### 📈 Key Takeaways
+
+
+---
+</details>
+
+### 📚 Citation
+
+```bibtex
+@inproceedings{author2023title,
+  title={Title},
+  author={Author, First and Author, Second},
+  booktitle={Conference Name},
+  year={2023},
+  url={URL}
+}
+```
+
 ## [Latent Diffusion Planning for Imitation Learning](https://arxiv.org/abs/2504.16925) 
 **Authors**: Amber Xie, Oleh Rybkin, Dorsa Sadigh, Chelsea Finn
 **Conference**: ICML 2025
