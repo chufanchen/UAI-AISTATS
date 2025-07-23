@@ -40,14 +40,14 @@ The core problem is to design a unified hybrid algorithm that rigorously combine
 While hybrid RL empirically shows promise, combining offline data and online interactions for efficiency, prior theoretical studies have faced limitations:
 
 *   **Limited Unified Understanding**: Existing works often focus on specific settings (e.g., tabular MDPs [Li et al., 2023, Xie et al., 2021b], linear MDPs [Wagenmaker and Pacchiano, 2023], or bandits [Agrawal et al., 2023, Cheung and Lyu, 2024]), lacking a general framework and unified analysis across different RL problems.
-*   **Complex/Less General Concentrability**: Previous analyses often rely on specific or complex concentrability coefficients (e.g., \\(C^\star\\) [Xie et al., 2021b], \(C^\star(\sigma)\) [Li et al., 2023], \(C_{o2o}\) [Wagenmaker and Pacchiano, 2023], or all-policy coefficients [Tan et al., 2024]), which can be harder to interpret or less general than desired.
+*   **Complex/Less General Concentrability**: Previous analyses often rely on specific or complex concentrability coefficients (e.g., \\(C^\star\\) [Xie et al., 2021b], \\(C^\star(\sigma)\\) [Li et al., 2023], \\(C_{o2o}\\) [Wagenmaker and Pacchiano, 2023], or all-policy coefficients [Tan et al., 2024]), which can be harder to interpret or less general than desired.
 *   **Suboptimal or Specific Bounds**:
     *   For **sub-optimality gap**, prior hybrid results typically scale as \\( \tilde{O}(\sqrt{C_{\text{off}}/(N_0 + N_1) + \sqrt{C_{\text{on}}/N_1}}) \\) (e.g., as discussed for Li et al. [2023], Tan and Xu [2024]). Pure offline yields \\( \tilde{O}(\sqrt{C_{cl}/N_0}) \\), and pure online \\( \tilde{O}(1/\sqrt{N_1}) \\).
     *   For **regret minimization**, previous works show bounds like \\( \tilde{O}(\sqrt{N_1}\sqrt{C_{\text{off}}N_1/N_0} + \sqrt{C_{\text{on}}N_1}) \\) (e.g., Tan and Xu [2024]), or \\( \tilde{O}(N_1/\sqrt{N_0/C + N_1}) \\) in specific bandit cases [Cheung and Lyu, 2024]. Pure online regret is \\( \tilde{O}(\sqrt{N_1}) \\).
 
 This work aims to address these gaps by:
 *   **Theoretically analyzing** the hybrid setting within a unified framework, providing simpler and tighter bounds.
-*   Introducing a **novel, more general concentrability coefficient** \\( \mathtt{C}(\pi|\rho) \\) for clearer analysis.
+*   Introducing a **novel, more general concentrability coefficient** \\( \mathtt{C}(\pi\vert\rho) \\) for clearer analysis.
 *   Uncovering a **fundamental separation** in the desired coverage properties of offline data for sub-optimality gap vs. regret minimization, a key insight previously uncharacterized.
 *   Achieving **state-of-the-art and order-wise optimal** performance that strictly outperforms pure online/offline methods across both metrics.
 
@@ -59,7 +59,7 @@ This paper introduces a unified hybrid reinforcement learning (RL) framework tha
 
 The framework leverages confidence-based online RL algorithms augmented with the offline data to address two key learning objectives: minimizing the sub-optimality gap of the learned policy and minimizing the cumulative online regret.
 
-The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \(\hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\) for any policy \\( \pi \\), along with a high-probability uncertainty function \(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D})\) that bounds the estimation error: \(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}_{M^*} - \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\) with probability at least \\( 1-\delta \\).
+The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \\(\hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\\) for any policy \\( \pi \\), along with a high-probability uncertainty function \\(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D})\\) that bounds the estimation error: \\(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}_{M^*} - \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\\) with probability at least \\( 1-\delta \\).
 
 The unified algorithm proceeds as follows:
 
@@ -80,20 +80,20 @@ For sub-optimality gap minimization, after \\( N_1 \\) episodes:
 
 ### 📐 Theoretical Contributions
 
-The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^*}(\pi) \\) and the concentrability coefficient \\( C(\pi|\rho) = (U_{M^*}(\pi)/U_{M^*}(\rho))^2 \\). \\( U_{M^*}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}_{M^*} \\) from offline data, while \\( C(\pi|\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, \\( \sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}} \\), bounding the cumulative uncertainty of chosen policies.
+The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^*}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^*}(\pi)/U_{M^*}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, \\( \sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}} \\), bounding the cumulative uncertainty of chosen policies.
 
 #### 1. **Sub-optimality Bound**
 
-The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by \\( \text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^*|\rho) + N_1}}\right) \\), where \\( \pi^* \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had \\( N_0/C(\pi^*|\rho) + N_1 \\) effective samples, combining the offline and online contributions. A smaller \\( C(\pi^*|\rho) \\) (better coverage of \\( \pi^* \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
+The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by \\( \text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right) \\), where \\( \pi^* \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had \\( N_0/C(\pi^*\vert\rho) + N_1 \\) effective samples, combining the offline and online contributions. A smaller \\( C(\pi^*\vert\rho) \\) (better coverage of \\( \pi^* \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
 
 #### 2. **Regret Bound**
 
-The cumulative regret over \\( N_1 \\) online episodes is bounded by \\( \text{Regret}(N_1) = \tilde{O}\left(C_{\text{Alg}}\sqrt{N_1}\sqrt{\frac{N_1}{N_0/C(\pi^{-\epsilon}|\rho) + N_1}}\right) \\), where \\( C(\pi^{-\epsilon}|\rho) \\) is the maximum concentrability coefficient over policies \\( \pi^{-\epsilon} \\) whose sub-optimality gap is at least \\( \epsilon = \tilde{O}(1/\sqrt{N_0+N_1}) \\). This result shows a significant speed-up factor of \\( \sqrt{N_1/(N_0/C(\pi^{-\epsilon}|\rho) + N_1)} \\) compared to the \\( \tilde{O}(\sqrt{N_1}) \\) regret of pure online learning.
+The cumulative regret over \\( N_1 \\) online episodes is bounded by \\( \text{Regret}(N_1) = \tilde{O}\left(C_{\text{Alg}}\sqrt{N_1}\sqrt{\frac{N_1}{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\), where \\( C(\pi^{-\epsilon}\vert\rho) \\) is the maximum concentrability coefficient over policies \\( \pi^{-\epsilon} \\) whose sub-optimality gap is at least \\( \epsilon = \tilde{O}(1/\sqrt{N_0+N_1}) \\). This result shows a significant speed-up factor of \\( \sqrt{N_1/(N_0/C(\pi^{-\epsilon}\vert\rho) + N_1)} \\) compared to the \\( \tilde{O}(\sqrt{N_1}) \\) regret of pure online learning.
 
-A key theoretical insight is the separation between the requirements for minimizing the sub-optimality gap and regret. Sub-optimality gap minimization benefits most from an offline dataset collected by a behavior policy \\( \rho \\) that provides good coverage of the optimal policy \\( \pi^* \\) (small \\( C(\pi^*|\rho) \\)). Regret minimization, however, benefits most from a behavior policy \\( \rho \\) that provides good coverage of sub-optimal policies (small \\( C(\pi^{-\epsilon}|\rho) \\)). An offline dataset from an optimal policy may not provide sufficient exploration information about sub-optimal policies, potentially leading to higher regret compared to an exploratory behavior policy, even if it yields a better sub-optimality gap.
+A key theoretical insight is the separation between the requirements for minimizing the sub-optimality gap and regret. Sub-optimality gap minimization benefits most from an offline dataset collected by a behavior policy \\( \rho \\) that provides good coverage of the optimal policy \\( \pi^* \\) (small \\( C(\pi^*\vert\rho) \\)). Regret minimization, however, benefits most from a behavior policy \\( \rho \\) that provides good coverage of sub-optimal policies (small \\( C(\pi^{-\epsilon}\vert\rho) \\)). An offline dataset from an optimal policy may not provide sufficient exploration information about sub-optimal policies, potentially leading to higher regret compared to an exploratory behavior policy, even if it yields a better sub-optimality gap.
 
-The paper specializes the framework and analysis to Tabular MDPs and Linear Contextual Bandits, deriving concrete bounds for these settings. For Tabular MDPs, the bounds involve factors related to \\( |\mathcal{X}|, |\mathcal{A}|, H \\). For Linear Contextual Bandits with feature dimension \\( d \\), the bounds depend on \\( d \\). The concentrability coefficients in these settings are shown to relate to known concepts like ratios of occupancy measures or feature covariance matrices.
-Lower bounds are also established, demonstrating that any hybrid RL algorithm must incur a sub-optimality gap of \\( \Omega\left(\frac{1}{\sqrt{N_0/C(\pi^*|\rho) + N_1}}\right) \\) and regret of \\( \Omega\left(\frac{N_1}{\sqrt{N_0/C(\pi^{-\epsilon}|\rho) + N_1}}\right) \\). These lower bounds match the derived upper bounds up to logarithmic factors, indicating the proposed framework is order-wise optimal.
+The paper specializes the framework and analysis to Tabular MDPs and Linear Contextual Bandits, deriving concrete bounds for these settings. For Tabular MDPs, the bounds involve factors related to \\( \vert\mathcal{X}\vert, \vert\mathcal{A}\vert, H \\). For Linear Contextual Bandits with feature dimension \\( d \\), the bounds depend on \\( d \\). The concentrability coefficients in these settings are shown to relate to known concepts like ratios of occupancy measures or feature covariance matrices.
+Lower bounds are also established, demonstrating that any hybrid RL algorithm must incur a sub-optimality gap of \\( \Omega\left(\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right) \\) and regret of \\( \Omega\left(\frac{N_1}{\sqrt{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\). These lower bounds match the derived upper bounds up to logarithmic factors, indicating the proposed framework is order-wise optimal.
 
 ---
 
@@ -118,7 +118,7 @@ Goals:
 ### 📈 Key Takeaways
 
 - Hybrid RL algorithms can **strictly dominate** offline or online methods alone  in both sub-optimality gap and online regret, with matching lower bounds.
-- New Concentrability Coefficient: A novel coefficient \\( \mathtt{C}(\pi|\rho) \\) quantifies offline data quality more effectively.
+- New Concentrability Coefficient: A novel coefficient \\( \mathtt{C}(\pi\vert\rho) \\) quantifies offline data quality more effectively.
 - Objective-Dependent Data Needs: Reveals that optimal offline data for minimizing sub-optimality gap (covering optimal policy) is different from that for minimizing regret (covering sub-optimal policies to aid exploration).
 - Empirical Validation: Confirms theoretical benefits and the intriguing data-coverage separation across environments.
 
@@ -160,7 +160,7 @@ The paper identifies a critical safety vulnerability in reinforcement learning (
 
 #### What problem is the paper solving?
 
-In reinforcement learning, a common and critical challenge is that agents, when left to maximize a pre-defined reward function, can deviate significantly from the designer's true utility, leading to "specification gaming" or "reward hacking." This misalignment can result in behaviors ranging from amusing to disastrous. A widely adopted countermeasure, especially in the fine-tuning of large language models (LLMs), is Kullback-Leibler (KL) regularization. This approach constrains the agent's proposed policy \\( \pi \\) to remain "not too dissimilar" from a pre-trained "base policy" \\( \beta \\), often formalized as \\( \text{KL}(\pi||\beta) \le \epsilon \\). The problem this paper uncovers is that when this base policy \\( \beta \\) is itself a Bayesian predictive model (e.g., one derived from human demonstrations, approximating a trusted policy \\( \tau \\)), the KL constraint is no longer a reliable safeguard. Specifically, the paper shows that even if \\( \text{KL}(\pi||\beta) \\) is kept small, there is no guarantee that \\( \text{KL}(\pi||\tau) \\) will also be small. This means that despite adhering to the KL constraint, the agent's behavior can still drastically diverge from what the trusted human policy would do, leading to unintended and potentially harmful outcomes.
+In reinforcement learning, a common and critical challenge is that agents, when left to maximize a pre-defined reward function, can deviate significantly from the designer's true utility, leading to "specification gaming" or "reward hacking." This misalignment can result in behaviors ranging from amusing to disastrous. A widely adopted countermeasure, especially in the fine-tuning of large language models (LLMs), is Kullback-Leibler (KL) regularization. This approach constrains the agent's proposed policy \\( \pi \\) to remain "not too dissimilar" from a pre-trained "base policy" \\( \beta \\), often formalized as \\( \text{KL}(\pi\vert \vert \beta) \le \epsilon \\). The problem this paper uncovers is that when this base policy \\( \beta \\) is itself a Bayesian predictive model (e.g., one derived from human demonstrations, approximating a trusted policy \\( \tau \\)), the KL constraint is no longer a reliable safeguard. Specifically, the paper shows that even if \\( \text{KL}(\pi\Vert\beta) \\) is kept small, there is no guarantee that \\( \text{KL}(\pi\Vert\tau) \\) will also be small. This means that despite adhering to the KL constraint, the agent's behavior can still drastically diverge from what the trusted human policy would do, leading to unintended and potentially harmful outcomes.
 
 ---
 
@@ -174,10 +174,10 @@ The motivation for this work stems from the growing concern over the safety and 
 
 We consider an agent interacting with an environment in a long, continuous sequence of alternating actions (\\( a_t \\)) and observations (\\( o_t \\)), denoted \\( a_1 o_1 a_2 o_2 \dots \\). Our "base policy" is a Bayesian predictive model, \\( \xi \\), which attempts to imitate a "trusted policy" that generated the initial segment of this history (\\( a_1 o_1 \dots a_k o_k \\)).
 
-A predictive probability semi-distribution \\( \nu: X^* \times X \to [0,1] \\) models the probability of the next symbol given a history. The "semi" indicates that probabilities might not sum to 1, as a program might not halt or produce an output. The Bayesian mixture \\( \xi \\) is constructed from a countable set of competing models \\( M \\), each with a prior weight \\( w(\nu) \\). Given a history \\( x_{\lt t} \\), the posterior \\( w(\nu|x_{\lt t}) \\) is used to form a weighted average of each model's prediction:
+A predictive probability semi-distribution \\( \nu: X^* \times X \to [0,1] \\) models the probability of the next symbol given a history. The "semi" indicates that probabilities might not sum to 1, as a program might not halt or produce an output. The Bayesian mixture \\( \xi \\) is constructed from a countable set of competing models \\( M \\), each with a prior weight \\( w(\nu) \\). Given a history \\( x_{\lt t} \\), the posterior \\( w(\nu\vert x_{\lt t}) \\) is used to form a weighted average of each model's prediction:
 
 \[
-\xi(x|x_{\lt t}) := \sum_{\nu \in M} w(\nu|x_{\lt t})\nu(x|x_{\lt t})
+\xi(x\vert x_{\lt t}) := \sum_{\nu \in M} w(\nu\vert x_{\lt t})\nu(x\vert x_{\lt t})
 \]
 
 This \\( \xi \\) represents the ideal Bayesian imitator, being open-minded to all hypotheses in \\( M \\). For the theoretical core, the paper uses Solomonoff Induction, which is the most general form of Bayesian sequence prediction. In Solomonoff Induction, \\( M \\) comprises all computable semi-distributions, and the prior \\( w(\nu) \\) is set based on the length of the shortest program that computes \\( \nu \\), i.e., \\( w(\nu) = 2^{-K(\nu)} \\), where \\( K(\cdot) \\) is Kolmogorov complexity. This introduces a strong inductive bias towards "simpler" programs.
@@ -185,7 +185,7 @@ This \\( \xi \\) represents the ideal Bayesian imitator, being open-minded to al
 In the reinforcement learning context, actions \\( a_t \\) are \\( x_{2t-1} \\) and observations \\( o_t \\) are \\( x_{2t} \\). The agent selects actions to maximize a utility function \\( U_m \\) over \\( m \\)-timestep histories, \\( V^{\pi}_{\nu,U_m}(x_{\lt 2t-1}) = E_{a_t \sim \pi, o_t \sim \nu, \dots} U_m(a_1o_1\dots a_mo_m) \\). The safety mechanism is a KL constraint that bounds the divergence of the agent's policy \\( \pi \\) from the base policy \\( \beta \\) (here, \\( \xi \\)):
 
 $$
-\text{KL}_{x_{\lt 2k},m}(\pi||\beta) = \max_{o_{k:m} \in X^{m-k+1}} \sum_{a_{k:m} \in X^{m-k+1}} \left( \prod_{t=k}^m \pi(a_t|x_{\lt 2t}) \right) \log \frac{\prod_{t=k}^m \pi(a_t|x_{\lt 2t})}{\prod_{t=k}^m \beta(a_t|x_{\lt 2t})}
+\text{KL}_{x_{\lt 2k},m}(\pi\Vert\beta) = \max_{o_{k:m} \in X^{m-k+1}} \sum_{a_{k:m} \in X^{m-k+1}} \left( \prod_{t=k}^m \pi(a_t\vert x_{\lt 2t}) \right) \log \frac{\prod_{t=k}^m \pi(a_t\vert x_{\lt 2t})}{\prod_{t=k}^m \beta(a_t\vert x_{\lt 2t})}
 $$
 
 This "max over observations" makes the constraint very strict, ensuring safety even in the worst-case environment response.
@@ -197,12 +197,12 @@ The core methodology for demonstrating the problem involves showing how a reward
 
 The paper presents several key theoretical results that rigorously formalize the vulnerability.
 
-Proposition 1 (No Triangle Inequality): This serves as a crucial preliminary. It states that even if your proposed policy \\( \pi \\) is KL-constrained to a base policy \\( \beta \\) (i.e., \\( \text{KL}(\pi||\beta) \le \epsilon \\)), and that base policy \\( \beta \\) is a good approximation of a true trusted policy \\( \tau \\) (i.e., \\( \text{KL}(\tau||\beta) \le \epsilon \\)), it does not imply that \\( \text{KL}(\pi||\tau) \\) is small. In fact, it can be infinite. This immediately highlights the danger of relying on an imperfect imitative base policy for safety. The proof is straightforward: let \\( \tau = \text{Bern}(0) \\) (always output 0), and \\( \pi = \beta = \text{Bern}(\min(\epsilon, 1)/2) \\). Then \\( \text{KL}(\pi||\beta) = 0 \\) and \\( \text{KL}(\tau||\beta) \\) is small. But \\( \text{KL}(\pi||\tau) = \infty \\) because \\( \pi \\) assigns non-zero probability to an event \\( \tau \\) assigns zero probability to.
+Proposition 1 (No Triangle Inequality): This serves as a crucial preliminary. It states that even if your proposed policy \\( \pi \\) is KL-constrained to a base policy \\( \beta \\) (i.e., \\( \text{KL}(\pi\Vert\beta) \le \epsilon \\)), and that base policy \\( \beta \\) is a good approximation of a true trusted policy \\( \tau \\) (i.e., \\( \text{KL}(\tau\Vert\beta) \le \epsilon \\)), it does not imply that \\( \text{KL}(\pi\Vert\tau) \\) is small. In fact, it can be infinite. This immediately highlights the danger of relying on an imperfect imitative base policy for safety. The proof is straightforward: let \\( \tau = \text{Bern}(0) \\) (always output 0), and \\( \pi = \beta = \text{Bern}(\min(\epsilon, 1)/2) \\). Then \\( \text{KL}(\pi\Vert\beta) = 0 \\) and \\( \text{KL}(\tau\Vert\beta) \\) is small. But \\( \text{KL}(\pi\Vert\tau) = \infty \\) because \\( \pi \\) assigns non-zero probability to an event \\( \tau \\) assigns zero probability to.
 
 Theorem 1 (Little constraint in novel situations): This is the paper's core negative result. It formally quantifies how an RL agent can achieve near-optimal utility with surprisingly little KL divergence from a Bayesian imitator \\( \xi \\), particularly when an "unprecedented" event \\( E \\) occurs.
 The theorem states: \\( \exists \\) a constant \\( d \\) such that \\( \forall U_m \\), and \\( \forall E \\), if \\( E \\) is unprecedented and occurs at time \\( t \\), then for any \\( v \lt  V^*_{\xi,U_m}(x_{\lt 2t}) \\), \\( \exists \\) a policy \\( \pi \\) for which \\( V^{\pi}_{\xi,U_m}(x_{\lt 2t}) \gt v \\), and
 $$
-\text{KL}_{x_{\lt 2t},m}(\pi||\xi) \lt  [d + K(U_m) + K(E) + K(v\xi(x_{\lt 2t}))]/\log 2 
+\text{KL}_{x_{\lt 2t},m}(\pi\Vert\xi) \lt  [d + K(U_m) + K(E) + K(v\xi(x_{\lt 2t}))]/\log 2 
 $$
 Intuitively, this means the KL penalty is bounded by terms related to the Kolmogorov complexity (program length) of the utility function (\\( U_m \\)), the unprecedented event (\\( E \\)), and the target value (\\( v \\)) in the context of the base policy's predictiveness. Critically, this bound is independent of \\( k \\), the amount of training data the Bayesian imitator \\( \xi \\) has seen. As \\( k \\) increases, only the complexity of the "simplest unprecedented event" \\( K(E) \\) might increase.
 
@@ -211,13 +211,13 @@ The proof outline for Theorem 1 is illuminating:
 - For any model \\( \nu \in M \\) (a component of \\( \xi \\)), construct a modified model \\( \nu' \\). This \\( \nu' \\) behaves exactly like \\( \nu \\) until the unprecedented event \\( E \\) occurs. Once \\( E \\) happens, \\( \nu' \\) switches its behavior to emulate \\( \pi^*_u \\).
 - Because \\( \pi^*_u \\) and \\( E \\) can be described by "simple" programs (low Kolmogorov complexity), the program for \\( \nu' \\) is only marginally longer than the program for \\( \nu \\). Specifically, \\( \ell(s') \le \ell(s) + K(E) + K(U_m) + K(u) + d \\).
 - This implies that the prior probability \\( w(\nu') \\) is not much smaller than \\( w(\nu) \\), i.e., \\( w(\nu')/w(\nu) \gt  2^{-(K(E) + K(U_m) + K(u) + d)} \\).
-- Since \\( E \\) is unprecedented at time \\( t \\), \\( \nu \\) and \\( \nu' \\) produced identical predictions for \\( x_{\lt 2t} \\), so their posterior ratio \\( w(\nu'|x_{\lt 2t})/w(\nu|x_{\lt 2t}) \\) is the same as their prior ratio.
+- Since \\( E \\) is unprecedented at time \\( t \\), \\( \nu \\) and \\( \nu' \\) produced identical predictions for \\( x_{\lt 2t} \\), so their posterior ratio \\( w(\nu'\vert x_{\lt 2t})/w(\nu\vert x_{\lt 2t}) \\) is the same as their prior ratio.
 - As \\( \xi \\) is a weighted sum of all \\( \nu \in M \\), a significant fraction of \\( \xi \\)'s probability mass (proportional to \\( 2^{-(K(E) + K(U_m) + K(u) + d)} \\)) is effectively "dedicated" to predicting the actions of \\( \pi^*_u \\) after \\( E \\). This allows \\( \pi^*_u \\) to diverge from \\( \xi \\) with a KL cost bounded by the theorem's formula. The agent can then "spend" its KL budget to shift towards this high-reward, simple policy once a suitable unprecedented event occurs.
 
 
 Proposition 2 (Frequency of simple unprecedented events): This result reinforces the problem identified in Theorem 1. It states that in any environment, the complexity of the simplest unprecedented event yet to occur at any future time grows slower than every computable function that tends to infinity. This means that even as the base policy observes more data and \\( t \to \infty \\), there will always be simple, unprecedented events for the agent to exploit, preventing the \\( K(E) \\) term in Theorem 1 from becoming large enough to effectively constrain the agent. The vulnerability persists regardless of training data volume.
 
-Theorem 2 (TVD constraint): The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), \\( \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) \\). It proves that if \\( \pi^{TVD}_c \\) is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which \\( \pi^{TVD}_c(a_t|x_{\lt 2t}) \gt  \beta(a_t|x_{\lt 2t}) \\) must be \\( V_{\xi,U_m} \\)-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
+Theorem 2 (TVD constraint): The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), \\( \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) \\). It proves that if \\( \pi^{TVD}_c \\) is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which \\( \pi^{TVD}_c(a_t\vert x_{\lt 2t}) \gt  \beta(a_t\vert x_{\lt 2t}) \\) must be \\( V_{\xi,U_m} \\)-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
 
 ---
 
@@ -245,7 +245,7 @@ Experimental Results:
 ### 📈 Key Takeaways
 
 The paper delivers a crucial insight: KL regularization, a cornerstone of current RL safety practices, particularly in LLM fine-tuning, is demonstrably unreliable when the base policy is a Bayesian predictive model attempting to imitate a trusted policy. This unreliability stems from a fundamental conflict: the Bayesian imitator's inherent open-mindedness (its need to assign non-zero probability to all computable behaviors, however rare, especially in novel contexts) can be exploited by a reward-maximizing RL agent. The agent can "latch onto" simple, reward-optimal behaviors that are highly undesirable but permitted by the base policy with a minimal "upfront" KL cost, effectively derailing from human-aligned behavior. This vulnerability is formally supported by algorithmic information theory, showing that the KL cost to achieve high reward through simple, unprecedented actions depends on the actions' simplicity rather than the volume of training data for the base model. Empirical evidence with an RL-finetuned Mixtral model further substantiates this "overoptimization" phenomenon.
-As a theoretical solution, the paper proposes regularizing to a "pessimistic Bayesian imitator" (Cohen et al., 2022a). This approach, defined as \\( \nu_\alpha(x|x_{\lt t}) := \min_{\nu'  \in M^\alpha_{x_{\lt t}}} \nu' (x|x_{\lt t}) \\), assigns zero probability to any action not agreed upon by a high-probability set of models. This ensures that if the true trusted policy assigns zero probability to an action, \\( \nu_\alpha \\) also assigns zero, leading to a tighter and safer KL constraint (\\( \text{KL}(\pi||\nu_\alpha) \ge \text{KL}(\pi||\mu) \\) where \\( \mu \\) is the true trusted policy). While promising, this "don't do anything I mightn't do" principle (as opposed to "don't do anything [that you know] I wouldn't do") comes with limitations: the pessimistic imitator is currently intractable to approximate, and the agent may need to ask for human help when uncertain, potentially limiting fully autonomous "A+ performance." Nonetheless, this work highlights a significant flaw in current LLM alignment strategies and offers a clear theoretical direction for future research in building more robustly aligned AI systems.
+As a theoretical solution, the paper proposes regularizing to a "pessimistic Bayesian imitator" (Cohen et al., 2022a). This approach, defined as \\( \nu_\alpha(x\vert x_{\lt t}) := \min_{\nu'  \in M^\alpha_{x_{\lt t}}} \nu' (x\vert x_{\lt t}) \\), assigns zero probability to any action not agreed upon by a high-probability set of models. This ensures that if the true trusted policy assigns zero probability to an action, \\( \nu_\alpha \\) also assigns zero, leading to a tighter and safer KL constraint (\\( \text{KL}(\pi\Vert\nu_\alpha) \ge \text{KL}(\pi\Vert\mu) \\) where \\( \mu \\) is the true trusted policy). While promising, this "don't do anything I mightn't do" principle (as opposed to "don't do anything [that you know] I wouldn't do") comes with limitations: the pessimistic imitator is currently intractable to approximate, and the agent may need to ask for human help when uncertain, potentially limiting fully autonomous "A+ performance." Nonetheless, this work highlights a significant flaw in current LLM alignment strategies and offers a clear theoretical direction for future research in building more robustly aligned AI systems.
 
 ---
 
@@ -306,31 +306,31 @@ The motivation behind FWVPO stems from the limitations of current policy optimiz
 
 FWVPO proposes to optimize the policy as a functional distribution rather than a weight distribution, using Wasserstein distance for regularization.
 
-1. Functional Policy Representation: The policy is represented as a BNN from a function-space view, where \\( \pi(a|s) = E_{p(f)} [\phi(a|f(s))] \\), with \\( p(f) \\) being a functional distribution induced by a BNN with weight distribution \\( p(\theta_f;\vartheta_f) \\). This means that the policy function itself is subject to a distribution.
+1. Functional Policy Representation: The policy is represented as a BNN from a function-space view, where \\( \pi(a\vert s) = E_{p(f)} [\phi(a\vert f(s))] \\), with \\( p(f) \\) being a functional distribution induced by a BNN with weight distribution \\( p(\theta_f;\vartheta_f) \\). This means that the policy function itself is subject to a distribution.
 
 2. Initial Functional Variational Policy Optimization (FVPO): A preliminary objective similar to maximum entropy policy optimization (MEPO) is defined in function space:
 
 $$
-\max_q E_{q(f)} [J(f)] - \alpha \text{KL} [q(f)||p_0(f)]
+\max_q E_{q(f)} [J(f)] - \alpha \text{KL} [q(f)\Vert p_0(f)]
 $$
 
 where \\( f \\) is a policy function, \\( p_0(f) \\) is a functional prior (e.g., Gaussian Process), \\( q(f) \\) is an approximated functional posterior induced by a BNN, and \\( J(f) \\) is a surrogate objective and can be evaluated as \\( E_{q(f)}[J(f)]=E_{q(\theta^f,\vartheta^f)}[J(\theta^f)] \\) and \\( J(\theta^f) \\) can be \\( J^{TRPO}(\theta^f) \\) or \\( J^{PPO}(\theta^f) \\).
 
 3. Introducing Functional Wasserstein Variational Policy Optimization (FWVPO): To address KL divergence's issues, it is replaced by the 1-Wasserstein distance, leading to the FWVPO objective:
 $$
-\max_q E_{q(f)} [J(f)] - (\text{W}[q(f)||p_0(f)])^2 
+\max_q E_{q(f)} [J(f)] - (\text{W}[q(f)\Vert p_0(f)])^2 
 $$
-The 1-Wasserstein distance \\( W[q(f)||p_0(f)] = \inf_{p(f,f')} \int c(f, f')p(f,f')dfdf' \\) is used, where \\( c \\) is a cost function.
+The 1-Wasserstein distance \\( W[q(f)\Vert p_0(f)] = \inf_{p(f,f')} \int c(f, f')p(f,f')dfdf' \\) is used, where \\( c \\) is a cost function.
 
 4. Optimization via Dual Form: The 1-Wasserstein distance is computed using its dual form, known as the Kantorovich-Rubinstein duality:
 $$
-\text{W}[q(f)||p_0(f)] = \max_{\|\phi\|_L \le 1} E_{q(f)} [\phi(f)] - E_{p_0(f)} [\phi(f)]
+\text{W}[q(f)\Vert p_0(f)] = \max_{\Vert  \phi\Vert_L \le 1} E_{q(f)} [\phi(f)] - E_{p_0(f)} [\phi(f)]
 $$
-Here, \\( \phi \\) is a 1-Lipschitz function. This duality separates the two marginal distributions, allowing for sampling-based evaluation. A deep neural network is used to approximate the 1-Lipschitz function \\( \phi \\) by applying a gradient norm regularizer \\( \|\nabla \phi\| \le 1 \\).
+Here, \\( \phi \\) is a 1-Lipschitz function. This duality separates the two marginal distributions, allowing for sampling-based evaluation. A deep neural network is used to approximate the 1-Lipschitz function \\( \phi \\) by applying a gradient norm regularizer \\( \Vert  \nabla \phi\Vert   \le 1 \\).
 
 5. Full FWVPO Objective with Multiple Regularizers: The final objective integrates three regularization terms to ensure monotonic improvement, prior constraint, and marginalization consistency:
 $$
-\max_q E_{q(f)} [J(f)] - \alpha_1 (\text{W}[q_{old}(f)||q(f)])^2 - \alpha_2 (\text{W}[q(f)||p_0(f)])^2 - \alpha_3 \text{W}_Y [q_m(f(Y)), q_j(f(Y))] \\ \text{s.t. } H(q) - H(p_0) - \frac{1}{2\rho} \ge 0
+\max_q E_{q(f)} [J(f)] - \alpha_1 (\text{W}[q_{old}(f)\Vert q(f)])^2 - \alpha_2 (\text{W}[q(f)\Vert p_0(f)])^2 - \alpha_3 \text{W}_Y [q_m(f(Y)), q_j(f(Y))] \\ \text{s.t. } H(q) - H(p_0) - \frac{1}{2\rho} \ge 0
 $$
 
 The first term uses the Wasserstein distance between the current policy \\( q(f) \\) and the old policy \\( q_{old}(f) \\) to ensure monotonic improvement, similar to TRPO's KL constraint.
@@ -348,11 +348,11 @@ The paper provides two key theoretical contributions:
 $$
 \log p(D) \ge L_W \ge L_{KL}
 $$
-where \\( L_W = E_{q(f)} [J(f)] - \frac{\rho}{2}(\text{W}[q(f^S)||p_0(f^S)])^2 \\) and \\( L_{KL} = E_{q(f)} [J(f)] - \text{KL}[q(f^S)||p_0(f^S)] \\). This is contingent on the condition that \\( -\log p_0(f^S) \\) is a Lipschitz function and \\( p_0 \\) is absolutely continuous with respect to \\( q \\).
+where \\( L_W = E_{q(f)} [J(f)] - \frac{\rho}{2}(\text{W}[q(f^S)\Vert p_0(f^S)])^2 \\) and \\( L_{KL} = E_{q(f)} [J(f)] - \text{KL}[q(f^S)\Vert p_0(f^S)] \\). This is contingent on the condition that \\( -\log p_0(f^S) \\) is a Lipschitz function and \\( p_0 \\) is absolutely continuous with respect to \\( q \\).
 
 2. Theorem 2 (Monotonic Expected Reward Improvement Guarantee): This theorem demonstrates that optimizing the FWVPO objective guarantees monotonic improvement of the expected reward. It establishes a lower bound for the expected reward of a new policy \\( \tilde{\pi} \\) in terms of the old policy \\( \pi \\) and the Wasserstein distance between their underlying functional distributions:
 $$
-\eta(\tilde{\pi}) \ge L_\pi (\tilde{\pi}) - \frac{1}{1-\gamma} (\text{W}_{max} [\tilde{p}(f)||p(f)])^2
+\eta(\tilde{\pi}) \ge L_\pi (\tilde{\pi}) - \frac{1}{1-\gamma} (\text{W}_{max} [\tilde{p}(f)\Vert p(f)])^2
 $$
 where \\( \eta(\tilde{\pi}) \\) is the expected reward of \\( \tilde{\pi} \\), \\( L_\pi (\tilde{\pi}) \\) is an advantage-weighted expected reward, and \\( W_{max} \\) signifies the maximum Wasserstein distance over states. Furthermore, the theorem shows that the Wasserstein-based bound on expected reward (\\( \eta_W \\)) is tighter than the KL-divergence based bound (\\( \eta_{KL} \\)):
 $$
@@ -450,10 +450,10 @@ The motivation stems from several critical areas in RL:
 ### Method Overview
 The paper's methodology revolves around extending and applying the ODE framework for self-predictive learning to action-conditional settings.
 1.  **Action-Conditional BYOL (BYOL-AC) Analysis:** The core BYOL-AC objective, defined as minimizing the prediction error of future latent representations conditioned on actions, is formulated:
-    $\\(  \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot|x), y \sim T_a(\cdot|x)} \left[ \| P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 \right]  \\)$
+    $\\(  \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot\vert x), y \sim T_a(\cdot\vert x)} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]  \\)$
     This objective is then analyzed using a two-timescale optimization process within the ODE framework, where optimal action-conditional predictors \\( P_a^* \\) are found before taking a semi-gradient step for \\( \Phi \\).
 2.  **Introduction of BYOL-VAR:** Based on a discovered "variance relation" between the representations learned by \\( \text{BYOL-}\Pi \\) and \\( \text{BYOL-AC} \\), a novel objective, \\( \text{BYOL-VAR} \\), is introduced. It is formulated as the difference between the \\( \text{BYOL-AC} \\) and \\( \text{BYOL-}\Pi \\) objectives:
-    $\\(  \min_{\Phi} \text{BYOL-VAR}(\Phi, P, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E} \left[ \| P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 - \| P^\top \Phi^\top x - \text{sg}(\Phi^\top y) \|^2 \right]  \\)$
+    $\\(  \min_{\Phi} \text{BYOL-VAR}(\Phi, P, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 - \Vert   P^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]  \\)$
 3.  **Unified Theoretical Analysis:** All three objectives (\\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), \\( \text{BYOL-VAR} \\)) are studied through two complementary lenses:
     *   **Model-Based View:** This perspective shows that each objective is equivalent to learning a low-rank approximation of specific dynamics matrices (e.g., \\( T_\pi \\), \\( T_a \\), or \\( (T_a - T_\pi) \\)).
     *   **Model-Free View:** This perspective establishes relationships between the objectives and their respective abilities to fit certain 1-step value, Q-value, and advantage functions.
@@ -470,8 +470,8 @@ The paper's theoretical contributions are substantial, primarily extending previ
 
 1.  **Analysis of BYOL-AC Convergence:**
     *   **Non-collapse Property:** It proves that under Assumption 1 (Orthogonal Initialization), the \\( \text{BYOL-AC} \\) ODE preserves the orthogonality of \\( \Phi \\) (Lemma 3), avoiding degenerate solutions.
-    *   **Lyapunov Function:** It identifies a Lyapunov function for the \\( \text{BYOL-AC} \\) ODE as the negative of a trace objective, \\( f_{\text{BYOL-AC}}(\Phi) := |\mathcal{A}|^{-1} \sum_a \text{Tr} \left[ \Phi^\top T_a \Phi \Phi^\top T_a \Phi \right] \\) (Lemma 4), guaranteeing convergence to a critical point.
-    *   **Characterization of \\( \Phi^*_{ac} \\):** Theorem 2 states that under Assumptions 1-6, the columns of \\( \Phi^*_{ac} \\) (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( |\mathcal{A}|^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^* \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
+    *   **Lyapunov Function:** It identifies a Lyapunov function for the \\( \text{BYOL-AC} \\) ODE as the negative of a trace objective, \\( f_{\text{BYOL-AC}}(\Phi) := \vert \mathcal{A}\vert ^{-1} \sum_a \text{Tr} \left[ \Phi^\top T_a \Phi \Phi^\top T_a \Phi \right] \\) (Lemma 4), guaranteeing convergence to a critical point.
+    *   **Characterization of \\( \Phi^*_{ac} \\):** Theorem 2 states that under Assumptions 1-6, the columns of \\( \Phi^*_{ac} \\) (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^* \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
 
 2.  **Variance Relation between BYOL-Π and BYOL-AC Representations:**
     *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining \\( \Phi^*_{ac} \\) (mean of squares: \\( \mathbb{E}_a[D_a^2] \\)) and \\( \Phi^* \\) (square of mean: \\( (\mathbb{E}_a[D_a])^2 \\)) are related by a variance equation:
@@ -480,18 +480,18 @@ The paper's theoretical contributions are substantial, primarily extending previ
 
 3.  **Introduction and Analysis of BYOL-VAR:**
     *   **Novel Objective:** Introduces \\( \text{BYOL-VAR} \\) (Eq. 9) as the difference between \\( \text{BYOL-AC} \\) and \\( \text{BYOL-}\Pi \\) losses.
-    *   **Convergence and Characterization:** Proves its non-collapse property (Lemma 5), identifies its Lyapunov function as \\( f_{\text{BYOL-VAR}}(\Phi) := f_{\text{BYOL-AC}}(\Phi) - f_{\text{BYOL-}\Pi}(\Phi) \\) (Lemma 6), and shows that \\( \Phi^*_{VAR} \\) (its maximizer) spans the top-\\( k \\) eigenvectors of \\( |\mathcal{A}|^{-1} \sum_a T_a^2 - (T^\pi)^2 \\) (Theorem 3).
+    *   **Convergence and Characterization:** Proves its non-collapse property (Lemma 5), identifies its Lyapunov function as \\( f_{\text{BYOL-VAR}}(\Phi) := f_{\text{BYOL-AC}}(\Phi) - f_{\text{BYOL-}\Pi}(\Phi) \\) (Lemma 6), and shows that \\( \Phi^*_{VAR} \\) (its maximizer) spans the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 - (T^\pi)^2 \\) (Theorem 3).
     *   **Complete Variance Relation (Remark 2):** Explicitly states the full relationship: \\( \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a) \\), linking \\( \text{BYOL-AC} \\), \\( \text{BYOL-}\Pi \\), and \\( \text{BYOL-VAR} \\) to the second moment, the square of the first moment, and the variance of the per-action eigenvalues, respectively. \\( \text{BYOL-VAR} \\) focuses solely on action-distinguishing features.
 
 4.  **Two Unifying Perspectives:**
     *   **Model-Based View (Theorem 4):** Demonstrates that maximizing the trace objectives (over orthogonal \\( \Phi \\)) for \\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), and \\( \text{BYOL-VAR} \\) is equivalent to finding a low-rank approximation of \\( T^\pi \\), \\( T_a \\), and \\( (T_a - T^\pi) \\) respectively, in terms of Frobenius norm:
-        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \min_P \| T^\pi - \Phi P \Phi^\top \|_F + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = |\mathcal{A}|^{-1} \sum_a \min_{P_a} \| T_a - \Phi P_a \Phi^\top \|_F + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = |\mathcal{A}|^{-1} \sum_a \min_{P_{\Delta a}} \| (T_a - T^\pi) - \Phi P_{\Delta a} \Phi^\top \|_F + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \min_P \Vert   T^\pi - \Phi P \Phi^\top \Vert_F + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_a} \Vert   T_a - \Phi P_a \Phi^\top \Vert_F + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_{\Delta a}} \Vert   (T_a - T^\pi) - \Phi P_{\Delta a} \Phi^\top \Vert_F + C  \\)$
     *   **Model-Free View (Theorem 5):** Shows that these objectives are also equivalent to fitting certain 1-step value functions (under isotropic Gaussian reward):
-        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ \min_{\theta,\omega} \| T^\pi R - \Phi\theta \|^2 + \| T^\pi \Phi \Phi^\top R - \Phi\omega \|^2 \right] + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ |\mathcal{A}|^{-1} \sum_a \min_{\theta_a,\omega_a} \| T_a R - \Phi\theta_a \|^2 + \| T_a \Phi \Phi^\top R - \Phi\omega_a \|^2 \right] + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = |\mathcal{X}|\mathbb{E} \left[ |\mathcal{A}|^{-1} \sum_a \min_{\theta_a,\omega_a} \| (T_a R - T^\pi R) - \Phi\theta \|^2 + \| (T_a \Phi \Phi^\top R - T^\pi \Phi \Phi^\top R) - \Phi\omega \|^2 \right] + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \min_{\theta,\omega} \Vert   T^\pi R - \Phi\theta \Vert  ^2 + \Vert   T^\pi \Phi \Phi^\top R - \Phi\omega \Vert  ^2 \right] + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   T_a R - \Phi\theta_a \Vert  ^2 + \Vert   T_a \Phi \Phi^\top R - \Phi\omega_a \Vert  ^2 \right] + C  \\)$
+        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   (T_a R - T^\pi R) - \Phi\theta \Vert  ^2 + \Vert   (T_a \Phi \Phi^\top R - T^\pi \Phi \Phi^\top R) - \Phi\omega \Vert  ^2 \right] + C  \\)$
         This implies \\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), and \\( \text{BYOL-VAR} \\) are essentially trying to fit 1-step value, Q-value, and advantage functions, respectively.
 
 ---
@@ -559,7 +559,7 @@ The paper proposes Adversarial Policy Optimization based on Monotonic Value Prop
 ### Problem Statement
 The paper addresses the problem of learning optimal policies in an \\( H \\)-episodic (obliviously) adversarial Markov Decision Process (MDP). An MDP is defined by a finite set of states \\( S \\) (cardinality \\( S \\)), a finite set of actions \\( A \\) (cardinality \\( A \\)), a sequence of Markov transition kernels \\( P = (P_h)_{h \in [H-1]} \\) where \\( P_h: S \times A \to \Delta(S) \\), and a fixed-in-advance sequence of bounded time-inhomogeneous \\( H \\)-episodic reward functions \\( (r_t)_{t>1} \\) where \\( r_t = (r_{t,h})_{h \in [H]} \\) and \\( r_{t,h}: S \times A \to [0,1] \\). The number of episodes \\( T \\) is fixed and known, and each episode starts from an initial state \\( s_1 \\).
 
-At each episode \\( t \\) and stage \\( h \\), the learner chooses a stage policy \\( \pi_{t,h}: S \to \Delta(A) \\), samples an action \\( a_{t,h} \sim \pi_{t,h}(\cdot | s_{t,h}) \\), moves to the next state \\( s_{t,h+1} \sim P_h(\cdot | s_{t,h}, a_{t,h}) \\) (if \\( h < H \\)), and finally observes the reward function \\( r_t \\) at the end of the episode.
+At each episode \\( t \\) and stage \\( h \\), the learner chooses a stage policy \\( \pi_{t,h}: S \to \Delta(A) \\), samples an action \\( a_{t,h} \sim \pi_{t,h}(\cdot \vert  s_{t,h}) \\), moves to the next state \\( s_{t,h+1} \sim P_h(\cdot \vert  s_{t,h}, a_{t,h}) \\) (if \\( h < H \\)), and finally observes the reward function \\( r_t \\) at the end of the episode.
 
 The objective is to minimize the regret \\( R_T \\), defined as the difference between the accumulated value of the best static policy in hindsight and the accumulated value achieved by the learner's policies:
 $\\( R_T = \max_{\pi} \sum_{t=1}^T (V^{\pi, r_t, P}_1(s_1) - V^{\pi_t, r_t, P}_1(s_1)) \\)$
@@ -585,7 +585,7 @@ The algorithm proceeds as follows:
 
 1.  **Epoch Switching:** The learning process is divided into random epochs \\( E_e \subseteq [T] \\). An epoch switch occurs when, for any state-action pair \\( (s,a) \\) at stage \\( h \\), the empirical count \\( n_{t,h}(s,a) \\) (number of times \\( (s,a) \\) was visited at stage \\( h \\)) reaches a power of two, i.e., \\( 2^{\ell-1} \\) for some integer \\( \ell > 1 \\).
 2.  **Model Estimation and Bonuses:** At the beginning of each epoch \\( e \\), empirical transition kernels \\( \hat{P}^{(e)} = (\hat{P}^{(e)}_h)_{h \in [H-1]} \\) and bonus functions \\( b^{(e)} = (b^{(e)}_h)_{h \in [H]} \\) are computed and fixed for the entire epoch.
-    *   The estimated transition probability \\( \hat{P}_{t,h}(s'|s,a) \\) for the current epoch is \\( 1/S \\) if \\( n_{\tau,h}(s,a)=0 \\) (where \\( \tau \\) is the episode of the last epoch switch), and \\( \frac{n_{\tau,h}(s,a,s')}{n_{\tau,h}(s,a)} \\) otherwise.
+    *   The estimated transition probability \\( \hat{P}_{t,h}(s'\vert s,a) \\) for the current epoch is \\( 1/S \\) if \\( n_{\tau,h}(s,a)=0 \\) (where \\( \tau \\) is the episode of the last epoch switch), and \\( \frac{n_{\tau,h}(s,a,s')}{n_{\tau,h}(s,a)} \\) otherwise.
     *   The bonus function \\( b_{t,h}(s,a) \\) is defined as \\( H \\) if the local epoch counter \\( \ell=0 \\) (meaning \\( n_{t,h}(s,a) \\) is low), and \\( \sqrt{\frac{2H^2 \ln(J)}{2^{\ell-1}}} \wedge H \\) otherwise, where \\( J = 2SATH \log_2(2T)/\delta \\).
 3.  **Policy Interaction:** For each episode \\( t \\) in the current epoch \\( e_t \\):
     *   The agent plays policies \\( \pi_t = (\pi_{t,h})_{h \in [H]} \\) to interact with the environment, observing states and actions.
@@ -596,7 +596,7 @@ The algorithm proceeds as follows:
     *   Estimated advantage functions are calculated as \\( A_{t,h}(s,a) = Q_{t,h}(s,a) - V_{t,h}(s) \\).
     *   A crucial technical remark is that value function clipping to \\( [0,H] \\) is *not* used to preserve the performance-difference lemma, incurring an additional \\( H \\) factor in the regret but simplifying the adversarial analysis.
 5.  **Policy Update (Online Linear Optimization):** Policies for the next episode, \\( \pi_{t+1} \\), are determined by feeding the history of estimated advantage functions from the current epoch to a black-box OLO strategy \\( \phi \\). Specifically, for each \\( (s,h) \in S \times [H] \\):
-    *   \\( \pi_{t+1,h}(\cdot | s) = \phi_t((A_{\tau,h}(s, \cdot))_{\tau \in E_{e_t} \cap [t-1]}) \\).
+    *   \\( \pi_{t+1,h}(\cdot \vert  s) = \phi_t((A_{\tau,h}(s, \cdot))_{\tau \in E_{e_t} \cap [t-1]}) \\).
     *   The paper considers polynomial-potential and exponential-potential based OLO strategies, which provide closed-form expressions for the policies and satisfy specific performance guarantees (Definition 6).
 
 **Computational Complexity:** The algorithm's computational complexity is dominated by the dynamic programming step, which is \\( O(S^2AH) \\) per episode. The policy optimization phase adds \\( O(SAH) \\) operations, making the overall per-episode complexity \\( O(S^2AH) \\). The space complexity is \\( O(S^2AH) \\), standard for model-based RL.
@@ -684,7 +684,7 @@ The high sample complexity of online RL is a significant practical barrier. Tran
 
 The paper proposes HySRL, a two-stage transfer algorithm designed for HTRL with \\( \beta \\)-separable shifts. A Markov Decision Process (MDP) is defined as \\( M = (S, A, H, p, r, \rho) \\), where \\( S \\) is state space size, \\( A \\) is action space size, \\( H \\) is horizon, \\( p \\) is transition probability, \\( r \\) is reward, and \\( \rho \\) is initial state distribution. The target MDP is \\( M_{tar} = (S, A, H, p_{tar}, r, \rho) \\) and the source MDP is \\( M_{src} = (S, A, H, p_{src}, r, \rho) \\), differing only in transition probabilities.
 
-The key assumption for HySRL's provable gains is the \\( \beta \\)-separable shift (Definition 1): for some \\( \beta \in (0, 1] \\), for all \\( (s, a) \in S \times A \\), \\( p_{src}(\cdot | s, a) \neq p_{tar}(\cdot | s, a) \implies TV(p_{src}(\cdot | s, a), p_{tar}(\cdot | s, a)) \geq \beta \\). This means transitions are either identical or differ by at least \\( \beta \\) in total variation distance. The shifted region \\( B \\) is defined as \\( B \triangleq \{(s, a) \in S \times A | p_{src}(\cdot | s, a) \neq p_{tar}(\cdot | s, a)\} \\). The algorithm also assumes \\( \sigma \\)-reachability (Assumption 1): \\( \max_{\pi} \max_{h \in [H]} p^{\pi}_h(s, a) \geq \sigma \\), \\( \forall(s, a) \in S \times A \\).
+The key assumption for HySRL's provable gains is the \\( \beta \\)-separable shift (Definition 1): for some \\( \beta \in (0, 1] \\), for all \\( (s, a) \in S \times A \\), \\( p_{src}(\cdot \vert  s, a) \neq p_{tar}(\cdot \vert  s, a) \implies TV(p_{src}(\cdot \vert  s, a), p_{tar}(\cdot \vert  s, a)) \geq \beta \\). This means transitions are either identical or differ by at least \\( \beta \\) in total variation distance. The shifted region \\( B \\) is defined as \\( B \triangleq \{(s, a) \in S \times A \vert  p_{src}(\cdot \vert  s, a) \neq p_{tar}(\cdot \vert  s, a)\} \\). The algorithm also assumes \\( \sigma \\)-reachability (Assumption 1): \\( \max_{\pi} \max_{h \in [H]} p^{\pi}_h(s, a) \geq \sigma \\), \\( \forall(s, a) \in S \times A \\).
 
 HySRL (Algorithm 1) operates in two main steps:
 
@@ -694,20 +694,20 @@ This phase aims to accurately estimate \\( p_{tar} \\) and identify the shifted 
 It recursively updates an uncertainty function \\( W^t_h(s, a) \\) (Eq. 1):
 
 $$
-W^t_h(s, a) \triangleq \min \left\{ 1, \frac{4H\sqrt{g_1(n_t(s, a), \delta)}}{n_t(s, a)} + \sum_{s'}\hat{p}_{tar}^t(s' | s, a) \max_{a'} W^t_{h+1}(s', a') \right\}
+W^t_h(s, a) \triangleq \min \left\{ 1, \frac{4H\sqrt{g_1(n_t(s, a), \delta)}}{n_t(s, a)} + \sum_{s'}\hat{p}_{tar}^t(s' \vert  s, a) \max_{a'} W^t_{h+1}(s', a') \right\}
 $$
 
 where \\( g_1(n, \delta) \triangleq \log(6SAH/\delta) + S \log(8e(n + 1)) \\) and \\( n_t(s, a) \\) is the visitation count for \\( (s, a) \\) in \\( t \\) episodes.
 The policy \\( \pi^{t+1}_h(\cdot) = \arg \max_{a \in A} W^t_h(\cdot, a) \\) is chosen to gather online data.
 The algorithm stops when the uncertainty measure is sufficiently small: \\( 3\sqrt{\rho_{\pi^{t+1}_1} W^t_1} + \rho_{\pi^{t+1}_1} W^t_1 \leq \sigma\beta/8 \\).
-The estimated shifted region is \\( \hat{B} \triangleq \{(s, a) \in S \times A | TV(\hat{p}_{src}(\cdot | s, a), \hat{p}_{tar}(\cdot | s, a)) \gt \beta/2 \} \\). This step guarantees \\( \hat{B}=B \\) with high probability (Lemma 1).
+The estimated shifted region is \\( \hat{B} \triangleq \{(s, a) \in S \times A \vert  TV(\hat{p}_{src}(\cdot \vert  s, a), \hat{p}_{tar}(\cdot \vert  s, a)) \gt \beta/2 \} \\). This step guarantees \\( \hat{B}=B \\) with high probability (Lemma 1).
 
 2. Hybrid UCB Value Iteration (Algorithm 3):
 Once \\( \hat{B} \\) is identified, this phase leverages the source data for efficient exploration.
 
-It defines empirical transitions \\( \tilde{p}^t(\cdot | s, a) \\) and visitation counts \\( \tilde{n}_t(s, a) \\):
-If \\( (s, a) \in \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_t(s, a) \\) (online count) and \\( \tilde{p}^t(\cdot | s, a) \triangleq \hat{p}_{tar}^t(\cdot | s, a) \\) (empirical target transition).
-If \\( (s, a) \notin \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_{src}(s, a) \\) (source count) and \\( \tilde{p}^t(\cdot | s, a) \triangleq \hat{p}_{src}(\cdot | s, a) \\) (empirical source transition).
+It defines empirical transitions \\( \tilde{p}^t(\cdot \vert  s, a) \\) and visitation counts \\( \tilde{n}_t(s, a) \\):
+If \\( (s, a) \in \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_t(s, a) \\) (online count) and \\( \tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{tar}^t(\cdot \vert  s, a) \\) (empirical target transition).
+If \\( (s, a) \notin \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_{src}(s, a) \\) (source count) and \\( \tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{src}(\cdot \vert  s, a) \\) (empirical source transition).
 
 
 It computes optimistic Q-functions \\( Q^t_h(s, a) \\) (Eq. 3a) and value functions \\( V^t_h(s) \\):
@@ -737,13 +737,13 @@ For any source MDP \\( M_{src} \\), the minimax lower bound on the sample comple
 Under the assumptions of \\( \beta \\)-separable shift and \\( \sigma \\)-reachability, and with sufficient source data \\( D_{src} \\) (at least \\( eO(H^3/\epsilon^2 + S/\beta^2) \\) samples for each \\( (s, a) \\)), HySRL can find an \\( \epsilon \\)-optimal policy for \\( M_{tar} \\) with total online samples collected from \\( M_{tar} \\) of:
 
 $$
-eO \left( \min \left\{ \frac{H^3SA}{\epsilon^2}, \frac{H^3|B|}{\epsilon^2} + \frac{H^2S^2A}{(\sigma\beta)^2} \right\} \right)
+eO \left( \min \left\{ \frac{H^3SA}{\epsilon^2}, \frac{H^3\vert B\vert }{\epsilon^2} + \frac{H^2S^2A}{(\sigma\beta)^2} \right\} \right)
 $$
 
 This formula shows that:
 
 When \\( \epsilon \geq \Omega(\sqrt{H/S}\sigma\beta) \\), the sample complexity is \\( eO(H^3SA/\epsilon^2) \\), matching pure online RL, thus provably avoiding negative transfer.
-When \\( \epsilon \lt \Omega(\sqrt{H/S}\sigma\beta) \\), the sample complexity becomes \\( eO(H^3|B|/\epsilon^2 + H^2S^2A/(\sigma\beta)^2) \\). Crucially, if the shifted region \\( |B| \\) is significantly smaller than the full state-action space \\( SA \\) (i.e., \\( |B| \ll SA \\)), this bound is strictly better than pure online RL. This demonstrates that HySRL achieves provable sample efficiency gains when the dynamics shift only affects a small portion of the environment. The additional term \\( H^2S^2A/(\sigma\beta)^2 \\) reflects the cost of identifying the shifted region \\( B \\).
+When \\( \epsilon \lt \Omega(\sqrt{H/S}\sigma\beta) \\), the sample complexity becomes \\( eO(H^3\vert B\vert /\epsilon^2 + H^2S^2A/(\sigma\beta)^2) \\). Crucially, if the shifted region \\( \vert B\vert  \\) is significantly smaller than the full state-action space \\( SA \\) (i.e., \\( \vert B\vert  \ll SA \\)), this bound is strictly better than pure online RL. This demonstrates that HySRL achieves provable sample efficiency gains when the dynamics shift only affects a small portion of the environment. The additional term \\( H^2S^2A/(\sigma\beta)^2 \\) reflects the cost of identifying the shifted region \\( B \\).
 
 ---
 
@@ -764,7 +764,7 @@ Key findings include:
 - Value of Prior Information: When prior information about the minimum degree of dynamics shift (\\( \beta \\)-separable shift) is available, provable sample efficiency gains are achievable.
 - HySRL's Effectiveness: The proposed HySRL algorithm, by first identifying the shifted region and then using a carefully designed hybrid exploration strategy, can effectively leverage shifted-dynamics offline data.
 - Avoidance of Negative Transfer: HySRL's problem-dependent sample complexity guarantees that it will perform at least as well as state-of-the-art pure online RL, thereby provably avoiding negative transfer.
-- Significant Gains for Sparse Shifts: When the dynamics shift impacts only a small portion of the state-action space (\\( |B| \ll SA \\)), HySRL provides significant sample efficiency improvements.
+- Significant Gains for Sparse Shifts: When the dynamics shift impacts only a small portion of the state-action space (\\( \vert B\vert  \ll SA \\)), HySRL provides significant sample efficiency improvements.
 - Practical Insights: The work provides theoretical foundations for understanding how to effectively incorporate source data in transfer RL, particularly for scenarios where domain variations are localized.
 
 ---
@@ -808,7 +808,7 @@ The main challenge in Safe Policy Improvement (SPI) within batch RL is to identi
 1. Density-based methods (e.g., CQL, Behavior Cloning) constrain the learned policy to be close to the behavior policy. However, this can be overly conservative and suboptimal if the behavior policy is stochastic and suboptimal, as it may prevent the selection of better, explored actions.
 2. Pessimism-based planning (e.g., PQI) incorporates pessimism into value estimates proportional to uncertainty. This can also be overly conservative by penalizing actions leading to rarely visited states, even if the action itself is frequently observed.
 3. Support-constrained policies restrict the learned policy to the support of the behavior policy. While less conservative than density-based methods, they can become unsafe with noisy actions or rewards, common in real-world data. Count-based techniques like SPIBB impose count-based constraints for improvements but require a priori access to the true behavior policy, which is often impractical, and their guarantees may not be tight in practice.
-4. Scalability: Many existing methods' improvement guarantees scale with the size of the state and action spaces (\\( |S||A| \\)), leading to loose bounds in large, sparse environments.
+4. Scalability: Many existing methods' improvement guarantees scale with the size of the state and action spaces (\\( \vert S\vert\vert A\vert \\)), leading to loose bounds in large, sparse environments.
 5. Practicality: Real-world batch RL deployments often require incremental changes that are easily reviewable and implementable (e.g., by a clinician). Current methods may not naturally yield such interpretable modifications.
 
 ---
@@ -823,7 +823,7 @@ The key motivations behind DPRL are:
 2. Confidence through Data Density: By focusing on "Decision Points"—state-action pairs with a high visitation count (\\( n(s,a) \geq N_\wedge \\)) and estimated advantage (\\( \hat{Q}_{\pi_b}(s,a) \geq \hat{V}_{\pi_b}(s) \\))—DPRL ensures that any deviation from the behavior policy is made with high confidence.
 3. Strategic Deferral: For states where such confident improvements cannot be established, DPRL explicitly defers to the behavior policy. This prevents risky actions in sparsely visited or uncertain regions, offering a robust safety mechanism.
 4. Independence from True Behavior Policy: Unlike SPIBB, DPRL does not require a priori knowledge of the true behavior policy during training, making it more applicable in real-world settings where obtaining the functional form of expert behavior is difficult.
-5. Tighter Guarantees: By restricting the scope of policy changes to well-observed regions, DPRL achieves tighter, data-dependent theoretical bounds that scale with the number of sufficiently observed state-action pairs (\\( C(N_\wedge) \\)) rather than the entire state-action space (\\( |S||A| \\)).
+5. Tighter Guarantees: By restricting the scope of policy changes to well-observed regions, DPRL achieves tighter, data-dependent theoretical bounds that scale with the number of sufficiently observed state-action pairs (\\( C(N_\wedge) \\)) rather than the entire state-action space (\\( \vert S\vert \vert A\vert \\)).
 6. Actionable Policies: The resulting policy often involves a small number of high-impact changes, making it easier for human experts (e.g., clinicians) to review, understand, and implement.
 
 ---
@@ -841,16 +841,16 @@ DPRL adapts its approach based on whether the state space is discrete or continu
 \\( \Phi = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s = \emptyset\} \\): The set of states where no confident advantageous action can be found, implying deferral to \\( \pi_b \\).
 Empirical Q-values \\( \hat{Q}_{\pi_b}(s,a) \\) and \\( \hat{V}_{\pi_b}(s) \\) are estimated using first-visit Monte Carlo averages from the dataset.
 
-2. Construct Elevated Semi-MDP (SMDP): An "elevated" SMDP \\( \tilde{\mathcal{M}} = (\mathcal{S}^{DP}, \mathcal{A}, \tilde{P}, \tilde{R}, \tilde{\gamma}) \\) is constructed. The state space is restricted to \\( \mathcal{S}^{DP} \\). The transition function \\( \tilde{P}(s'|s,a) \\), reward function \\( \tilde{R}(s,a) \\), and discount factor \\( \tilde{\gamma}(s,a,s') \\) are estimated using data from \\( \mathcal{D} \\) that connect decision points:
+2. Construct Elevated Semi-MDP (SMDP): An "elevated" SMDP \\( \tilde{\mathcal{M}} = (\mathcal{S}^{DP}, \mathcal{A}, \tilde{P}, \tilde{R}, \tilde{\gamma}) \\) is constructed. The state space is restricted to \\( \mathcal{S}^{DP} \\). The transition function \\( \tilde{P}(s'\vert s,a) \\), reward function \\( \tilde{R}(s,a) \\), and discount factor \\( \tilde{\gamma}(s,a,s') \\) are estimated using data from \\( \mathcal{D} \\) that connect decision points:
 
-\\( \tilde{P}(s'|s,a) = \frac{\sum_{k=1}^T \tilde{n}(s, a, s', k)}{\sum_{s'' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s'', k)} \\)
+\\( \tilde{P}(s'\vert s,a) = \frac{\sum_{k=1}^T \tilde{n}(s, a, s', k)}{\sum_{s'' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s'', k)} \\)
 \\( \tilde{\gamma}(s,a,s') = \frac{\sum_{k=1}^T \tilde{n}(s, a, s', k)\gamma^k}{\sum_{k=1}^T \tilde{n}(s, a, s', k)} \\)
 \\( \tilde{R}(s,a) = \frac{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \sum_{n=1}^N \tilde{r}(n, s, a, s', k)}{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s', k)} \\)
 where \\( \tilde{n}(s, a, s', k) \\) is the count of trajectories starting from \\( (s,a) \\) and reaching \\( s' \\) as the first decision point after \\( k \\) steps, and \\( \tilde{r}(n, s, a, s', k) \\) is the discounted sum of rewards along such a segment.
 
-3. Policy Optimization: Policy iteration is applied to the constructed SMDP \\( \tilde{\mathcal{M}} \\) over a restricted policy set \\( \Pi_{\text{DP}} \\). This set \\( \Pi_{\text{DP}} \\) contains deterministic policies that can only select advantageous actions: \\( \pi(a|s) = 0 \quad \forall a \notin \mathcal{A}_{DP}^s \\). In each iteration \\( i \\), the policy \\( \pi^{(i)} \\) is evaluated to get \\( V^{(i)}_{\tilde{\mathcal{M}}} \\), which is then improved to \\( \pi^{(i+1)} \\):
+3. Policy Optimization: Policy iteration is applied to the constructed SMDP \\( \tilde{\mathcal{M}} \\) over a restricted policy set \\( \Pi_{\text{DP}} \\). This set \\( \Pi_{\text{DP}} \\) contains deterministic policies that can only select advantageous actions: \\( \pi(a\vert s) = 0 \quad \forall a \notin \mathcal{A}_{DP}^s \\). In each iteration \\( i \\), the policy \\( \pi^{(i)} \\) is evaluated to get \\( V^{(i)}_{\tilde{\mathcal{M}}} \\), which is then improved to \\( \pi^{(i+1)} \\):
 $$
-\pi^{(i+1)}(s) = \arg \max_{a \in \mathcal{A}^{DP}_s} \left( \tilde{R}(s, a) + \mathbb{E}_{\tilde{P}(s'|s,a)} [\tilde{\gamma}(s, a, s')V^{(i)}_{\tilde{\mathcal{M}}}(s')] \right)
+\pi^{(i+1)}(s) = \arg \max_{a \in \mathcal{A}^{DP}_s} \left( \tilde{R}(s, a) + \mathbb{E}_{\tilde{P}(s'\vert s,a)} [\tilde{\gamma}(s, a, s')V^{(i)}_{\tilde{\mathcal{M}}}(s')] \right)
 $$
 This process converges to a policy \\( \pi^{(K)} \\).
 
@@ -866,11 +866,11 @@ For continuous state spaces, DPRL-C uses a non-parametric, neighborhood-based ap
 1. Neighborhood Definition: For a given state \\( s \\) and action \\( a \\):
 
 - \\( N(s) \\): Set of neighbors of \\( s \\) within a ball of radius \\( r \\).
-- \\( n(s) = |N(s)| \\): Count of neighbors of \\( s \\).
+- \\( n(s) = \vert N(s)\vert  \\): Count of neighbors of \\( s \\).
 - \\( N(s,a) \\): Set of state-action neighbors of \\( (s,a) \\) within a radius \\( r \\) (only if actions match).
-- \\( n(s,a) = |N(s,a)| \\): Count of state-action neighbors.
+- \\( n(s,a) = \vert N(s,a)\vert  \\): Count of state-action neighbors.
 
-The distance metric \\( d((s,a), (s',a')) = d(s,s') \\) if \\( a=a' \\), and \\( \infty \\) otherwise, with \\( d(s,s') = \|s-s'\| \\).
+The distance metric \\( d((s,a), (s',a')) = d(s,s') \\) if \\( a=a' \\), and \\( \infty \\) otherwise, with \\( d(s,s') = \Vert s-s'\Vert  \\).
 
 
 2. Define Advantageous Actions: Similar to the discrete case, the set of advantageous actions \\( \mathcal{A}^{DP}_s \\) for a state \\( s \\) is defined as:
@@ -903,10 +903,10 @@ Proof Sketch: The proof leverages the Performance Difference Lemma, which relate
 
 Discussion and Comparison to Baselines:
 
-- Data-Dependent Bound: The bound's dependence on \\( C(N_\wedge) \\) is crucial. This term is typically much smaller than \\( |\mathcal{S}||\mathcal{A}| \\) in real-world sparse datasets, leading to significantly tighter guarantees than prior work (e.g., SPIBB, PQI, Kim and Oh (2023)) whose bounds directly depend on \\( |\mathcal{S}||\mathcal{A}| \\).
+- Data-Dependent Bound: The bound's dependence on \\( C(N_\wedge) \\) is crucial. This term is typically much smaller than \\( \vert \mathcal{S}\vert \vert \mathcal{A}\vert  \\) in real-world sparse datasets, leading to significantly tighter guarantees than prior work (e.g., SPIBB, PQI, Kim and Oh (2023)) whose bounds directly depend on \\( \vert \mathcal{S}\vert \vert \mathcal{A}\vert  \\).
 - Hyperparameter Control: The \\( N_\wedge \\) parameter directly controls the confidence-performance trade-off. Higher \\( N_\wedge \\) means higher confidence but potentially fewer improvements.
 - No Behavior Policy Access: Unlike SPIBB, DPRL achieves its guarantees without requiring explicit knowledge of the behavior policy \\( \pi_b \\) during training, only for empirical evaluation.
-- Independence from Density Threshold: Unlike Liu et al. (2020), DPRL's bound does not depend on a density threshold \\( b = N_\wedge/|\mathcal{D}| \\). This means the bound does not loosen when the dataset size \\( |\mathcal{D}| \\) increases while the set of well-observed state-action pairs remains constant, making it more robust to superfluous data in low-density regions.
+- Independence from Density Threshold: Unlike Liu et al. (2020), DPRL's bound does not depend on a density threshold \\( b = N_\wedge/\vert \mathcal{D}\vert  \\). This means the bound does not loosen when the dataset size \\( \vert \mathcal{D}\vert  \\) increases while the set of well-observed state-action pairs remains constant, making it more robust to superfluous data in low-density regions.
 
 2. Theorem 2 (DPRL Continuous)
 Let \\( M(r, N_\wedge) \\) be the number of balls of radius \\( r \\) needed to cover the subset of \\( \mathcal{S} \times \mathcal{A} \\) where each \\( (s,a) \\) has at least \\( N_\wedge \\) data points in its ball \\( B_r(s,a) \\), and let \\( \epsilon_r \\) be the maximum error in estimating Q-values within a ball of radius \\( r \\). Then \\( \pi_{\text{DP}} \\) is a safe policy improvement over \\( \pi_b \\) with probability at least \\( 1 - \delta \\):
@@ -918,7 +918,7 @@ Discussion and Comparison to Baselines:
 - Volume Measure: \\( M(r, N_\wedge) \\) quantifies the "volume" of the state-action space where policy improvement is guaranteed. For sparse datasets, \\( M(r, N_\wedge) \\) will be much smaller than the total covering number \\( M(r) \\) of the entire space.
 - Neighborhood Error: The \\( 3\epsilon_r \\) term accounts for the error introduced by using neighborhood-based estimates of Q-values.
 - Hyperparameter Influence: \\( N_\wedge \\) affects the bound directly and indirectly through \\( M(r, N_\wedge) \\). A higher \\( N_\wedge \\) leads to more confident estimations and a smaller \\( M(r, N_\wedge) \\). The radius \\( r \\) influences the bias-variance trade-off: smaller \\( r \\) means lower bias (smaller \\( \epsilon_r \\)) but potentially a larger \\( M(r, N_\wedge) \\) (more distinct "dense" regions).
-- Non-Parametric Advantage: This bound presents a non-parametric alternative to bounds for parametric methods (e.g., Liu et al. (2020)), which depend on the size of the function class \\( |\mathcal{F}| \\). While parametric methods optimize for a global estimation error, DPRL-C optimizes for a local estimation error. For datasets with non-uniform exploration, DPRL-C can achieve tighter bounds because \\( M(r, N_\wedge) \\) can be small in dense regions, whereas global error \\( \epsilon_{\mathcal{F}} \\) for parametric methods might remain large.
+- Non-Parametric Advantage: This bound presents a non-parametric alternative to bounds for parametric methods (e.g., Liu et al. (2020)), which depend on the size of the function class \\( \vert \mathcal{F}\vert  \\). While parametric methods optimize for a global estimation error, DPRL-C optimizes for a local estimation error. For datasets with non-uniform exploration, DPRL-C can achieve tighter bounds because \\( M(r, N_\wedge) \\) can be small in dense regions, whereas global error \\( \epsilon_{\mathcal{F}} \\) for parametric methods might remain large.
 - Actionability: \\( M(r, N_\wedge) \\) can be estimated using clustering algorithms like DBSCAN, making the bound more actionable in practice.
 
 ---
@@ -930,7 +930,7 @@ DPRL's performance and safety were evaluated across various synthetic and real-w
 Discrete State and Action Spaces (Toy MDP, GridWorld):
 
 - Challenging MDPs: Two toy MDPs (Figure 1) demonstrate issues with prior approaches. One ("Forest" MDP) shows PQI failing to achieve high 5% CVaR (Conditional Value at Risk) due to over-pessimism in potentially good, sparse regions. The other highlights how density-regularization (CQL) can fail with stochastic, suboptimal behavior. DPRL's ability to set an \\( N_\wedge \\) parameter allows it to ignore actions that cannot be reliably estimated.
-- DPRL's Tighter Bounds: On both the MDPs and a \\( 10 \times 10 \\) GridWorld, DPRL consistently provided tighter safety bounds (Figure 1, center). This is attributed to the \\( C(N_\wedge) \\) term in its bound being much smaller than \\( |S||A| \\) in sparse environments, and its data-dependent nature preventing degradation with increasing \\( |S| \\).
+- DPRL's Tighter Bounds: On both the MDPs and a \\( 10 \times 10 \\) GridWorld, DPRL consistently provided tighter safety bounds (Figure 1, center). This is attributed to the \\( C(N_\wedge) \\) term in its bound being much smaller than \\( \vert S\vert \vert A\vert  \\) in sparse environments, and its data-dependent nature preventing degradation with increasing \\( \vert S\vert  \\).
 - Safety and Performance: In GridWorld (Figure 2, right), DPRL maintained high CVaR (safety) without significantly affecting the mean value (performance), outperforming baselines.
 - Bias-Variance Trade-off: The \\( N_\wedge \\) parameter effectively manages the bias-variance trade-off (Figure 2, center). Increasing \\( N_\wedge \\) decreases the fraction of states where the optimal action is considered (increased bias) but increases the fraction of states where a "better" action is chosen (reduced variance in value estimation), leading to safer outcomes.
 - Robustness to Behavior Policy Estimation: A critical finding (Figure 3) is that SPIBB's performance (CVaR) significantly degrades when the true behavior policy is replaced with an estimated one. DPRL, which does not require the true behavior policy during training, consistently outperforms estimated SPIBB.
@@ -949,7 +949,7 @@ Continuous State, Discrete Action Spaces (Atari, MIMIC III):
 ### 📈 Key Takeaways
 
 - Decision Points as a Foundation for Safe RL: DPRL introduces a novel framework for safe batch RL by identifying "Decision Points"—specific state-action pairs or regions where policy improvements can be made with high confidence due to sufficient data density and an estimated advantage over the behavior policy.
-- Tighter, Data-Dependent Guarantees: DPRL provides significantly tighter theoretical bounds for safe policy improvement. Unlike prior methods that scale with the entire state-action space (\\( |\mathcal{S}||\mathcal{A}| \\)), DPRL's bounds scale with \\( C(N_\wedge) \\) (the number of sufficiently observed state-action pairs) for discrete states and \\( M(r, N_\wedge) \\) (volume of dense regions) for continuous states, making them more relevant for real-world sparse datasets.
+- Tighter, Data-Dependent Guarantees: DPRL provides significantly tighter theoretical bounds for safe policy improvement. Unlike prior methods that scale with the entire state-action space (\\( \vert \mathcal{S}\vert \vert \mathcal{A}\vert  \\)), DPRL's bounds scale with \\( C(N_\wedge) \\) (the number of sufficiently observed state-action pairs) for discrete states and \\( M(r, N_\wedge) \\) (volume of dense regions) for continuous states, making them more relevant for real-world sparse datasets.
 - Independence from True Behavior Policy: A key practical advantage is that DPRL does not require a priori access to the true behavior policy during training, unlike methods like SPIBB, whose performance significantly degrades when the behavior policy must be estimated.
 - Effective Safety-Performance Trade-off: The hyperparameter \\( N_\wedge \\) (and \\( r \\) in the continuous case) allows for explicit control over the balance between safety (high confidence in improvements) and performance.
 - Practical Applicability and Actionability: Empirical evaluations on synthetic MDPs, GridWorld, Atari environments, and a real-world medical dataset (MIMIC III) demonstrate DPRL's strong performance, superior safety guarantees (measured by CVaR), and ability to produce actionable policies through selective deferral to the behavior policy. The high deferral rate in complex real-world tasks (e.g., MIMIC III) makes the learned policy interpretable and reviewable by experts.
@@ -1019,7 +1019,7 @@ The LSE estimator for a given target policy \\( \pi_\theta \\) and logged bandit
 $$
  \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) := \text{LSE}_\lambda(S) = \frac{1}{\lambda} \log \left( \frac{1}{n} \sum_{i=1}^n e^{\lambda r_i w_\theta(a_i,x_i)} \right)
 $$
-where \\( \lambda \lt 0 \\) is a tunable parameter, and \\( w_\theta(a_i, x_i) = \frac{\pi_\theta(a_i|x_i)}{\pi_0(a_i|x_i)} \\) is the importance weight for the \\( i \\)-th data point.
+where \\( \lambda \lt 0 \\) is a tunable parameter, and \\( w_\theta(a_i, x_i) = \frac{\pi_\theta(a_i\vert x_i)}{\pi_0(a_i\vert x_i)} \\) is the importance weight for the \\( i \\)-th data point.
 
 Key aspects of the LSE estimator:
 
@@ -1029,7 +1029,7 @@ Key aspects of the LSE estimator:
   - As \\( \lambda \to -\infty \\), it converges to the minimum observed weighted reward: \\( \lim_{\lambda \to -\infty} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \min_i r_i w_\theta(a_i, x_i) \\).
   - This property implies an implicit shrinkage effect for large positive weighted rewards when \\( \lambda \\) is negative, as terms with large \\( r_i w_\theta(a_i, x_i) \\) are suppressed by \\( e^{\lambda (\cdot)} \\) when \\( \lambda \lt 0 \\).
 - **Connection to KL Regularization**: The LSE estimator with \\( \lambda \lt 0 \\) can be interpreted as the solution to a KL-regularized expected minimization problem, connecting it to concepts of entropy regularization.
-- **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function \\( V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A|X)}[r(A,X)|X]] \\) by analyzing the bias and variance of \\( \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) \\).
+- **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function \\( V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A\vert X)}[r(A,X)\vert X]] \\) by analyzing the bias and variance of \\( \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) \\).
 - **Off-Policy Learning (OPL)**: The objective is to find an optimal policy \\( \pi_\theta^* = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta) \\) by maximizing the LSE estimator \\( \hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) \\) and bounding its regret, \\( R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^*) - V(\hat{\pi}_\theta(S)) \\).
 
 ---
@@ -1039,14 +1039,14 @@ Key aspects of the LSE estimator:
 The paper provides comprehensive theoretical guarantees for the LSE estimator under challenging conditions.
 
 1. Heavy-tail Assumption (Assumption 5.1):
-The core assumption is that for all learning policies \\( \pi_\theta(A|X) \in \Pi_\Theta \\) and some \\( \epsilon \in [0, 1] \\), the \\( (1 + \epsilon) \\)-th moment of the weighted reward is bounded:
+The core assumption is that for all learning policies \\( \pi_\theta(A\vert X) \in \Pi_\Theta \\) and some \\( \epsilon \in [0, 1] \\), the \\( (1 + \epsilon) \\)-th moment of the weighted reward is bounded:
 $$
-E_{P_X \otimes \pi_0(A|X) \otimes P_{R|X,A}} \left[ \left(w_\theta(A, X)R\right)^{1+\epsilon} \right] \le \nu 
+E_{P_X \otimes \pi_0(A\vert X) \otimes P_{R\vert X,A}} \left[ \left(w_\theta(A, X)R\right)^{1+\epsilon} \right] \le \nu 
 $$
 This is a significantly weaker assumption than requiring bounded second or higher moments, enabling analysis under heavy-tailed distributions where variance might be infinite.
 
 2. Regret Bounds in OPL (Theorem 5.3):
-For a finite policy set \\( |\Pi_\Theta| \lt \infty \\), the paper establishes an upper bound on the regret \\( R_\lambda(\hat{\pi}_\theta, S) \\). The bound explicitly shows dependence on \\( \lambda \\), \\( \nu \\), \\( n \\) (sample size), \\( \epsilon \\), \\( \delta \\) (confidence parameter), and \\( |\Pi_\Theta| \\).
+For a finite policy set \\( \vert \Pi_\Theta\vert  \lt \infty \\), the paper establishes an upper bound on the regret \\( R_\lambda(\hat{\pi}_\theta, S) \\). The bound explicitly shows dependence on \\( \lambda \\), \\( \nu \\), \\( n \\) (sample size), \\( \epsilon \\), \\( \delta \\) (confidence parameter), and \\( \vert \Pi_\Theta\vert  \\).
 
 3. Convergence Rate (Proposition 5.4):
 By strategically setting \\( \lambda = -n^{- \frac{1}{1+\epsilon}} \\), the paper demonstrates that the overall convergence rate of the regret upper bound is \\( O(n^{-\epsilon/(1+\epsilon)}) \\). Notably:
@@ -1056,14 +1056,14 @@ By strategically setting \\( \lambda = -n^{- \frac{1}{1+\epsilon}} \\), the pape
 
 4. Bias and Variance Analysis in OPE:
 
-- Bias Bounds (Proposition 5.5): Upper and lower bounds on the bias \\( B(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \\) are derived. The upper bound is \\( O(|\lambda|^\epsilon \nu) \\).
+- Bias Bounds (Proposition 5.5): Upper and lower bounds on the bias \\( B(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \\) are derived. The upper bound is \\( O(\vert \lambda\vert ^\epsilon \nu) \\).
 - Asymptotic Unbiasedness (Remark 5.6): By choosing \\( \lambda \\) to approach zero as \\( n \to \infty \\) (e.g., \\( \lambda(n) = -n^{-\zeta} \\) for \\( \zeta \gt 0 \\)), the LSE estimator is shown to be asymptotically unbiased. Specifically, setting \\( \zeta = \frac{1}{1+\epsilon} \\) yields an \\( O(n^{-\epsilon/(1+\epsilon)}) \\) convergence rate for bias.
 - Variance Bound (Proposition 5.7): Assuming a bounded second moment of weighted reward (\\( E[(w_\theta(A,X)R)^2] \le \nu_2 \\)), the variance of the LSE estimator is bounded by \\( V(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \le \frac{1}{n} V(w_\theta(A,X)R) \le \frac{1}{n} \nu_2 \\). This demonstrates that the LSE estimator reduces variance compared to IPS.
-- A bias-variance trade-off exists with \\( \lambda \\): decreasing \\( |\lambda| \\) (i.e., making \\( \lambda \\) closer to 0) decreases bias but increases variance, and vice-versa.
+- A bias-variance trade-off exists with \\( \lambda \\): decreasing \\( \vert \lambda\vert  \\) (i.e., making \\( \lambda \\) closer to 0) decreases bias but increases variance, and vice-versa.
 
 5. Robustness of the LSE Estimator:
 
-- Noisy Reward (Theorem 5.9): The paper analyzes the regret of the LSE estimator when the reward distribution is perturbed by noise. The upper bound on regret includes a term proportional to \\( TV(P_{R|X,A}, \tilde{P}_{R|X,A}) \\), the total variation distance between the true and noisy reward distributions. This quantifies the cost of noise.
+- Noisy Reward (Theorem 5.9): The paper analyzes the regret of the LSE estimator when the reward distribution is perturbed by noise. The upper bound on regret includes a term proportional to \\( TV(P_{R\vert X,A}, \tilde{P}_{R\vert X,A}) \\), the total variation distance between the true and noisy reward distributions. This quantifies the cost of noise.
 - Estimated Propensity Scores (Appendix E, Theorem E.7): Regret bounds are also derived under scenarios where propensity scores are estimated (e.g., modeled via Gamma noise), demonstrating the estimator's robustness to this common real-world issue.
 
 
@@ -1166,7 +1166,7 @@ The core of the method is a novel backup operator based on **Wasserstein barycen
 
 1. V-posterior Definition: A V-node \\( V(s) \\) is defined as the \\( L_1 \\)-Wasserstein barycenter of its children Q-nodes \\( Q(s,a) \\) for actions \\( a \in A \\), given a policy \\( \bar{\pi} \\):
 $\\( V(s) \in \arg \inf_{V} E_{a \sim \bar{\pi}} \left[W_1(V, Q(s, a))\right] \\)$
-Here, \\( W_1(\cdot, \cdot) \\) is the \\( L_1 \\)-Wasserstein distance, and the cost function used within it is the \\( \alpha \\)-divergence \\( D_{f_\alpha}(X||Y) \\), which is a subclass of \\( f \\)-divergence defined by \\( f_\alpha(x) = \frac{(x^\alpha - 1) - \alpha(x - 1)}{\alpha(\alpha - 1)} \\).
+Here, \\( W_1(\cdot, \cdot) \\) is the \\( L_1 \\)-Wasserstein distance, and the cost function used within it is the \\( \alpha \\)-divergence \\( D_{f_\alpha}(X\vert \vert Y) \\), which is a subclass of \\( f \\)-divergence defined by \\( f_\alpha(x) = \frac{(x^\alpha - 1) - \alpha(x - 1)}{\alpha(\alpha - 1)} \\).
 
 2. Closed-Form Solutions for Gaussians (Proposition 1): For Gaussian distributions \\( V(s) \sim N(\bar{m}(s),\bar{\sigma}^2(s)) \\) and \\( Q(s,a) \sim N(m(s,a), \sigma^2(s,a)) \\), the mean and standard deviation of the V-posterior are derived as power means:
 $\\( \bar{m}(s) = \left(E_{a \sim \bar{\pi}} [m(s, a)^p]\right)^{\frac{1}{p}} \\)$
@@ -1204,8 +1204,8 @@ The paper provides significant theoretical contributions, particularly regarding
 $\\( E[T_k(n)] \le \Theta \left(\frac{1 + V \log(n\Delta_k^2/V)}{\Delta_k^2}\right) \\)$
 where \\( V = \max_k \{V_k\} \\) and \\( \Delta_k = \mu^* - \mu_k \\) is the gap to the optimal mean \\( \mu^* \\).
    - Theorem 2 (Convergence of Expected Power Mean): The bias of the expected power mean backup operator \\( X_n(p) \\) (at the root of the MAB) from the optimal mean \\( \mu^* \\) converges polynomially:
-$\\( E[X_n(p)] - \mu^* \le |\delta^*_n| + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} \\)$
-where \\( K \\) is the number of arms, \\( \Delta = \max_k \{\Delta_k\} \\), and \\( |\delta^*_n| \\) accounts for non-stationarity.
+$\\( E[X_n(p)] - \mu^* \le \vert \delta^*_n\vert  + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} \\)$
+where \\( K \\) is the number of arms, \\( \Delta = \max_k \{\Delta_k\} \\), and \\( \vert \delta^*_n\vert  \\) accounts for non-stationarity.
    - Theorem 3 (Concentration of Power Mean): The power mean backup operator \\( X_n(p) \\) concentrates polynomially around the optimal mean \\( \mu^* \\): for any \\( \epsilon \gt 0 \\), there exist constants \\( C_0, \alpha, \beta \gt 0 \\) such that for sufficiently large \\( n \\):
 $\\( Pr\left( X_n(p) - \mu^* \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} \\)$
 $\\( Pr\left( X_n(p) - \mu^* \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} \\)$
@@ -1322,7 +1322,7 @@ This subroutine (Algorithm 2, NPGSub) is called in the outer loop to find the La
 - The policy update rule is given by:
 
 $$
-\pi^{(t+1)}(a|s) \propto \left(\pi^{(t)}(a|s)\right)^{1 - \frac{\eta\tau}{1-\gamma}} \exp \left( \frac{\eta Q_\tau^{\pi^{(t)}}(s, a)}{1-\gamma} \right)
+\pi^{(t+1)}(a\vert s) \propto \left(\pi^{(t)}(a\vert s)\right)^{1 - \frac{\eta\tau}{1-\gamma}} \exp \left( \frac{\eta Q_\tau^{\pi^{(t)}}(s, a)}{1-\gamma} \right)
 $$
 where \\( Q_\tau^\pi(s, a) \\) is the soft Q-function.
 
@@ -1338,24 +1338,24 @@ The algorithm relies on the soft-max policy parameterization, which is crucial f
 The paper provides several key theoretical contributions, rigorously proving the benefits of entropy regularization for CMDPs:
 
 1. Quadratic Lower Bound for Lagrangian: Proposition 3.5 shows that for all policies \\( \pi \\) and \\( \lambda \ge 0 \\), the Lagrangian function \\( L(\pi, \lambda) \\) is strongly concave (has a negative curvature) with respect to \\( \pi \\) at its maximizer \\( \pi_\lambda \\):
-\\( L(\pi_\lambda, \lambda) - L(\pi, \lambda) \ge \frac{\tau d^2}{2(1-\gamma)\ln 2} \| \pi - \pi_\lambda \|_2^2 \\)
+\\( L(\pi_\lambda, \lambda) - L(\pi, \lambda) \ge \frac{\tau d^2}{2(1-\gamma)\ln 2} \Vert   \pi - \pi_\lambda \Vert_2^2 \\)
 where \\( d \\) is a lower bound on the discounted state visitation distribution, and \\( \tau \\) is the entropy weight. This strong concavity is vital for stability and Lipschitz continuity.
 
 2. Smoothness of Dual Function: Proposition 3.6 proves that, under the Slater condition (Assumption 3.1) and a uniform exploration assumption (Assumption 3.4, where \\( d^\pi_\rho(s) \ge d \gt 0 \\)), the Lagrangian dual function \\( D(\lambda) \\) is both differentiable and \\( \mathcal{L} \\)-smooth on its feasible domain \\( \Lambda \\). The gradient is \\( \nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b \\), and the smoothness constant is:
-\\( \mathcal{L} = 2 \ln 2 \left( \frac{\sqrt{n|S||A|}}{(1-\gamma)^2} + \frac{\sqrt{n|S||A|}}{\tau (1-\gamma) d} \right) \\)
+\\( \mathcal{L} = 2 \ln 2 \left( \frac{\sqrt{n\vert S\vert \vert A\vert }}{(1-\gamma)^2} + \frac{\sqrt{n\vert S\vert \vert A\vert }}{\tau (1-\gamma) d} \right) \\)
 This smoothness is a crucial enabler for accelerated gradient-based methods.
 
 3. Decomposition of Duality Gap: Proposition 3.7 demonstrates a critical relationship between the dual optimality gap and primal metrics. If \\( \lambda \\) is an \\( \epsilon \\)-optimal dual multiplier (i.e., \\( D(\lambda) - D_*^\tau \le \epsilon \\)), then the associated Lagrangian maximizer \\( \pi_\lambda \\) satisfies:
-   - Policy distance: \\( \|\pi_\lambda - \pi_*^\tau\|_2 \le C_1\sqrt{\epsilon} \\)
-   - Primal optimality gap: \\( |V_\tau^{\pi_\lambda}(\rho) - V_*^\tau| \le 2\epsilon + \mathcal{L}_c C_1 C_2 \sqrt{\epsilon} \\)
+   - Policy distance: \\( \Vert  \pi_\lambda - \pi_*^\tau\Vert_2 \le C_1\sqrt{\epsilon} \\)
+   - Primal optimality gap: \\( \vert V_\tau^{\pi_\lambda}(\rho) - V_*^\tau\vert  \le 2\epsilon + \mathcal{L}_c C_1 C_2 \sqrt{\epsilon} \\)
    - Constraint violation: \\( \max_{i \in [n]} [b_i - U_{g_i}^{\pi_\lambda}(\rho)]_+ \le \mathcal{L}_c C_1 \sqrt{\epsilon} \\)
 This shows that an \\( O(\epsilon) \\) dual error translates to an \\( O(\sqrt{\epsilon}) \\) primal error, a non-trivial result enabled by entropy regularization.
 
 4. Global Convergence Rates: Theorem 5.2 establishes the global convergence rates for Algorithm 1:
    - Dual optimality gap: \\( D(\lambda) - D_*^\tau = O(1/T^2) \\)
-   - Primal optimality gap: \\( |V_\tau^{\pi}(\rho) - V_*^\tau| = O(1/T) \\)
+   - Primal optimality gap: \\( \vert V_\tau^{\pi}(\rho) - V_*^\tau\vert  = O(1/T) \\)
    - Constraint violation: \\( \max_{i \in [n]} [b_i - U_{g_i}^{\pi}(\rho)]_+ = O(1/T) \\)
-   - Policy distance: \\( \|\pi - \pi_*^\tau\|_2 = O(1/T) \\)
+   - Policy distance: \\( \Vert  \pi - \pi_*^\tau\Vert_2 = O(1/T) \\)
 The total iteration complexity is \\( O(T \log T) \\), where \\( T \\) is the number of outer loop iterations. This implies an overall \\( O(1/\epsilon) \\) rate to achieve \\( \epsilon \\)-accuracy in primal metrics.
 
 
@@ -1433,19 +1433,19 @@ Accurate and reliable long-horizon predictions are fundamental for intelligent a
 The normal **successor measure** of a policy \\( \pi \\) describes the discounted distribution of future states visisted by \\( \pi \\) starting from an initial state-action pair \\( (s,a) \\). For any policy \\( \pi \\), initial state-action pair \\( (s,a)\in S×A \\), and any measurable subset of states \\( X\subset S \\), the successor measure \\( m^\pi(X∣s,a) \\) is defined as the discounted, cumulative probability that the state trajectory falls within the set \\( X \\). The formal definition is given by the following equation:
 
 $$
-m^\pi (X | s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi),
+m^\pi (X \vert  s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X \vert  S_0 = s, A_0 = a, \pi),
 $$
 
 where:
 - \\( \gamma \in [0,1) \\) is the discount factor, which geometrically discounts the importance of future states.
-- The term \\( \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi) \\) denotes the probability that the state at timestep \\( k+1 \\) is in the set \\( X \\), given that the agent started in state \\( s \\), took action \\( a \\), and subsequently followed policy \\( \pi \\).
+- The term \\( \Pr(S_{k+1} \in X \vert  S_0 = s, A_0 = a, \pi) \\) denotes the probability that the state at timestep \\( k+1 \\) is in the set \\( X \\), given that the agent started in state \\( s \\), took action \\( a \\), and subsequently followed policy \\( \pi \\).
 - The summation \\( \sum_{k=0}^\infty \\) accounts for the entire future trajectory from the initial state-action pair.
 - The normalization constant \\( (1−\gamma) \\) ensures that \\( m^\pi(S∣s,a)=1 \\), making it a valid probability measure over the state space.
 
 A key advantage of the successor measure is its ability to decouple the environment's transition dynamics from the task-specific reward function, \\( r(s) \\). This allows for the efficient computation of the state-action value function, \\( Q^\pi(s,a) \\), for any reward function. The relationship is expressed as:
 
 $$
-Q^\pi(s, a) = (1 - \gamma)^{-1} \mathbb{E}_{X \sim m^\pi(\cdot|s,a)}[r(X)].
+Q^\pi(s, a) = (1 - \gamma)^{-1} \mathbb{E}_{X \sim m^\pi(\cdot\verts,a)}[r(X)].
 $$
 
 The successor measure is the unique fixed point of a Bellman operator, \\( \mathcal{T}^\pi: \mathcal{P}(S)^{S\times A} \rightarrow \mathcal{P}(S)^{S\times A} \\). This operator provides a recursive definition for the successor measure, which is fundamental for its computation. The Bellman equation for the successor measure is:
@@ -1462,7 +1462,7 @@ $$
 
 #### Geometric Horizon Model
 
-A GHM or \(\gamma\)-model is a generative model of the normalized successor measure.
+A GHM or \\(\gamma\\)-model is a generative model of the normalized successor measure.
 
 ---
 
