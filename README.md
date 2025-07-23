@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # UAI-AISTATS
 
 ## [Hybrid Reinforcement Learning: Learning Policies from Offline Data and Online Interaction](https://arxiv.org/abs/2505.13768)  
@@ -1426,6 +1430,7 @@ The normal **successor measure** of a policy $\pi$ describes the discounted dist
 $$
 m^\pi (X | s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi),
 $$
+
 where:
 - $\gamma \in[0,1)$ is the discount factor, which geometrically discounts the importance of future states.
 - The term $\Pr(S_{k+1} \in X | S_0 = s, A_0 = a, \pi)$ denotes the probability that the state at timestep $k+1$ is in the set $X$, given that the agent started in state $s$, took action $a$, and subsequently followed policy $\pi$.

@@ -1,0 +1,6 @@
+# Use the jekyll-readme-index plugin to render README.md as the index page
+plugins:
+  - jekyll-readme-index
+
+# Optional: Set a title for your site
+title: Notes
