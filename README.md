@@ -59,7 +59,7 @@ This paper introduces a unified hybrid reinforcement learning (RL) framework tha
 
 The framework leverages confidence-based online RL algorithms augmented with the offline data to address two key learning objectives: minimizing the sub-optimality gap of the learned policy and minimizing the cumulative online regret.
 
-The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \\(\hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\\) for any policy \\( \pi \\), along with a high-probability uncertainty function \\(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D})\\) that bounds the estimation error: \\(\hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}_{M^*} - \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D})\\) with probability at least \\( 1-\delta \\).
+The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function `\( \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` for any policy \\( \pi \\), along with a high-probability uncertainty function `\( \hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` that bounds the estimation error: `\( \hat{U}^{\pi}_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}_{M^*} - \hat{V}^{\pi}_{\text{Alg}}(\mathcal{D}) \)` with probability at least \\( 1-\delta \\).
 
 The unified algorithm proceeds as follows:
 
@@ -1440,12 +1440,12 @@ where:
 - \\( \gamma \in [0,1) \\) is the discount factor, which geometrically discounts the importance of future states.
 - The term \\( \Pr(S_{k+1} \in X \vert  S_0 = s, A_0 = a, \pi) \\) denotes the probability that the state at timestep \\( k+1 \\) is in the set \\( X \\), given that the agent started in state \\( s \\), took action \\( a \\), and subsequently followed policy \\( \pi \\).
 - The summation \\( \sum_{k=0}^\infty \\) accounts for the entire future trajectory from the initial state-action pair.
-- The normalization constant \\( (1−\gamma) \\) ensures that \\( m^\pi(S∣s,a)=1 \\), making it a valid probability measure over the state space.
+- The normalization constant \\( (1−\gamma) \\) ensures that \\( m^\pi(S\vert s,a)=1 \\), making it a valid probability measure over the state space.
 
 A key advantage of the successor measure is its ability to decouple the environment's transition dynamics from the task-specific reward function, \\( r(s) \\). This allows for the efficient computation of the state-action value function, \\( Q^\pi(s,a) \\), for any reward function. The relationship is expressed as:
 
 $$
-Q^\pi(s, a) = (1 - \gamma)^{-1} \mathbb{E}_{X \sim m^\pi(\cdot\verts,a)}[r(X)].
+Q^\pi(s, a) = (1 - \gamma)^{-1} \mathbb{E}_{X \sim m^\pi(\cdot\vert s,a)}[r(X)].
 $$
 
 The successor measure is the unique fixed point of a Bellman operator, \\( \mathcal{T}^\pi: \mathcal{P}(S)^{S\times A} \rightarrow \mathcal{P}(S)^{S\times A} \\). This operator provides a recursive definition for the successor measure, which is fundamental for its computation. The Bellman equation for the successor measure is:
