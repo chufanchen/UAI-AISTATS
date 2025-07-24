@@ -80,11 +80,11 @@ For sub-optimality gap minimization, after \\( N_1 \\) episodes:
 
 ### 📐 Theoretical Contributions
 
-The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $ \sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}} $, bounding the cumulative uncertainty of chosen policies.
+The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}\_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $\sum_{t=1}^{N_1} \hat{U}^{\pi_t}\_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}}$, bounding the cumulative uncertainty of chosen policies.
 
 #### 1. **Sub-optimality Bound**
 
-The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by \\( \text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right) \\), where \\( \pi^* \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had \\( N_0/C(\pi^*\vert\rho) + N_1 \\) effective samples, combining the offline and online contributions. A smaller \\( C(\pi^*\vert\rho) \\) (better coverage of \\( \pi^* \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
+The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by $\text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right)$, where \\( \pi^\star \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had \\( N_0/C(\pi^*\vert\rho) + N_1 \\) effective samples, combining the offline and online contributions. A smaller \\( C(\pi^*\vert\rho) \\) (better coverage of \\( \pi^* \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
 
 #### 2. **Regret Bound**
 
