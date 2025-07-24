@@ -59,7 +59,7 @@ This paper introduces a unified hybrid reinforcement learning (RL) framework tha
 
 The framework leverages confidence-based online RL algorithms augmented with the offline data to address two key learning objectives: minimizing the sub-optimality gap of the learned policy and minimizing the cumulative online regret.
 
-The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \\( \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) for any policy \\( \pi \\), along with a high-probability uncertainty function \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) that bounds the estimation error: \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}\_{M^*} - \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) with probability at least \\( 1-\delta \\).
+The core of the proposed framework is an "oracle algorithm," denoted as Alg, which takes a dataset \\( \mathcal{D} \\) as input and outputs an estimated value function \\( \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) for any policy \\( \pi \\), along with a high-probability uncertainty function \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) that bounds the estimation error: \\( \hat{U}^{\pi}\_{\text{Alg}}(\mathcal{D}) \geq V^{\pi}\_{M^{\star}} - \hat{V}^{\pi}\_{\text{Alg}}(\mathcal{D}) \\) with probability at least \\( 1-\delta \\).
 
 The unified algorithm proceeds as follows:
 
@@ -80,11 +80,11 @@ For sub-optimality gap minimization, after \\( N_1 \\) episodes:
 
 ### 📐 Theoretical Contributions
 
-The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}\_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $$\sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}}$$, bounding the cumulative uncertainty of chosen policies.
+The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}\_{M^{\star}} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $$\sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}}$$, bounding the cumulative uncertainty of chosen policies.
 
 #### 1. **Sub-optimality Bound**
 
-The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by $$\text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right)$$, where \\( \pi^\star \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had $$ N_0/C(\pi^*\vert\rho) + N_1 $$ effective samples, combining the offline and online contributions. A smaller $$ C(\pi^*\vert\rho) $$ (better coverage of \\( \pi^\star \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
+The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by $$\text{Sub-opt}(\hat{\pi}) = \tilde{O}\left(C_{\text{Alg}}\frac{1}{\sqrt{N_0/C(\pi^{\star}\vert\rho) + N_1}}\right)$$, where \\( \pi^\star \\) is the optimal policy. This bound demonstrates that the hybrid approach achieves a performance scaling as if it had $$ N_0/C(\pi^{\star}\vert\rho) + N_1 $$ effective samples, combining the offline and online contributions. A smaller $$ C(\pi^{\star}\vert\rho) $$ (better coverage of \\( \pi^\star \\) by \\( \rho \\)) leads to a faster reduction in the sub-optimality gap.
 
 #### 2. **Regret Bound**
 
@@ -93,7 +93,7 @@ The cumulative regret over \\( N_1 \\) online episodes is bounded by \\( \text{R
 A key theoretical insight is the separation between the requirements for minimizing the sub-optimality gap and regret. Sub-optimality gap minimization benefits most from an offline dataset collected by a behavior policy \\( \rho \\) that provides good coverage of the optimal policy \\( \pi^\star \\) (small \\( C(\pi^\star\vert\rho) \\)). Regret minimization, however, benefits most from a behavior policy \\( \rho \\) that provides good coverage of sub-optimal policies (small \\( C(\pi^{-\epsilon}\vert\rho) \\)). An offline dataset from an optimal policy may not provide sufficient exploration information about sub-optimal policies, potentially leading to higher regret compared to an exploratory behavior policy, even if it yields a better sub-optimality gap.
 
 The paper specializes the framework and analysis to Tabular MDPs and Linear Contextual Bandits, deriving concrete bounds for these settings. For Tabular MDPs, the bounds involve factors related to \\( \vert\mathcal{X}\vert, \vert\mathcal{A}\vert, H \\). For Linear Contextual Bandits with feature dimension \\( d \\), the bounds depend on \\( d \\). The concentrability coefficients in these settings are shown to relate to known concepts like ratios of occupancy measures or feature covariance matrices.
-Lower bounds are also established, demonstrating that any hybrid RL algorithm must incur a sub-optimality gap of \\( \Omega\left(\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right) \\) and regret of \\( \Omega\left(\frac{N_1}{\sqrt{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\). These lower bounds match the derived upper bounds up to logarithmic factors, indicating the proposed framework is order-wise optimal.
+Lower bounds are also established, demonstrating that any hybrid RL algorithm must incur a sub-optimality gap of \\( \Omega\left(\frac{1}{\sqrt{N_0/C(\pi^{\star}\vert\rho) + N_1}}\right) \\) and regret of \\( \Omega\left(\frac{N_1}{\sqrt{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\). These lower bounds match the derived upper bounds up to logarithmic factors, indicating the proposed framework is order-wise optimal.
 
 ---
 
@@ -175,7 +175,7 @@ The motivation for this work stems from the growing concern over the safety and 
 
 We consider an agent interacting with an environment in a long, continuous sequence of alternating actions (\\( a_t \\)) and observations (\\( o_t \\)), denoted \\( a_1 o_1 a_2 o_2 \dots \\). Our "base policy" is a Bayesian predictive model, \\( \xi \\), which attempts to imitate a "trusted policy" that generated the initial segment of this history (\\( a_1 o_1 \dots a_k o_k \\)).
 
-A predictive probability semi-distribution \\( \nu: X^* \times X \to [0,1] \\) models the probability of the next symbol given a history. The "semi" indicates that probabilities might not sum to 1, as a program might not halt or produce an output. The Bayesian mixture \\( \xi \\) is constructed from a countable set of competing models \\( M \\), each with a prior weight \\( w(\nu) \\). Given a history \\( x_{\lt t} \\), the posterior \\( w(\nu\vert x_{\lt t}) \\) is used to form a weighted average of each model's prediction:
+A predictive probability semi-distribution \\( \nu: X^{\star} \times X \to [0,1] \\) models the probability of the next symbol given a history. The "semi" indicates that probabilities might not sum to 1, as a program might not halt or produce an output. The Bayesian mixture \\( \xi \\) is constructed from a countable set of competing models \\( M \\), each with a prior weight \\( w(\nu) \\). Given a history \\( x_{\lt t} \\), the posterior \\( w(\nu\vert x_{\lt t}) \\) is used to form a weighted average of each model's prediction:
 
 $$
 \xi(x\vert x_{\lt t}) := \sum_{\nu \in M} w(\nu\vert x_{\lt t})\nu(x\vert x_{\lt t})
@@ -214,7 +214,7 @@ Intuitively, this means the KL penalty is bounded by terms related to the Kolmog
 The proof outline for Theorem 1 is illuminating:
 
 - Consider a policy $$ \pi^\star_u $$ that is an optimal (or near-optimal) optimizer of \\( U_m \\) in the environment \\( \xi \\). This $$\pi^\star_u$$ might be highly undesirable.
-- For any model \\( \nu \in M \\) (a component of \\( \xi \\)), construct a modified model \\( \nu' \\). This \\( \nu' \\) behaves exactly like \\( \nu \\) until the unprecedented event \\( E \\) occurs. Once \\( E \\) happens, \\( \nu' \\) switches its behavior to emulate \\( \pi^*_u \\).
+- For any model \\( \nu \in M \\) (a component of \\( \xi \\)), construct a modified model \\( \nu' \\). This \\( \nu' \\) behaves exactly like \\( \nu \\) until the unprecedented event \\( E \\) occurs. Once \\( E \\) happens, \\( \nu' \\) switches its behavior to emulate \\( \pi^{\star}_u \\).
 - Because  $$ \pi^\star_u $$  and \\( E \\) can be described by "simple" programs (low Kolmogorov complexity), the program for \\( \nu' \\) is only marginally longer than the program for \\( \nu \\). Specifically, \\( \ell(s') \le \ell(s) + K(E) + K(U_m) + K(u) + d \\).
 - This implies that the prior probability \\( w(\nu') \\) is not much smaller than \\( w(\nu) \\), i.e., \\( w(\nu')/w(\nu) \gt  2^{-(K(E) + K(U_m) + K(u) + d)} \\).
 - Since \\( E \\) is unprecedented at time \\( t \\), \\( \nu \\) and \\( \nu' \\) produced identical predictions for \\( x_{\lt 2t} \\), so their posterior ratio \\( w(\nu'\vert x_{\lt 2t})/w(\nu\vert x_{\lt 2t}) \\) is the same as their prior ratio.
@@ -486,10 +486,10 @@ The paper's theoretical contributions are substantial, primarily extending previ
 1.  **Analysis of BYOL-AC Convergence:**
     *   **Non-collapse Property:** It proves that under Assumption 1 (Orthogonal Initialization), the \\( \text{BYOL-AC} \\) ODE preserves the orthogonality of \\( \Phi \\) (Lemma 3), avoiding degenerate solutions.
     *   **Lyapunov Function:** It identifies a Lyapunov function for the \\( \text{BYOL-AC} \\) ODE as the negative of a trace objective, \\( f_{\text{BYOL-AC}}(\Phi) := \vert \mathcal{A}\vert ^{-1} \sum_a \text{Tr} \left[ \Phi^\top T_a \Phi \Phi^\top T_a \Phi \right] \\) (Lemma 4), guaranteeing convergence to a critical point.
-    *   **Characterization of $$ \Phi^\star_{ac}$$:** Theorem 2 states that under Assumptions 1-6, the columns of $$\Phi^\star_{ac}$$ (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^* \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
+    *   **Characterization of $$ \Phi^\star_{ac}$$:** Theorem 2 states that under Assumptions 1-6, the columns of $$\Phi^\star_{ac}$$ (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^{\star} \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
 
 2.  **Variance Relation between BYOL-Π and BYOL-AC Representations:**
-    *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining \\( \Phi^*_{ac} \\) (mean of squares: \\( \mathbb{E}_a[D_a^2] \\)) and \\( \Phi^* \\) (square of mean: \\( (\mathbb{E}_a[D_a])^2 \\)) are related by a variance equation:
+    *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining \\( \Phi^{\star}_{ac} \\) (mean of squares: \\( \mathbb{E}_a[D_a^2] \\)) and \\( \Phi^{\star} \\) (square of mean: \\( (\mathbb{E}_a[D_a])^2 \\)) are related by a variance equation:
 
         $$  
         \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a) 
@@ -499,7 +499,7 @@ The paper's theoretical contributions are substantial, primarily extending previ
 
 3.  **Introduction and Analysis of BYOL-VAR:**
     *   **Novel Objective:** Introduces \\( \text{BYOL-VAR} \\) (Eq. 9) as the difference between \\( \text{BYOL-AC} \\) and \\( \text{BYOL-}\Pi \\) losses.
-    *   **Convergence and Characterization:** Proves its non-collapse property (Lemma 5), identifies its Lyapunov function as \\( f_{\text{BYOL-VAR}}(\Phi) := f_{\text{BYOL-AC}}(\Phi) - f_{\text{BYOL-}\Pi}(\Phi) \\) (Lemma 6), and shows that \\( \Phi^*_{VAR} \\) (its maximizer) spans the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 - (T^\pi)^2 \\) (Theorem 3).
+    *   **Convergence and Characterization:** Proves its non-collapse property (Lemma 5), identifies its Lyapunov function as \\( f_{\text{BYOL-VAR}}(\Phi) := f_{\text{BYOL-AC}}(\Phi) - f_{\text{BYOL-}\Pi}(\Phi) \\) (Lemma 6), and shows that \\( \Phi^{\star}_{VAR} \\) (its maximizer) spans the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 - (T^\pi)^2 \\) (Theorem 3).
     *   **Complete Variance Relation (Remark 2):** Explicitly states the full relationship: \\( \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a) \\), linking \\( \text{BYOL-AC} \\), \\( \text{BYOL-}\Pi \\), and \\( \text{BYOL-VAR} \\) to the second moment, the square of the first moment, and the variance of the per-action eigenvalues, respectively. \\( \text{BYOL-VAR} \\) focuses solely on action-distinguishing features.
 
 4.  **Two Unifying Perspectives:**
@@ -1091,7 +1091,7 @@ Key aspects of the LSE estimator:
   - This property implies an implicit shrinkage effect for large positive weighted rewards when \\( \lambda \\) is negative, as terms with large \\( r_i w_\theta(a_i, x_i) \\) are suppressed by \\( e^{\lambda (\cdot)} \\) when \\( \lambda \lt 0 \\).
 - **Connection to KL Regularization**: The LSE estimator with \\( \lambda \lt 0 \\) can be interpreted as the solution to a KL-regularized expected minimization problem, connecting it to concepts of entropy regularization.
 - **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function \\( V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A\vert X)}[r(A,X)\vert X]] \\) by analyzing the bias and variance of $$\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)$$.
-- **Off-Policy Learning (OPL)**: The objective is to find an optimal policy $$\pi_\theta^\star = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta) $$ by maximizing the LSE estimator $$ \hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) $$ and bounding its regret, $$ R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^*) - V(\hat{\pi}_\theta(S)) $$.
+- **Off-Policy Learning (OPL)**: The objective is to find an optimal policy $$\pi_\theta^\star = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta) $$ by maximizing the LSE estimator $$ \hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) $$ and bounding its regret, $$ R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^{\star}) - V(\hat{\pi}_\theta(S)) $$.
 
 ---
 
@@ -1304,17 +1304,17 @@ where \\( V = \max_k \{V_k\} \\) and \\( \Delta_k = \mu^\star - \mu_k \\) is the
    - Theorem 2 (Convergence of Expected Power Mean): The bias of the expected power mean backup operator \\( X_n(p) \\) (at the root of the MAB) from the optimal mean \\( \mu^\star \\) converges polynomially:
 
 $$ 
-E[X_n(p)] - \mu^* \le \vert \delta^\star_n\vert  + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} 
+E[X_n(p)] - \mu^{\star} \le \vert \delta^\star_n\vert  + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} 
 $$
 
-where \\( K \\) is the number of arms, \\( \Delta = \max_k \{\Delta_k\} \\), and \\( \vert \delta^*_n\vert  \\) accounts for non-stationarity.
-   - Theorem 3 (Concentration of Power Mean): The power mean backup operator \\( X_n(p) \\) concentrates polynomially around the optimal mean \\( \mu^* \\): for any \\( \epsilon \gt 0 \\), there exist constants \\( C_0, \alpha, \beta \gt 0 \\) such that for sufficiently large \\( n \\):
+where \\( K \\) is the number of arms, \\( \Delta = \max_k \{\Delta_k\} \\), and \\( \vert \delta^{\star}_n\vert  \\) accounts for non-stationarity.
+   - Theorem 3 (Concentration of Power Mean): The power mean backup operator \\( X_n(p) \\) concentrates polynomially around the optimal mean \\( \mu^{\star} \\): for any \\( \epsilon \gt 0 \\), there exist constants \\( C_0, \alpha, \beta \gt 0 \\) such that for sufficiently large \\( n \\):
 
 $$ 
-Pr\left( X_n(p) - \mu^* \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
+Pr\left( X_n(p) - \mu^{\star} \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
 $$
 $$ 
-Pr\left( X_n(p) - \mu^* \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
+Pr\left( X_n(p) - \mu^{\star} \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
 $$
 
 2. Convergence in Monte-Carlo Tree Search (W-MCTS-TS):
@@ -1322,13 +1322,13 @@ $$
    - Theorem 4 (Convergence of Failure Probability): The probability of W-MCTS-TS choosing a suboptimal action at the root node decays polynomially to zero:
 
 $$
-Pr\left( a_k = a_k^* \right) \le Cn^{-\alpha}
+Pr\left( a_k = a_k^{\star} \right) \le Cn^{-\alpha}
 $$
 for constants \\( C, \alpha \gt 0 \\) and sufficiently large number of simulations \\( n \\).
    - Theorem 5 (Convergence of Expected Payoff): The expected estimated mean value function at the root node converges polynomially to the optimal Q-value:
 
 $$ 
-E\left[V_m^{(0)}(s(0), n)\right] - Q_m^{(0)}(s(0), a_k^*) \le \Theta \left(\frac{2(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right) 
+E\left[V_m^{(0)}(s(0), n)\right] - Q_m^{(0)}(s(0), a_k^{\star}) \le \Theta \left(\frac{2(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right) 
 $$
 
 The paper highlights that it is the first to provide a specific polynomial convergence rate for MCTS with Thompson Sampling.
@@ -1423,7 +1423,7 @@ Sequential decision-making in safety-critical systems often requires satisfying 
 The proposed method, "Accelerated Gradient Projection Method with NPG Subroutine" (Algorithm 1), is a two-loop primal-dual algorithm:
 
 1. Outer Loop (Accelerated Gradient Projection for Dual Variable):
-This loop updates the dual variable \\( \lambda \in \mathbb{R}^n_{\ge 0} \\) using an accelerated gradient projection method onto a compact convex set \\( \Lambda = \{\lambda \mid 0 \le \lambda_i \le \frac{V_*^\tau - V_\tau^\pi(\rho)}{\xi_i}, \forall i \in [n] \} \\).
+This loop updates the dual variable \\( \lambda \in \mathbb{R}^n_{\ge 0} \\) using an accelerated gradient projection method onto a compact convex set \\( \Lambda = \{\lambda \mid 0 \le \lambda_i \le \frac{V_{\star}^\tau - V_\tau^\pi(\rho)}{\xi_i}, \forall i \in [n] \} \\).
 
 - At each iteration \\( k \\), an extrapolation point \\( \mu^{(k)} = \lambda^{(k)} + \beta_k (\lambda^{(k)} - \lambda^{(k-1)}) \\) is computed.
 - An approximate gradient \\( \tilde{\nabla} D(\mu^{(k)}) \\) of the dual function \\( D(\lambda) = \max_{\pi \in \Pi} L(\pi, \lambda) \\) is estimated, where \\( L(\pi, \lambda) := V^\pi_\tau(\rho) + \lambda^T (U_g^\pi(\rho) - b) \\). The gradient is given by \\( \nabla D(\lambda) = U_g^{\pi_\lambda}(\rho) - b \\), where \\( \pi_\lambda = \arg\max_{\pi \in \Pi} L(\pi, \lambda) \\).
@@ -1459,19 +1459,18 @@ where \\( d \\) is a lower bound on the discounted state visitation distribution
 \\( \mathcal{L} = 2 \ln 2 \left( \frac{\sqrt{n\vert S\vert \vert A\vert }}{(1-\gamma)^2} + \frac{\sqrt{n\vert S\vert \vert A\vert }}{\tau (1-\gamma) d} \right) \\)
 This smoothness is a crucial enabler for accelerated gradient-based methods.
 
-3. Decomposition of Duality Gap: Proposition 3.7 demonstrates a critical relationship between the dual optimality gap and primal metrics. If \\( \lambda \\) is an \\( \epsilon \\)-optimal dual multiplier (i.e., \\( D(\lambda) - D_*^\tau \le \epsilon \\)), then the associated Lagrangian maximizer \\( \pi_\lambda \\) satisfies:
-   - Policy distance: \\( \Vert  \pi_\lambda - \pi_*^\tau\Vert_2 \le C_1\sqrt{\epsilon} \\)
-   - Primal optimality gap: \\( \vert V_\tau^{\pi_\lambda}(\rho) - V_*^\tau\vert  \le 2\epsilon + \mathcal{L}_c C_1 C_2 \sqrt{\epsilon} \\)
+3. Decomposition of Duality Gap: Proposition 3.7 demonstrates a critical relationship between the dual optimality gap and primal metrics. If \\( \lambda \\) is an \\( \epsilon \\)-optimal dual multiplier (i.e., \\( D(\lambda) - D_{\star}^\tau \le \epsilon \\)), then the associated Lagrangian maximizer \\( \pi_\lambda \\) satisfies:
+   - Policy distance: \\( \Vert  \pi_\lambda - \pi_{\star}^\tau\Vert_2 \le C_1\sqrt{\epsilon} \\)
+   - Primal optimality gap: \\( \vert V_\tau^{\pi_\lambda}(\rho) - V_{\star}^\tau\vert  \le 2\epsilon + \mathcal{L}_c C_1 C_2 \sqrt{\epsilon} \\)
    - Constraint violation: \\( \max_{i \in [n]} [b_i - U_{g_i}^{\pi_\lambda}(\rho)]_+ \le \mathcal{L}_c C_1 \sqrt{\epsilon} \\)
 This shows that an \\( O(\epsilon) \\) dual error translates to an \\( O(\sqrt{\epsilon}) \\) primal error, a non-trivial result enabled by entropy regularization.
 
 4. Global Convergence Rates: Theorem 5.2 establishes the global convergence rates for Algorithm 1:
-   - Dual optimality gap: \\( D(\lambda) - D_*^\tau = O(1/T^2) \\)
-   - Primal optimality gap: \\( \vert V_\tau^{\pi}(\rho) - V_*^\tau\vert  = O(1/T) \\)
+   - Dual optimality gap: \\( D(\lambda) - D_{\star}^\tau = O(1/T^2) \\)
+   - Primal optimality gap: \\( \vert V_\tau^{\pi}(\rho) - V_{\star}^\tau\vert  = O(1/T) \\)
    - Constraint violation: \\( \max_{i \in [n]} [b_i - U_{g_i}^{\pi}(\rho)]_+ = O(1/T) \\)
-   - Policy distance: \\( \Vert  \pi - \pi_*^\tau\Vert_2 = O(1/T) \\)
+   - Policy distance: \\( \Vert  \pi - \pi_{\star}^\tau\Vert_2 = O(1/T) \\)
 The total iteration complexity is \\( O(T \log T) \\), where \\( T \\) is the number of outer loop iterations. This implies an overall \\( O(1/\epsilon) \\) rate to achieve \\( \epsilon \\)-accuracy in primal metrics.
-
 
 5. Convergence for Standard CMDPs: Corollary 5.4 shows that by choosing a small regularization parameter \\( \tau = O(\epsilon) \\), the proposed method can compute an \\( O(\epsilon) \\)-optimal solution for the standard (unregularized) CMDP problem in \\( O(1/\epsilon^2) \\) total iterations.
 
@@ -1551,6 +1550,7 @@ m^\pi (X \vert  s, a) = (1 - \gamma) \sum_{k=0}^\infty \gamma^k \Pr(S_{k+1} \in 
 $$
 
 where:
+
 - \\( \gamma \in [0,1) \\) is the discount factor, which geometrically discounts the importance of future states.
 - The term \\( \Pr(S_{k+1} \in X \vert  S_0 = s, A_0 = a, \pi) \\) denotes the probability that the state at timestep \\( k+1 \\) is in the set \\( X \\), given that the agent started in state \\( s \\), took action \\( a \\), and subsequently followed policy \\( \pi \\).
 - The summation \\( \sum_{k=0}^\infty \\) accounts for the entire future trajectory from the initial state-action pair.
@@ -1600,10 +1600,12 @@ The expression $X \sim (\mathcal{T}^{\pi_{\tilde{m}^{(n)}}})$ means we are gener
 
 The paper proposes Temporal Difference Flows (TD-Flow), which includes variants based on Conditional Flow Matching (CFM) and Denoising Diffusion Models (DDM). The goal is to learn a parametric model \\(\hat{m}(\cdot \cdot \cdot ; \theta) \approx m\_\pi\\), where $m_\pi$ is the normalized successor measure, which is the fixed point of the Bellman operator $T^\pi$: $m_\pi (\cdot \vert s, a) = (T^\pi m_\pi ) (\cdot \vert s, a) := (1 - \gamma)P (\cdot \vert s, a) + \gamma (P^\pi m_\pi ) (\cdot \vert s, a)$ where $(P^\pi m) (dx \vert s, a) = \int_{s'} P (ds' \vert s, a) m(dx \vert s', \pi(s'))$.
 
-1. Flow Matching Foundation: Flow Matching learns a time-dependent probability path $m_t$ from a source distribution $m_0$ to a target $m_1$ by training a neural network $\tilde{v}_t(\cdot \cdot \cdot ; \theta)$ to approximate the vector field $v_t$ that generates this path. The Conditional Flow Matching (CFM) loss is used:
+1. Flow Matching Foundation: Flow Matching learns a time-dependent probability path $m_t$ from a source distribution $m_0$ to a target $m_1$ by training a neural network $$\tilde{v}_t(\cdot \cdot \cdot ; \theta)$$ to approximate the vector field $v_t$ that generates this path. The Conditional Flow Matching (CFM) loss is used:
+
 $$
 \ell_{mc-cfm}(\theta) = E_{\rho,t,Z,X_t} [ \| \tilde{v}_t(X_t | S, A; \theta) - u_{t\vert Z}(X_t \verts Z) \|^2 ]
 $$
+
 where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t\vert Z}$ is the closed-form conditional vector field.
 
 2. TD-Flow Variants for GHMs: The paper extends CFM to a temporal difference setting, leveraging the Bellman equation.
@@ -1616,21 +1618,27 @@ where $Z$ is conditioning information (e.g., target $X_1$), and $u_{t\vert Z}$ i
 The paper provides significant theoretical insights into the convergence and variance properties of TD-Flow methods.
 
 - Convergence to Successor Measure (Theorem 1 and Corollary 1): Theorem 1 establishes that, under the ideal assumption of exact minimization of the flow-matching loss at each iteration, the probability paths $m^{(n+1)}_t$ generated by TD-CFM, Coupled TD-CFM, and TD²-CFM effectively follow an update rule $m^{(n+1)}_t(\cdot | s, a) = \mathcal{B}_t^\pi m^{(n)}_t(\cdot | s, a)$. This operator $\mathcal{B}_t^\pi m := (1 - \gamma)P_t + \gamma P^\pi m$ is shown to be a $\gamma$-contraction in 1-Wasserstein distance ($W_1$).
+
 $$
  \sup_{s,a} W_1 ((\mathcal{B}_t^\pi p_t) (\cdot | s, a), (\mathcal{B}_t^\pi q_t) (\cdot | s, a)) \le \gamma \sup_{s,a} W_1 (p_t(\cdot | s, a), q_t(\cdot | s, a)) 
 $$
-This contraction property directly implies (Corollary 1) that the sequence of probability paths $\{m^{(n)}_t\}_{n \ge 0}$ produced by these methods converges to a unique fixed point $m_t^* = \mathcal{B}_t^\pi m_t^*$, which surprisingly coincides with the probability path that would be generated by Monte-Carlo Conditional Flow Matching (mc-cfm) if direct samples from $m_\pi$ were available. A subtle point is that this property holds for $n \ge 1$ for all methods, but for $n=0$ only for TD²-CFM, implying differences in their initial learning dynamics despite converging to the same fixed point.
+
+This contraction property directly implies (Corollary 1) that the sequence of probability paths $\{m^{(n)}_t\}_{n \ge 0}$ produced by these methods converges to a unique fixed point $m_t^{\star} = \mathcal{B}_t^\pi m_t^{\star}$, which surprisingly coincides with the probability path that would be generated by Monte-Carlo Conditional Flow Matching (mc-cfm) if direct samples from $m_\pi$ were available. A subtle point is that this property holds for $n \ge 1$ for all methods, but for $n=0$ only for TD²-CFM, implying differences in their initial learning dynamics despite converging to the same fixed point.
 
 - Reduced Gradient Variance (Theorem 2 and 3): The paper's primary theoretical contribution is a detailed analysis of the gradient variance, which explains the empirical superiority of TD² methods.
 Theorem 2 compares TD-CFM and TD²-CFM, showing that:
+
 $$
 \sigma^2_{td-cfm} = \sigma^2_{td2-cfm} + \gamma^2 E_\rho \left[ \text{Tr Cov}_{X_1|S,A,X_t} \left[ \nabla_\theta \tilde{v}_t(X_t | S, A; \theta)^\top u_{t|1}(X_t | X_1) \right] \right]
 $$
+
 This indicates that TD-CFM has an additional variance term, "discounted" by $\gamma^2$. This extra variance arises from the samples generated by the algorithm itself (computational variance), as opposed to solely from the dataset.
 Theorem 3 extends this analysis to Coupled TD-CFM:
+
 $$
 \sigma^2_{td-cfm(c)} = \sigma^2_{td2-cfm} + \gamma^2 E_\rho \left[ \text{Tr Cov}_{Z|S,A,X_t} \left[ \nabla_\theta \tilde{v}_t(X_t | S, A; \theta)^\top u_{t|Z}(X_t | Z) \right] \right]
 $$
+
 where $Z = (X_0, X_1)$. Crucially, for straight conditional paths ($X_t = tX_1 + (1-t)X_0$) without crossing paths, it is shown that $\sigma^2_{td-cfm(c)} = \sigma^2_{td2-cfm}$. This explains why TD-CFM(C) performs comparably to TD²-CFM with linear paths, but its performance degrades with non-linear paths because the additional variance term re-emerges.
 This theoretical finding suggests that TD²-CFM (and TD²-DD) should exhibit more stable training, especially for large $\gamma$ (long horizons), due to their reduced gradient variance.
 
