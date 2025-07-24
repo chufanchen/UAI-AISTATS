@@ -66,7 +66,7 @@ The unified algorithm proceeds as follows:
 For \\( t=1, \dots, N_1 \\) online episodes:
 
 1. Augment the online dataset \\( \mathcal{D}_{t-1} \\) collected so far with the offline dataset \\( \mathcal{D}_0 \\) to form \\( \mathcal{D}\_0 \cup \mathcal{D}\_{t-1} \\).
-2. Call the oracle algorithm: $$ (\hat{V}^{\pi}\_{\text{Alg}}, \hat{U}^{\pi}\_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) $$.
+2. Call the oracle algorithm: $$ (\hat{V}^{\pi}_{\text{Alg}}, \hat{U}^{\pi}_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) $$.
 3. Select the online policy \\( \pi_t \\) using the optimism-in-face-of-uncertainty principle: \\( \pi\_t = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} + \hat{U}^{\pi}\_{\text{Alg}} \\).
 4. Execute \\( \pi_t \\) to collect a trajectory \\( \tau_t \\).
 5. Update the online dataset: \\( \mathcal{D}\_t = \mathcal{D}\_{t-1} \cup \{\tau_t\} \\).
@@ -80,7 +80,7 @@ For sub-optimality gap minimization, after \\( N_1 \\) episodes:
 
 ### 📐 Theoretical Contributions
 
-The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}\_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $$\sum_{t=1}^{N_1} \hat{U}^{\pi_t}\_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}}$$, bounding the cumulative uncertainty of chosen policies.
+The theoretical analysis relies on two key concepts: the uncertainty level \\( U_{M^\star}(\pi) \\) and the concentrability coefficient \\( C(\pi\vert\rho) = (U_{M^\star}(\pi)/U_{M^\star}(\rho))^2 \\). \\( U_{M^\star}(\pi) \\) quantifies the minimum estimation error for \\( V^{\pi}\_{M^*} \\) from offline data, while \\( C(\pi\vert\rho) \\) measures how well the behavior policy \\( \rho \\) covers the target policy \\( \pi \\). Additionally, the oracle algorithm is assumed to satisfy an Eluder-type condition, $$\sum_{t=1}^{N_1} \hat{U}^{\pi_t}_{\text{Alg}}(\mathcal{D}_{t-1})^2 \leq C^2_{\text{Alg}}$$, bounding the cumulative uncertainty of chosen policies.
 
 #### 1. **Sub-optimality Bound**
 
@@ -223,7 +223,7 @@ The proof outline for Theorem 1 is illuminating:
 
 **Proposition 2 (Frequency of simple unprecedented events)**: This result reinforces the problem identified in Theorem 1. It states that in any environment, the complexity of the simplest unprecedented event yet to occur at any future time grows slower than every computable function that tends to infinity. This means that even as the base policy observes more data and \\( t \to \infty \\), there will always be simple, unprecedented events for the agent to exploit, preventing the \\( K(E) \\) term in Theorem 1 from becoming large enough to effectively constrain the agent. The vulnerability persists regardless of training data volume.
 
-**Theorem 2 (TVD constraint)**: The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), $$ \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) $$. It proves that if \\( \pi^{TVD}_c \\) is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which $$\pi^{TVD}_c(a_t\vert x_{\lt 2t}) \gt  \beta(a_t\vert x_{\lt 2t})$$ must be \\( V_{\xi,U_m} \\)-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
+**Theorem 2 (TVD constraint)**: The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), $$ \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) $$. It proves that if $$\pi^{TVD}_c$$ is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which $$\pi^{TVD}_c(a_t\vert x_{\lt 2t}) \gt  \beta(a_t\vert x_{\lt 2t})$$ must be $$ V_{\xi,U_m} $$-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
 
 ---
 
@@ -458,7 +458,7 @@ The paper's methodology revolves around extending and applying the ODE framework
 1.  **Action-Conditional BYOL (BYOL-AC) Analysis:** The core BYOL-AC objective, defined as minimizing the prediction error of future latent representations conditioned on actions, is formulated:
 
     $$ 
-    \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot\vert x), y \sim T_a(\cdot\vert x)} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]
+    \min_{\Phi, \{\forall P_a \}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot\vert x), y \sim T_a(\cdot\vert x)} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]
     $$
 
     This objective is then analyzed using a two-timescale optimization process within the ODE framework, where optimal action-conditional predictors \\( P_a^\star \\) are found before taking a semi-gradient step for \\( \Phi \\).
@@ -486,7 +486,7 @@ The paper's theoretical contributions are substantial, primarily extending previ
 1.  **Analysis of BYOL-AC Convergence:**
     *   **Non-collapse Property:** It proves that under Assumption 1 (Orthogonal Initialization), the \\( \text{BYOL-AC} \\) ODE preserves the orthogonality of \\( \Phi \\) (Lemma 3), avoiding degenerate solutions.
     *   **Lyapunov Function:** It identifies a Lyapunov function for the \\( \text{BYOL-AC} \\) ODE as the negative of a trace objective, \\( f_{\text{BYOL-AC}}(\Phi) := \vert \mathcal{A}\vert ^{-1} \sum_a \text{Tr} \left[ \Phi^\top T_a \Phi \Phi^\top T_a \Phi \right] \\) (Lemma 4), guaranteeing convergence to a critical point.
-    *   **Characterization of \\( \Phi^*_{ac} \\):** Theorem 2 states that under Assumptions 1-6, the columns of \\( \Phi^*_{ac} \\) (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^* \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
+    *   **Characterization of $$ \Phi^\star_{ac}$$:** Theorem 2 states that under Assumptions 1-6, the columns of $$\Phi^\star_{ac}$$ (the maximizer of \\( f_{\text{BYOL-AC}}(\Phi) \\)) span the same subspace as the top-\\( k \\) eigenvectors of \\( \vert \mathcal{A}\vert ^{-1} \sum_a T_a^2 \\). This contrasts with \\( \text{BYOL-}\Pi \\), whose \\( \Phi^* \\) spans the top-\\( k \\) eigenvectors of \\( (T^\pi)^2 \\).
 
 2.  **Variance Relation between BYOL-Π and BYOL-AC Representations:**
     *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining \\( \Phi^*_{ac} \\) (mean of squares: \\( \mathbb{E}_a[D_a^2] \\)) and \\( \Phi^* \\) (square of mean: \\( (\mathbb{E}_a[D_a])^2 \\)) are related by a variance equation:
@@ -838,7 +838,7 @@ Key findings include:
 
 ### 🧠 Core Idea
 
-Decision Points RL (DPRL) is a safe batch reinforcement learning (RL) algorithm that ensures a learned policy performs at least as well as the behavior policy that generated the dataset. The core idea is to restrict policy improvements to a subset of state-action pairs, or regions in continuous states, termed "Decision Points." These are defined as state-action pairs \\( (s,a) \\) that have been observed at least \\( N_\wedge \\) times and where the estimated Q-value for action \\( a \\) in state \\( s \\) under the behavior policy, \\( \hat{Q}_{\pi_b}(s,a) \\), is greater than or equal to the estimated V-value for state \\( s \\) under the behavior policy, \\( \hat{V}_{\pi_b}(s) \\). For states where high-confidence improvements cannot be identified (i.e., not a decision point), DPRL defers to the current behavior policy. This selective improvement strategy, combined with deferral, leads to significantly tighter theoretical guarantees, with data-dependent bounds that do not scale with the size of the state and action spaces, unlike prior work.
+Decision Points RL (DPRL) is a safe batch reinforcement learning (RL) algorithm that ensures a learned policy performs at least as well as the behavior policy that generated the dataset. The core idea is to restrict policy improvements to a subset of state-action pairs, or regions in continuous states, termed "Decision Points." These are defined as state-action pairs \\( (s,a) \\) that have been observed at least \\( N_\wedge \\) times and where the estimated Q-value for action \\( a \\) in state \\( s \\) under the behavior policy, $$ \hat{Q}_{\pi_b}(s,a) $$, is greater than or equal to the estimated V-value for state \\( s \\) under the behavior policy, $$\hat{V}_{\pi_b}(s)$$. For states where high-confidence improvements cannot be identified (i.e., not a decision point), DPRL defers to the current behavior policy. This selective improvement strategy, combined with deferral, leads to significantly tighter theoretical guarantees, with data-dependent bounds that do not scale with the size of the state and action spaces, unlike prior work.
 
 ---
 
@@ -863,7 +863,7 @@ Batch RL is crucial for applications where direct interaction with the environme
 The key motivations behind DPRL are:
 
 1. Targeted Improvements: Instead of broadly constraining the learned policy, DPRL identifies only those specific state-action pairs where confident improvements can be made. This addresses the conservativeness of density- and pessimism-based methods.
-2. Confidence through Data Density: By focusing on "Decision Points"—state-action pairs with a high visitation count (\\( n(s,a) \geq N_\wedge \\)) and estimated advantage (\\( \hat{Q}_{\pi_b}(s,a) \geq \hat{V}_{\pi_b}(s) \\))—DPRL ensures that any deviation from the behavior policy is made with high confidence.
+2. Confidence through Data Density: By focusing on "Decision Points"—state-action pairs with a high visitation count (\\( n(s,a) \geq N_\wedge \\)) and estimated advantage ($$\hat{Q}_{\pi_b}(s,a) \geq \hat{V}_{\pi_b}(s) $$)—DPRL ensures that any deviation from the behavior policy is made with high confidence.
 3. Strategic Deferral: For states where such confident improvements cannot be established, DPRL explicitly defers to the behavior policy. This prevents risky actions in sparsely visited or uncertain regions, offering a robust safety mechanism.
 4. Independence from True Behavior Policy: Unlike SPIBB, DPRL does not require a priori knowledge of the true behavior policy during training, making it more applicable in real-world settings where obtaining the functional form of expert behavior is difficult.
 5. Tighter Guarantees: By restricting the scope of policy changes to well-observed regions, DPRL achieves tighter, data-dependent theoretical bounds that scale with the number of sufficiently observed state-action pairs (\\( C(N_\wedge) \\)) rather than the entire state-action space (\\( \vert S\vert \vert A\vert \\)).
@@ -879,10 +879,14 @@ DPRL adapts its approach based on whether the state space is discrete or continu
 
 1. Define Decision Points: From the given dataset \\( \mathcal{D} \\), DPRL first identifies "Decision Points" at which a change from the behavior policy \\( \pi_b \\) is considered. This involves defining:
 
-\\( \mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\} \\): The set of "advantageous actions" for a state \\( s \\). An action \\( a \\) is advantageous if its empirical count \\( n(s,a) \\) is at least a threshold \\( N_\wedge \\), and its estimated Q-value under the behavior policy \\( \hat{Q}_{\pi_b}(s,a) \\) is greater than or equal to the estimated state value \\( \hat{V}_{\pi_b}(s) \\).
-\\( \mathcal{S}^{DP} = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s \neq \emptyset\} \\): The set of states where at least one advantageous action exists. These are the states identified as "decision points."
-\\( \Phi = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s = \emptyset\} \\): The set of states where no confident advantageous action can be found, implying deferral to \\( \pi_b \\).
-Empirical Q-values \\( \hat{Q}_{\pi_b}(s,a) \\) and \\( \hat{V}_{\pi_b}(s) \\) are estimated using first-visit Monte Carlo averages from the dataset.
+$$
+\mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\}
+$$
+
+: The set of "advantageous actions" for a state \\( s \\). An action \\( a \\) is advantageous if its empirical count \\( n(s,a) \\) is at least a threshold \\( N_\wedge \\), and its estimated Q-value under the behavior policy $$\hat{Q}_{\pi_b}(s,a)$$ is greater than or equal to the estimated state value $$\hat{V}_{\pi_b}(s)$$.
+$$\mathcal{S}^{DP} = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s \neq \emptyset\} $$: The set of states where at least one advantageous action exists. These are the states identified as "decision points."
+$$\Phi = \{s \in \mathcal{S} : \mathcal{A}^{DP}_s = \emptyset\}$$: The set of states where no confident advantageous action can be found, implying deferral to \\( \pi_b \\).
+Empirical Q-values $$ \hat{Q}_{\pi_b}(s,a) \\) and \\( \hat{V}_{\pi_b}(s) $$ are estimated using first-visit Monte Carlo averages from the dataset.
 
 2. Construct Elevated Semi-MDP (SMDP): An "elevated" SMDP \\( \tilde{\mathcal{M}} = (\mathcal{S}^{DP}, \mathcal{A}, \tilde{P}, \tilde{R}, \tilde{\gamma}) \\) is constructed. The state space is restricted to \\( \mathcal{S}^{DP} \\). The transition function \\( \tilde{P}(s'\vert s,a) \\), reward function \\( \tilde{R}(s,a) \\), and discount factor \\( \tilde{\gamma}(s,a,s') \\) are estimated using data from \\( \mathcal{D} \\) that connect decision points:
 
@@ -891,16 +895,19 @@ Empirical Q-values \\( \hat{Q}_{\pi_b}(s,a) \\) and \\( \hat{V}_{\pi_b}(s) \\) a
 \\( \tilde{R}(s,a) = \frac{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \sum_{n=1}^N \tilde{r}(n, s, a, s', k)}{\sum_{s' \in \mathcal{S}^{DP}} \sum_{k=1}^T \tilde{n}(s, a, s', k)} \\)
 where \\( \tilde{n}(s, a, s', k) \\) is the count of trajectories starting from \\( (s,a) \\) and reaching \\( s' \\) as the first decision point after \\( k \\) steps, and \\( \tilde{r}(n, s, a, s', k) \\) is the discounted sum of rewards along such a segment.
 
-3. Policy Optimization: Policy iteration is applied to the constructed SMDP \\( \tilde{\mathcal{M}} \\) over a restricted policy set \\( \Pi_{\text{DP}} \\). This set \\( \Pi_{\text{DP}} \\) contains deterministic policies that can only select advantageous actions: \\( \pi(a\vert s) = 0 \quad \forall a \notin \mathcal{A}_{DP}^s \\). In each iteration \\( i \\), the policy \\( \pi^{(i)} \\) is evaluated to get \\( V^{(i)}_{\tilde{\mathcal{M}}} \\), which is then improved to \\( \pi^{(i+1)} \\):
+3. Policy Optimization: Policy iteration is applied to the constructed SMDP \\( \tilde{\mathcal{M}} \\) over a restricted policy set \\( \Pi_{\text{DP}} \\). This set \\( \Pi_{\text{DP}} \\) contains deterministic policies that can only select advantageous actions: $$\pi(a\vert s) = 0 \quad \forall a \notin \mathcal{A}_{DP}^s $$. In each iteration \\( i \\), the policy \\( \pi^{(i)} \\) is evaluated to get $$ V^{(i)}_{\tilde{\mathcal{M}}} $$, which is then improved to \\( \pi^{(i+1)} \\):
+
 $$
 \pi^{(i+1)}(s) = \arg \max_{a \in \mathcal{A}^{DP}_s} \left( \tilde{R}(s, a) + \mathbb{E}_{\tilde{P}(s'\vert s,a)} [\tilde{\gamma}(s, a, s')V^{(i)}_{\tilde{\mathcal{M}}}(s')] \right)
 $$
 This process converges to a policy \\( \pi^{(K)} \\).
 
-4. Final Policy Construction: The final policy \\( \pi_{\text{DP}}(s) \\) is defined as:
+1. Final Policy Construction: The final policy \\( \pi_{\text{DP}}(s) \\) is defined as:
+
 $$
 \pi_{\text{DP}}(s) = \begin{cases} \text{DEFER} \quad \text{if } s \in \Phi \\ \pi^{(K)}(s) \quad \text{otherwise} \end{cases}
 $$
+
 where "DEFER" implies adhering to the behavior policy \\( \pi_b \\).
 
 #### Continuous Case (DPRL-C)
@@ -915,15 +922,20 @@ For continuous state spaces, DPRL-C uses a non-parametric, neighborhood-based ap
 
 The distance metric \\( d((s,a), (s',a')) = d(s,s') \\) if \\( a=a' \\), and \\( \infty \\) otherwise, with \\( d(s,s') = \Vert s-s'\Vert  \\).
 
+2. Define Advantageous Actions: Similar to the discrete case, the set of advantageous actions $$\mathcal{A}^{DP}_s$$ for a state \\( s \\) is defined as:
 
-2. Define Advantageous Actions: Similar to the discrete case, the set of advantageous actions \\( \mathcal{A}^{DP}_s \\) for a state \\( s \\) is defined as:
-\\( \mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\} \\)
+$$
+\mathcal{A}^{DP}_s = \{a \in \mathcal{A} : n(s, a) \geq N_\wedge \text{ and } \hat{Q}_{\pi_b}(s, a) \geq \hat{V}_{\pi_b}(s)\}
+$$
+
 Here, \\( \hat{Q}_{\pi_b}(s, a) \\) and \\( \hat{V}_{\pi_b}(s) \\) are estimated by averaging the returns of neighbors in \\( N(s,a) \\) and \\( N(s) \\) respectively.
 
 3. Final Policy Construction: The policy \\( \pi_{\text{DP}}(s) \\) is implicitly defined:
+
 $$
 \pi_{\text{DP}}(s) = \begin{cases} \text{DEFER} \quad \text{if } \mathcal{A}^{DP}_s = \emptyset \\ \arg \max_{a \in \mathcal{A}^{DP}_s} \hat{Q}_{\pi_b}(s, a) \quad \text{otherwise} \end{cases}
 $$
+
 The hyperparameters \\( r \\) (radius) and \\( N_\wedge \\) control the bias-variance trade-off and the sparsity of improvements. A smaller \\( r \\) leads to lower bias but fewer decision points, while a larger \\( r \\) increases bias but potentially more decision points. \\( N_\wedge \\) ensures a minimum number of samples for reliable estimation.
 
 ---
@@ -935,14 +947,18 @@ DPRL provides robust theoretical guarantees for safe policy improvement.
 1. Theorem 1 (DPRL Discrete)
 
 Let \\( \pi_{\text{DP}} \\) be the policy obtained by the DPRL-D algorithm. Then \\( \pi_{\text{DP}} \\) is a safe policy improvement over the behavior policy \\( \pi_b \\), with probability at least \\( 1 - \delta \\):
+
 $$
  \rho(\pi_{\text{DP}}) - \rho(\pi_b) \geq - \frac{V_{\text{max}}}{1 - \gamma} \sqrt{\frac{1}{N_\wedge} \log \frac{C(N_\wedge)}{\delta}}
 $$
+
 where \\( V_{\text{max}} \\) is the maximum possible value, \\( \gamma \\) is the discount factor, \\( N_\wedge \\) is the minimum count threshold for decision points, and \\( C(N_\wedge) \\) is the count of state-action pairs observed at least \\( N_\wedge \\) times in the dataset:
+
 $$
 C(N_\wedge) = \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \mathbf{I}[n(s, a) \geq N_\wedge]
 $$
-Proof Sketch: The proof leverages the Performance Difference Lemma, which relates the value difference \\( \rho(\pi_{\text{DP}}) - \rho(\pi_b) \\) to the expected advantage \\( A_{\pi_b}(s,a) = Q_{\pi_b}(s,a) - V_{\pi_b}(s) \\) under \\( \pi_{\text{DP}} \\). The key is to bound the empirical advantage \\( \hat{A}_{\pi_b}(s,a) = \hat{Q}_{\pi_b}(s,a) - \hat{V}_{\pi_b}(s) \\). By expressing \\( \hat{Q}_{\pi_b} \\) and \\( \hat{V}_{\pi_b} \\) as first-visit Monte Carlo averages of returns, the analysis uses McDiarmid's inequality. For states where DPRL defers to \\( \pi_b \\) (i.e., \\( s \in \Phi \\)), the advantage is zero. For decision points (\\( s \in \text{SDP} \\)) where \\( \pi_{\text{DP}} \\) acts, \\( \hat{A}_{\pi_b}(s,a) \\) is positive by construction, and the true \\( A_{\pi_b}(s,a) \\) is bounded using McDiarmid's inequality for samples with at least \\( N_\wedge \\) observations. A union bound is then applied over the \\( C(N_\wedge) \\) state-action pairs where improvements are considered.
+
+Proof Sketch: The proof leverages the Performance Difference Lemma, which relates the value difference \\( \rho(\pi_{\text{DP}}) - \rho(\pi_b) \\) to the expected advantage \\( A_{\pi_b}(s,a) = Q_{\pi_b}(s,a) - V_{\pi_b}(s) \\) under \\( \pi_{\text{DP}} \\). The key is to bound the empirical advantage $$ \hat{A}_{\pi_b}(s,a) = \hat{Q}_{\pi_b}(s,a) - \hat{V}_{\pi_b}(s) $$. By expressing $$ \hat{Q}_{\pi_b}$$ and $$\hat{V}_{\pi_b}$$ as first-visit Monte Carlo averages of returns, the analysis uses McDiarmid's inequality. For states where DPRL defers to \\( \pi_b \\) (i.e., \\( s \in \Phi \\)), the advantage is zero. For decision points (\\( s \in \text{SDP} \\)) where \\( \pi_{\text{DP}} \\) acts, $$ \hat{A}_{\pi_b}(s,a) $$ is positive by construction, and the true $$ A_{\pi_b}(s,a)$$ is bounded using McDiarmid's inequality for samples with at least \\( N_\wedge \\) observations. A union bound is then applied over the \\( C(N_\wedge) \\) state-action pairs where improvements are considered.
 
 Discussion and Comparison to Baselines:
 
@@ -952,10 +968,12 @@ Discussion and Comparison to Baselines:
 - Independence from Density Threshold: Unlike Liu et al. (2020), DPRL's bound does not depend on a density threshold \\( b = N_\wedge/\vert \mathcal{D}\vert  \\). This means the bound does not loosen when the dataset size \\( \vert \mathcal{D}\vert  \\) increases while the set of well-observed state-action pairs remains constant, making it more robust to superfluous data in low-density regions.
 
 2. Theorem 2 (DPRL Continuous)
+
 Let \\( M(r, N_\wedge) \\) be the number of balls of radius \\( r \\) needed to cover the subset of \\( \mathcal{S} \times \mathcal{A} \\) where each \\( (s,a) \\) has at least \\( N_\wedge \\) data points in its ball \\( B_r(s,a) \\), and let \\( \epsilon_r \\) be the maximum error in estimating Q-values within a ball of radius \\( r \\). Then \\( \pi_{\text{DP}} \\) is a safe policy improvement over \\( \pi_b \\) with probability at least \\( 1 - \delta \\):
 $$
 \rho(\pi_{\text{DP}}) - \rho(\pi_b) \geq - \frac{V_{\text{max}}}{1 - \gamma} \left( \sqrt{\frac{1}{2N_\wedge} \log \frac{M(r, N_\wedge)}{\delta}} - 3\epsilon_r \right)
 $$
+
 Discussion and Comparison to Baselines:
 
 - Volume Measure: \\( M(r, N_\wedge) \\) quantifies the "volume" of the state-action space where policy improvement is guaranteed. For sparse datasets, \\( M(r, N_\wedge) \\) will be much smaller than the total covering number \\( M(r) \\) of the entire space.
@@ -1050,7 +1068,7 @@ Existing improved IPS estimators (e.g., truncated IPS, self-normalizing, exponen
 
 ### 🎯 Motivation
 
-The motivation stems from the limitations of current off-policy estimators, particularly IPS and its variants, when confronted with real-world complexities such as noise and heavy-tailed data. The LSE operator, characterized by \\( \text{LSE}_\lambda(Z) = \frac{1}{\lambda} \log \left( \frac{1}{n} \sum_{i=1}^n e^{\lambda z_i} \right) \\), inherently provides robustness for negative \\( \lambda \\). When \\( \lambda \lt 0 \\), terms with abnormally large positive \\( z_i \\) (noisy or outlier samples in the weighted reward) vanish in the exponential sum as \\( \lim_{z_i \to +\infty} e^{\lambda z_i} = 0 \\), thus being effectively ignored. This property makes the LSE estimator naturally robust to high-magnitude outliers in weighted rewards, a common characteristic of heavy-tailed distributions. A motivating toy example with a Pareto distribution demonstrates that LSE significantly reduces variance and MSE compared to the Monte-Carlo estimator for estimating the mean of a heavy-tailed variable, with minimal impact on bias. This intrinsic robustness for handling heavy-tailed and noisy data points motivates its application to off-policy evaluation and learning.
+The motivation stems from the limitations of current off-policy estimators, particularly IPS and its variants, when confronted with real-world complexities such as noise and heavy-tailed data. The LSE operator, characterized by $$ \text{LSE}_\lambda(Z) = \frac{1}{\lambda} \log \left( \frac{1}{n} \sum_{i=1}^n e^{\lambda z_i} \right) $$, inherently provides robustness for negative \\( \lambda \\). When \\( \lambda \lt 0 \\), terms with abnormally large positive \\( z_i \\) (noisy or outlier samples in the weighted reward) vanish in the exponential sum as \\( \lim_{z_i \to +\infty} e^{\lambda z_i} = 0 \\), thus being effectively ignored. This property makes the LSE estimator naturally robust to high-magnitude outliers in weighted rewards, a common characteristic of heavy-tailed distributions. A motivating toy example with a Pareto distribution demonstrates that LSE significantly reduces variance and MSE compared to the Monte-Carlo estimator for estimating the mean of a heavy-tailed variable, with minimal impact on bias. This intrinsic robustness for handling heavy-tailed and noisy data points motivates its application to off-policy evaluation and learning.
 
 ---
 
@@ -1068,12 +1086,12 @@ Key aspects of the LSE estimator:
 
 - **Non-linearity**: Unlike many existing model-free estimators (e.g., IPS, truncated IPS, PM, ES, OS, IX, LS) which are linear transformations or weighted averages of individual weighted rewards, the LSE estimator is a non-linear function applied to the entire set of weighted reward samples. This non-linearity requires novel theoretical analysis techniques.
 - **Parameter \\( \lambda \lt 0 \\)**:
-  - As \\( \lambda \to 0^- \\), the LSE estimator converges to the standard IPS estimator: \\( \lim_{\lambda \to 0} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \frac{1}{n} \sum_{i=1}^n r_i w_\theta(a_i, x_i) \\).
-  - As \\( \lambda \to -\infty \\), it converges to the minimum observed weighted reward: \\( \lim_{\lambda \to -\infty} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \min_i r_i w_\theta(a_i, x_i) \\).
+  - As \\( \lambda \to 0^- \\), the LSE estimator converges to the standard IPS estimator: $$\lim_{\lambda \to 0} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \frac{1}{n} \sum_{i=1}^n r_i w_\theta(a_i, x_i) $$.
+  - As \\( \lambda \to -\infty \\), it converges to the minimum observed weighted reward: $$\lim_{\lambda \to -\infty} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) = \min_i r_i w_\theta(a_i, x_i)$$.
   - This property implies an implicit shrinkage effect for large positive weighted rewards when \\( \lambda \\) is negative, as terms with large \\( r_i w_\theta(a_i, x_i) \\) are suppressed by \\( e^{\lambda (\cdot)} \\) when \\( \lambda \lt 0 \\).
 - **Connection to KL Regularization**: The LSE estimator with \\( \lambda \lt 0 \\) can be interpreted as the solution to a KL-regularized expected minimization problem, connecting it to concepts of entropy regularization.
-- **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function \\( V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A\vert X)}[r(A,X)\vert X]] \\) by analyzing the bias and variance of \\( \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) \\).
-- **Off-Policy Learning (OPL)**: The objective is to find an optimal policy \\( \pi_\theta^* = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta) \\) by maximizing the LSE estimator \\( \hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) \\) and bounding its regret, \\( R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^*) - V(\hat{\pi}_\theta(S)) \\).
+- **Off-Policy Evaluation (OPE)**: The objective is to estimate the value function \\( V(\pi_\theta) = E_{P_X}[E_{\pi_\theta(A\vert X)}[r(A,X)\vert X]] \\) by analyzing the bias and variance of $$\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)$$.
+- **Off-Policy Learning (OPL)**: The objective is to find an optimal policy $$\pi_\theta^\star = \arg \max_{\pi_\theta \in \Pi_\Theta} V(\pi_\theta) $$ by maximizing the LSE estimator $$ \hat{\pi}_\theta(S) = \arg \max_{\pi_\theta \in \Pi_\Theta} \hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta) $$ and bounding its regret, $$ R_\lambda(\hat{\pi}_\theta, S) := V(\pi_\theta^*) - V(\hat{\pi}_\theta(S)) $$.
 
 ---
 
@@ -1082,16 +1100,20 @@ Key aspects of the LSE estimator:
 The paper provides comprehensive theoretical guarantees for the LSE estimator under challenging conditions.
 
 1. Heavy-tail Assumption (Assumption 5.1):
+
 The core assumption is that for all learning policies \\( \pi_\theta(A\vert X) \in \Pi_\Theta \\) and some \\( \epsilon \in [0, 1] \\), the \\( (1 + \epsilon) \\)-th moment of the weighted reward is bounded:
+
 $$
-E_{P_X \otimes \pi_0(A\vert X) \otimes P_{R\vert X,A}} \left[ \left(w_\theta(A, X)R\right)^{1+\epsilon} \right] \le \nu 
+E_{P_X \otimes \pi_0(A\vert X) \otimes P_{R\vert X,A}} \left[ \left(w_\theta(A, X)R\right)^{1+\epsilon} \right] \le \nu
 $$
+
 This is a significantly weaker assumption than requiring bounded second or higher moments, enabling analysis under heavy-tailed distributions where variance might be infinite.
 
-2. Regret Bounds in OPL (Theorem 5.3):
-For a finite policy set \\( \vert \Pi_\Theta\vert  \lt \infty \\), the paper establishes an upper bound on the regret \\( R_\lambda(\hat{\pi}_\theta, S) \\). The bound explicitly shows dependence on \\( \lambda \\), \\( \nu \\), \\( n \\) (sample size), \\( \epsilon \\), \\( \delta \\) (confidence parameter), and \\( \vert \Pi_\Theta\vert  \\).
+1. Regret Bounds in OPL (Theorem 5.3):
 
-3. Convergence Rate (Proposition 5.4):
+For a finite policy set \\( \vert \Pi_\Theta\vert  \lt \infty \\), the paper establishes an upper bound on the regret $$R_\lambda(\hat{\pi}_\theta, S)$$> The bound explicitly shows dependence on \\( \lambda \\), \\( \nu \\), \\( n \\) (sample size), \\( \epsilon \\), \\( \delta \\) (confidence parameter), and  $$\vert \Pi_\Theta\vert$$.
+
+1. Convergence Rate (Proposition 5.4):
 By strategically setting \\( \lambda = -n^{- \frac{1}{1+\epsilon}} \\), the paper demonstrates that the overall convergence rate of the regret upper bound is \\( O(n^{-\epsilon/(1+\epsilon)}) \\). Notably:
 
 - If \\( \epsilon = 1 \\) (meaning the second moment of the weighted reward is bounded), the rate becomes \\( O(n^{-1/2}) \\), matching the optimal rate for many estimators under stronger assumptions.
@@ -1099,9 +1121,9 @@ By strategically setting \\( \lambda = -n^{- \frac{1}{1+\epsilon}} \\), the pape
 
 4. Bias and Variance Analysis in OPE:
 
-- Bias Bounds (Proposition 5.5): Upper and lower bounds on the bias \\( B(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \\) are derived. The upper bound is \\( O(\vert \lambda\vert ^\epsilon \nu) \\).
+- Bias Bounds (Proposition 5.5): Upper and lower bounds on the bias $$ B(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta))$$ are derived. The upper bound is \\( O(\vert \lambda\vert ^\epsilon \nu) \\).
 - Asymptotic Unbiasedness (Remark 5.6): By choosing \\( \lambda \\) to approach zero as \\( n \to \infty \\) (e.g., \\( \lambda(n) = -n^{-\zeta} \\) for \\( \zeta \gt 0 \\)), the LSE estimator is shown to be asymptotically unbiased. Specifically, setting \\( \zeta = \frac{1}{1+\epsilon} \\) yields an \\( O(n^{-\epsilon/(1+\epsilon)}) \\) convergence rate for bias.
-- Variance Bound (Proposition 5.7): Assuming a bounded second moment of weighted reward (\\( E[(w_\theta(A,X)R)^2] \le \nu_2 \\)), the variance of the LSE estimator is bounded by \\( V(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \le \frac{1}{n} V(w_\theta(A,X)R) \le \frac{1}{n} \nu_2 \\). This demonstrates that the LSE estimator reduces variance compared to IPS.
+- Variance Bound (Proposition 5.7): Assuming a bounded second moment of weighted reward (\\( E[(w_\theta(A,X)R)^2] \le \nu_2 \\)), the variance of the LSE estimator is bounded by $$V(\hat{V}_{\lambda}^{\text{LSE}}(S, \pi_\theta)) \le \frac{1}{n} V(w_\theta(A,X)R) \le \frac{1}{n} \nu_2 $$. This demonstrates that the LSE estimator reduces variance compared to IPS.
 - A bias-variance trade-off exists with \\( \lambda \\): decreasing \\( \vert \lambda\vert  \\) (i.e., making \\( \lambda \\) closer to 0) decreases bias but increases variance, and vice-versa.
 
 5. Robustness of the LSE Estimator:
@@ -1111,6 +1133,7 @@ By strategically setting \\( \lambda = -n^{- \frac{1}{1+\epsilon}} \\), the pape
 
 
 6. Comparison with Other Estimators:
+
 The LSE estimator is theoretically compared (Table 2) with IPS, SN-IPS, truncated IPS, IX, PM, ES, LS, and OS estimators. LSE demonstrates superior performance in heavy-tailed scenarios, robust to noisy rewards and estimated propensity scores, and maintains differentiability, which is important for optimization. It achieves a better convergence rate under heavy-tailed conditions compared to existing methods.
 
 ---
@@ -1208,32 +1231,59 @@ W-MCTS operates by modeling every node in the search tree, both value (V-nodes) 
 The core of the method is a novel backup operator based on **Wasserstein barycenters with \\( \alpha \\)-divergence**.
 
 1. V-posterior Definition: A V-node \\( V(s) \\) is defined as the \\( L_1 \\)-Wasserstein barycenter of its children Q-nodes \\( Q(s,a) \\) for actions \\( a \in A \\), given a policy \\( \bar{\pi} \\):
-$\\( V(s) \in \arg \inf_{V} E_{a \sim \bar{\pi}} \left[W_1(V, Q(s, a))\right] \\)$
+
+$$
+V(s) \in \arg \inf_{V} E_{a \sim \bar{\pi}} \left[W_1(V, Q(s, a))\right] 
+$$
+
 Here, \\( W_1(\cdot, \cdot) \\) is the \\( L_1 \\)-Wasserstein distance, and the cost function used within it is the \\( \alpha \\)-divergence \\( D_{f_\alpha}(X\vert \vert Y) \\), which is a subclass of \\( f \\)-divergence defined by \\( f_\alpha(x) = \frac{(x^\alpha - 1) - \alpha(x - 1)}{\alpha(\alpha - 1)} \\).
 
 2. Closed-Form Solutions for Gaussians (Proposition 1): For Gaussian distributions \\( V(s) \sim N(\bar{m}(s),\bar{\sigma}^2(s)) \\) and \\( Q(s,a) \sim N(m(s,a), \sigma^2(s,a)) \\), the mean and standard deviation of the V-posterior are derived as power means:
-$\\( \bar{m}(s) = \left(E_{a \sim \bar{\pi}} [m(s, a)^p]\right)^{\frac{1}{p}} \\)$
-$\\( \bar{\sigma}(s) = \left(E_{a \sim \bar{\pi}} [\sigma(s, a)^p]\right)^{\frac{1}{p}} \\)$
+
+$$
+\bar{m}(s) = \left(E_{a \sim \bar{\pi}} [m(s, a)^p]\right)^{\frac{1}{p}} 
+$$
+$$ \bar{\sigma}(s) = \left(E_{a \sim \bar{\pi}} [\sigma(s, a)^p]\right)^{\frac{1}{p}} 
+$$
 where \\( p = 1 - \alpha \\). When \\( p=1 \\), these reduce to the expected mean and standard deviation.
 
 3. Particle Filter Extension (Proposition 2): The approach is also shown to apply to particle models, where each particle \\( \bar{x}_i(s) \\) of a V-posterior \\( V(s) \\) is the power mean of corresponding particles \\( x_i(s,a) \\) from Q-posteriors:
-$\\( \bar{x}_i(s) = \left(E_{a \sim \bar{\pi}} [x_i(s, a)^p]\right)^{\frac{1}{p}} \\)$
+
+$$
+\bar{x}_i(s) = \left(E_{a \sim \bar{\pi}} [x_i(s, a)^p]\right)^{\frac{1}{p}}
+$$
 
 4. Empirical Backup Operators: In W-MCTS, the expectation over policy \\( \bar{\pi} \\) is approximated by the visitation count ratio \\( \frac{n(s,a)}{N(s)} \\). The backup rules for V-nodes are:
-$\\( V_m(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_m(s, a, n(s, a))^p\right)^{\frac{1}{p}} \\)$
-$\\( V_{std}(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_{std}(s, a, n(s, a))^p\right)^{\frac{1}{p}} \\)$
+
+$$ 
+V_m(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_m(s, a, n(s, a))^p\right)^{\frac{1}{p}}
+$$
+V_{std}(s, N(s)) \leftarrow \left(\sum_a \frac{n(s, a)}{N(s)} Q_{std}(s, a, n(s, a))^p\right)^{\frac{1}{p}}
+$$
+
 For Q-nodes, the updates are Bellman-like, using empirical averages of observed rewards and discounted V-node values of next states:
-$\\( Q_m(s, a, n(s, a)) \leftarrow \frac{\sum_{\text{samples }i} r_i(s, a) + \gamma \sum_{\text{samples }i} V_m(s'_i, N(s'_i))}{n(s, a)} \\)$
-$\\( Q_{std}(s, a, n(s, a)) \leftarrow \gamma \frac{\sum_{\text{samples }i} V_{std}(s'_i, n(s'_i))}{n(s, a)} \\)$
+
+$$ Q_m(s, a, n(s, a)) \leftarrow \frac{\sum_{\text{samples }i} r_i(s, a) + \gamma \sum_{\text{samples }i} V_m(s'_i, N(s'_i))}{n(s, a)}
+$$
+$$ Q_{std}(s, a, n(s, a)) \leftarrow \gamma \frac{\sum_{\text{samples }i} V_{std}(s'_i, n(s'_i))}{n(s, a)}
+$$
+
 (Note: The paper's empirical notation \\( P r(s,a) \\) and \\( P_{s'} N(s')V_m(s', N(s')) \\) is interpreted as summations over observed samples.)
 
 5. Action Selection Strategies:
 
    - Optimistic Selection (W-MCTS-OS): Inspired by UCB, this strategy selects actions based on an upper confidence bound that incorporates the estimated standard deviation:
-$\\( a = \arg \max_{a_i, i \in \{1...K\}} m(s, a_i) + C\sigma_i(s, a_i)p\sqrt{\log N(s)} \\)$
+
+$$
+a = \arg \max_{a_i, i \in \{1...K\}} m(s, a_i) + C\sigma_i(s, a_i)p\sqrt{\log N(s)}
+$$
+
 where \\( C \\) is an exploration constant.
   - Thompson Sampling (W-MCTS-TS): Actions are selected by sampling from the posterior Gaussian distributions of action-values:
-$\\( a = \arg \max_{a_i, i \in \{1...K\}} \{\theta_i \sim N(m(s, a_i), \sigma^2(s, a_i))\} \\)$
+
+$$
+a = \arg \max_{a_i, i \in \{1...K\}} \{\theta_i \sim N(m(s, a_i), \sigma^2(s, a_i))\}
+$$
 
 ---
 
@@ -1244,22 +1294,43 @@ The paper provides significant theoretical contributions, particularly regarding
 1. Wasserstein Non-stationary MAB Analysis:
    - Assumption 1 (Gaussian Rewards & Convergence): Assumes rewards for each arm \\( k \\) are Gaussian \\( N(\mu_k, V_k/T_k(n)) \\) and that the empirical mean \\( \mu_{k,n} \\) converges to \\( \mu_k \\).
    - Theorem 1 (Expected Suboptimal Arm Plays): For Thompson Sampling, the expected number of times a suboptimal arm \\( k \\) is played up to time \\( n \\), \\( E[T_k(n)] \\), is bounded polynomially:
-$\\( E[T_k(n)] \le \Theta \left(\frac{1 + V \log(n\Delta_k^2/V)}{\Delta_k^2}\right) \\)$
-where \\( V = \max_k \{V_k\} \\) and \\( \Delta_k = \mu^* - \mu_k \\) is the gap to the optimal mean \\( \mu^* \\).
-   - Theorem 2 (Convergence of Expected Power Mean): The bias of the expected power mean backup operator \\( X_n(p) \\) (at the root of the MAB) from the optimal mean \\( \mu^* \\) converges polynomially:
-$\\( E[X_n(p)] - \mu^* \le \vert \delta^*_n\vert  + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} \\)$
+
+$$ 
+E[T_k(n)] \le \Theta \left(\frac{1 + V \log(n\Delta_k^2/V)}{\Delta_k^2}\right) 
+$$
+
+where \\( V = \max_k \{V_k\} \\) and \\( \Delta_k = \mu^\star - \mu_k \\) is the gap to the optimal mean \\( \mu^\star \\).
+
+   - Theorem 2 (Convergence of Expected Power Mean): The bias of the expected power mean backup operator \\( X_n(p) \\) (at the root of the MAB) from the optimal mean \\( \mu^\star \\) converges polynomially:
+
+$$ 
+E[X_n(p)] - \mu^* \le \vert \delta^\star_n\vert  + \Theta \left(\frac{(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right)^{\frac{1}{p}} 
+$$
+
 where \\( K \\) is the number of arms, \\( \Delta = \max_k \{\Delta_k\} \\), and \\( \vert \delta^*_n\vert  \\) accounts for non-stationarity.
    - Theorem 3 (Concentration of Power Mean): The power mean backup operator \\( X_n(p) \\) concentrates polynomially around the optimal mean \\( \mu^* \\): for any \\( \epsilon \gt 0 \\), there exist constants \\( C_0, \alpha, \beta \gt 0 \\) such that for sufficiently large \\( n \\):
-$\\( Pr\left( X_n(p) - \mu^* \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} \\)$
-$\\( Pr\left( X_n(p) - \mu^* \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} \\)$
+
+$$ 
+Pr\left( X_n(p) - \mu^* \ge \epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
+$$
+$$ 
+Pr\left( X_n(p) - \mu^* \le -\epsilon \right) \le C_0 n^{-\alpha}\epsilon^{-\beta} 
+$$
 
 2. Convergence in Monte-Carlo Tree Search (W-MCTS-TS):
    - Proposition 3 (Q-Value Concentration and Suboptimal Action Plays): Extends the MAB results to the MCTS tree. It proves polynomial concentration for the estimated Q-value mean at the root node, and a polynomial bound on the expected number of suboptimal action plays. It also shows polynomial concentration of the estimated V-value mean at the root towards the optimal Q-value.
    - Theorem 4 (Convergence of Failure Probability): The probability of W-MCTS-TS choosing a suboptimal action at the root node decays polynomially to zero:
-$\\( Pr\left( a_k = a_k^* \right) \le Cn^{-\alpha} \\)$
+
+$$
+Pr\left( a_k = a_k^* \right) \le Cn^{-\alpha}
+$$
 for constants \\( C, \alpha \gt 0 \\) and sufficiently large number of simulations \\( n \\).
    - Theorem 5 (Convergence of Expected Payoff): The expected estimated mean value function at the root node converges polynomially to the optimal Q-value:
-$\\( E\left[V_m^{(0)}(s(0), n)\right] - Q_m^{(0)}(s(0), a_k^*) \le \Theta \left(\frac{2(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right) \\)$
+
+$$ 
+E\left[V_m^{(0)}(s(0), n)\right] - Q_m^{(0)}(s(0), a_k^*) \le \Theta \left(\frac{2(K - 1)(1 + V \log(n\Delta^2/V))}{\Delta^2 n}\right) 
+$$
+
 The paper highlights that it is the first to provide a specific polynomial convergence rate for MCTS with Thompson Sampling.
 
 ---
