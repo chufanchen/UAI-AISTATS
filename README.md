@@ -66,7 +66,7 @@ The unified algorithm proceeds as follows:
 For \\( t=1, \dots, N_1 \\) online episodes:
 
 1. Augment the online dataset \\( \mathcal{D}_{t-1} \\) collected so far with the offline dataset \\( \mathcal{D}_0 \\) to form \\( \mathcal{D}\_0 \cup \mathcal{D}\_{t-1} \\).
-2. Call the oracle algorithm: \\( (\hat{V}^{\pi}\_{\text{Alg}}, \hat{U}^{\pi}\_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) \\).
+2. Call the oracle algorithm: $$ (\hat{V}^{\pi}\_{\text{Alg}}, \hat{U}^{\pi}\_{\text{Alg}}) \leftarrow \text{Alg}(\mathcal{D}_0 \cup \mathcal{D}_{t-1}) $$.
 3. Select the online policy \\( \pi_t \\) using the optimism-in-face-of-uncertainty principle: \\( \pi\_t = \arg \max_{\pi} \hat{V}^{\pi}_{\text{Alg}} + \hat{U}^{\pi}\_{\text{Alg}} \\).
 4. Execute \\( \pi_t \\) to collect a trajectory \\( \tau_t \\).
 5. Update the online dataset: \\( \mathcal{D}\_t = \mathcal{D}\_{t-1} \cup \{\tau_t\} \\).
@@ -90,7 +90,7 @@ The sub-optimality gap of the output policy \\( \hat{\pi} \\) is bounded by $$\t
 
 The cumulative regret over \\( N_1 \\) online episodes is bounded by \\( \text{Regret}(N_1) = \tilde{O}\left(C_{\text{Alg}}\sqrt{N_1}\sqrt{\frac{N_1}{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\), where \\( C(\pi^{-\epsilon}\vert\rho) \\) is the maximum concentrability coefficient over policies \\( \pi^{-\epsilon} \\) whose sub-optimality gap is at least \\( \epsilon = \tilde{O}(1/\sqrt{N_0+N_1}) \\). This result shows a significant speed-up factor of \\( \sqrt{N_1/(N_0/C(\pi^{-\epsilon}\vert\rho) + N_1)} \\) compared to the \\( \tilde{O}(\sqrt{N_1}) \\) regret of pure online learning.
 
-A key theoretical insight is the separation between the requirements for minimizing the sub-optimality gap and regret. Sub-optimality gap minimization benefits most from an offline dataset collected by a behavior policy \\( \rho \\) that provides good coverage of the optimal policy \\( \pi^* \\) (small \\( C(\pi^*\vert\rho) \\)). Regret minimization, however, benefits most from a behavior policy \\( \rho \\) that provides good coverage of sub-optimal policies (small \\( C(\pi^{-\epsilon}\vert\rho) \\)). An offline dataset from an optimal policy may not provide sufficient exploration information about sub-optimal policies, potentially leading to higher regret compared to an exploratory behavior policy, even if it yields a better sub-optimality gap.
+A key theoretical insight is the separation between the requirements for minimizing the sub-optimality gap and regret. Sub-optimality gap minimization benefits most from an offline dataset collected by a behavior policy \\( \rho \\) that provides good coverage of the optimal policy \\( \pi^\star \\) (small \\( C(\pi^\star\vert\rho) \\)). Regret minimization, however, benefits most from a behavior policy \\( \rho \\) that provides good coverage of sub-optimal policies (small \\( C(\pi^{-\epsilon}\vert\rho) \\)). An offline dataset from an optimal policy may not provide sufficient exploration information about sub-optimal policies, potentially leading to higher regret compared to an exploratory behavior policy, even if it yields a better sub-optimality gap.
 
 The paper specializes the framework and analysis to Tabular MDPs and Linear Contextual Bandits, deriving concrete bounds for these settings. For Tabular MDPs, the bounds involve factors related to \\( \vert\mathcal{X}\vert, \vert\mathcal{A}\vert, H \\). For Linear Contextual Bandits with feature dimension \\( d \\), the bounds depend on \\( d \\). The concentrability coefficients in these settings are shown to relate to known concepts like ratios of occupancy measures or feature covariance matrices.
 Lower bounds are also established, demonstrating that any hybrid RL algorithm must incur a sub-optimality gap of \\( \Omega\left(\frac{1}{\sqrt{N_0/C(\pi^*\vert\rho) + N_1}}\right) \\) and regret of \\( \Omega\left(\frac{N_1}{\sqrt{N_0/C(\pi^{-\epsilon}\vert\rho) + N_1}}\right) \\). These lower bounds match the derived upper bounds up to logarithmic factors, indicating the proposed framework is order-wise optimal.
@@ -105,6 +105,7 @@ Experiments are conducted on:
 - **Tabular Finite-Horizon MDPs**: Mountain Car
 
 Goals:
+
 - Compare hybrid vs. pure online and offline algorithms.
 - Evaluate:
   - Sub-optimality of final policy,
@@ -176,13 +177,13 @@ We consider an agent interacting with an environment in a long, continuous seque
 
 A predictive probability semi-distribution \\( \nu: X^* \times X \to [0,1] \\) models the probability of the next symbol given a history. The "semi" indicates that probabilities might not sum to 1, as a program might not halt or produce an output. The Bayesian mixture \\( \xi \\) is constructed from a countable set of competing models \\( M \\), each with a prior weight \\( w(\nu) \\). Given a history \\( x_{\lt t} \\), the posterior \\( w(\nu\vert x_{\lt t}) \\) is used to form a weighted average of each model's prediction:
 
-\[
+$$
 \xi(x\vert x_{\lt t}) := \sum_{\nu \in M} w(\nu\vert x_{\lt t})\nu(x\vert x_{\lt t})
-\]
+$$
 
 This \\( \xi \\) represents the ideal Bayesian imitator, being open-minded to all hypotheses in \\( M \\). For the theoretical core, the paper uses Solomonoff Induction, which is the most general form of Bayesian sequence prediction. In Solomonoff Induction, \\( M \\) comprises all computable semi-distributions, and the prior \\( w(\nu) \\) is set based on the length of the shortest program that computes \\( \nu \\), i.e., \\( w(\nu) = 2^{-K(\nu)} \\), where \\( K(\cdot) \\) is Kolmogorov complexity. This introduces a strong inductive bias towards "simpler" programs.
 
-In the reinforcement learning context, actions \\( a_t \\) are \\( x_{2t-1} \\) and observations \\( o_t \\) are \\( x_{2t} \\). The agent selects actions to maximize a utility function \\( U_m \\) over \\( m \\)-timestep histories, \\( V^{\pi}_{\nu,U_m}(x_{\lt 2t-1}) = E_{a_t \sim \pi, o_t \sim \nu, \dots} U_m(a_1o_1\dots a_mo_m) \\). The safety mechanism is a KL constraint that bounds the divergence of the agent's policy \\( \pi \\) from the base policy \\( \beta \\) (here, \\( \xi \\)):
+In the reinforcement learning context, actions \\( a_t \\) are \\( x_{2t-1} \\) and observations \\( o_t \\) are \\( x_{2t} \\). The agent selects actions to maximize a utility function \\( U_m \\) over \\( m \\)-timestep histories, $$ V^{\pi}_{\nu,U_m}(x_{\lt 2t-1}) = E_{a_t \sim \pi, o_t \sim \nu, \dots} U_m(a_1o_1\dots a_mo_m) $$. The safety mechanism is a KL constraint that bounds the divergence of the agent's policy \\( \pi \\) from the base policy \\( \beta \\) (here, \\( \xi \\)):
 
 $$
 \text{KL}_{x_{\lt 2k},m}(\pi\Vert\beta) = \max_{o_{k:m} \in X^{m-k+1}} \sum_{a_{k:m} \in X^{m-k+1}} \left( \prod_{t=k}^m \pi(a_t\vert x_{\lt 2t}) \right) \log \frac{\prod_{t=k}^m \pi(a_t\vert x_{\lt 2t})}{\prod_{t=k}^m \beta(a_t\vert x_{\lt 2t})}
@@ -197,27 +198,32 @@ The core methodology for demonstrating the problem involves showing how a reward
 
 The paper presents several key theoretical results that rigorously formalize the vulnerability.
 
-Proposition 1 (No Triangle Inequality): This serves as a crucial preliminary. It states that even if your proposed policy \\( \pi \\) is KL-constrained to a base policy \\( \beta \\) (i.e., \\( \text{KL}(\pi\Vert\beta) \le \epsilon \\)), and that base policy \\( \beta \\) is a good approximation of a true trusted policy \\( \tau \\) (i.e., \\( \text{KL}(\tau\Vert\beta) \le \epsilon \\)), it does not imply that \\( \text{KL}(\pi\Vert\tau) \\) is small. In fact, it can be infinite. This immediately highlights the danger of relying on an imperfect imitative base policy for safety. The proof is straightforward: let \\( \tau = \text{Bern}(0) \\) (always output 0), and \\( \pi = \beta = \text{Bern}(\min(\epsilon, 1)/2) \\). Then \\( \text{KL}(\pi\Vert\beta) = 0 \\) and \\( \text{KL}(\tau\Vert\beta) \\) is small. But \\( \text{KL}(\pi\Vert\tau) = \infty \\) because \\( \pi \\) assigns non-zero probability to an event \\( \tau \\) assigns zero probability to.
+**Proposition 1 (No Triangle Inequality)**: This serves as a crucial preliminary. It states that even if your proposed policy \\( \pi \\) is KL-constrained to a base policy \\( \beta \\) (i.e., \\( \text{KL}(\pi\Vert\beta) \le \epsilon \\)), and that base policy \\( \beta \\) is a good approximation of a true trusted policy \\( \tau \\) (i.e., \\( \text{KL}(\tau\Vert\beta) \le \epsilon \\)), it does not imply that \\( \text{KL}(\pi\Vert\tau) \\) is small. In fact, it can be infinite. This immediately highlights the danger of relying on an imperfect imitative base policy for safety. 
 
-Theorem 1 (Little constraint in novel situations): This is the paper's core negative result. It formally quantifies how an RL agent can achieve near-optimal utility with surprisingly little KL divergence from a Bayesian imitator \\( \xi \\), particularly when an "unprecedented" event \\( E \\) occurs.
-The theorem states: \\( \exists \\) a constant \\( d \\) such that \\( \forall U_m \\), and \\( \forall E \\), if \\( E \\) is unprecedented and occurs at time \\( t \\), then for any \\( v \lt  V^*_{\xi,U_m}(x_{\lt 2t}) \\), \\( \exists \\) a policy \\( \pi \\) for which \\( V^{\pi}_{\xi,U_m}(x_{\lt 2t}) \gt v \\), and
+The proof is straightforward: let \\( \tau = \text{Bern}(0) \\) (always output 0), and \\( \pi = \beta = \text{Bern}(\min(\epsilon, 1)/2) \\). Then \\( \text{KL}(\pi\Vert\beta) = 0 \\) and \\( \text{KL}(\tau\Vert\beta) \\) is small. But \\( \text{KL}(\pi\Vert\tau) = \infty \\) because \\( \pi \\) assigns non-zero probability to an event \\( \tau \\) assigns zero probability to.
+
+**Theorem 1 (Little constraint in novel situations)**: This is the paper's core negative result. It formally quantifies how an RL agent can achieve near-optimal utility with surprisingly little KL divergence from a Bayesian imitator \\( \xi \\), particularly when an "unprecedented" event \\( E \\) occurs.
+The theorem states: \\( \exists \\) a constant \\( d \\) such that \\( \forall U_m \\), and \\( \forall E \\), if \\( E \\) is unprecedented and occurs at time \\( t \\), then for any $$ v \lt  V^\star_{\xi,U_m}(x_{\lt 2t})$$, \\( \exists \\) a policy \\( \pi \\) for which $$ V^{\pi}_{\xi,U_m}(x_{\lt 2t}) \gt v$$, and
+
 $$
-\text{KL}_{x_{\lt 2t},m}(\pi\Vert\xi) \lt  [d + K(U_m) + K(E) + K(v\xi(x_{\lt 2t}))]/\log 2 
+\text{KL}_{x_{\lt 2t},m}(\pi\Vert\xi) \lt  [d + K(U_m) + K(E) + K(v\xi(x_{\lt 2t}))]/\log 2
 $$
+
 Intuitively, this means the KL penalty is bounded by terms related to the Kolmogorov complexity (program length) of the utility function (\\( U_m \\)), the unprecedented event (\\( E \\)), and the target value (\\( v \\)) in the context of the base policy's predictiveness. Critically, this bound is independent of \\( k \\), the amount of training data the Bayesian imitator \\( \xi \\) has seen. As \\( k \\) increases, only the complexity of the "simplest unprecedented event" \\( K(E) \\) might increase.
 
 The proof outline for Theorem 1 is illuminating:
-- Consider a policy \\( \pi^*_u \\) that is an optimal (or near-optimal) optimizer of \\( U_m \\) in the environment \\( \xi \\). This \\( \pi^*_u \\) might be highly undesirable.
+
+- Consider a policy $$ \pi^\star_u $$ that is an optimal (or near-optimal) optimizer of \\( U_m \\) in the environment \\( \xi \\). This $$\pi^\star_u$$ might be highly undesirable.
 - For any model \\( \nu \in M \\) (a component of \\( \xi \\)), construct a modified model \\( \nu' \\). This \\( \nu' \\) behaves exactly like \\( \nu \\) until the unprecedented event \\( E \\) occurs. Once \\( E \\) happens, \\( \nu' \\) switches its behavior to emulate \\( \pi^*_u \\).
-- Because \\( \pi^*_u \\) and \\( E \\) can be described by "simple" programs (low Kolmogorov complexity), the program for \\( \nu' \\) is only marginally longer than the program for \\( \nu \\). Specifically, \\( \ell(s') \le \ell(s) + K(E) + K(U_m) + K(u) + d \\).
+- Because  $$ \pi^\star_u $$  and \\( E \\) can be described by "simple" programs (low Kolmogorov complexity), the program for \\( \nu' \\) is only marginally longer than the program for \\( \nu \\). Specifically, \\( \ell(s') \le \ell(s) + K(E) + K(U_m) + K(u) + d \\).
 - This implies that the prior probability \\( w(\nu') \\) is not much smaller than \\( w(\nu) \\), i.e., \\( w(\nu')/w(\nu) \gt  2^{-(K(E) + K(U_m) + K(u) + d)} \\).
 - Since \\( E \\) is unprecedented at time \\( t \\), \\( \nu \\) and \\( \nu' \\) produced identical predictions for \\( x_{\lt 2t} \\), so their posterior ratio \\( w(\nu'\vert x_{\lt 2t})/w(\nu\vert x_{\lt 2t}) \\) is the same as their prior ratio.
-- As \\( \xi \\) is a weighted sum of all \\( \nu \in M \\), a significant fraction of \\( \xi \\)'s probability mass (proportional to \\( 2^{-(K(E) + K(U_m) + K(u) + d)} \\)) is effectively "dedicated" to predicting the actions of \\( \pi^*_u \\) after \\( E \\). This allows \\( \pi^*_u \\) to diverge from \\( \xi \\) with a KL cost bounded by the theorem's formula. The agent can then "spend" its KL budget to shift towards this high-reward, simple policy once a suitable unprecedented event occurs.
+- As \\( \xi \\) is a weighted sum of all \\( \nu \in M \\), a significant fraction of \\( \xi \\)'s probability mass (proportional to \\( 2^{-(K(E) + K(U_m) + K(u) + d)} \\)) is effectively "dedicated" to predicting the actions of  $$ \pi^\star_u $$  after \\( E \\). This allows  $$ \pi^\star_u $$  to diverge from \\( \xi \\) with a KL cost bounded by the theorem's formula. The agent can then "spend" its KL budget to shift towards this high-reward, simple policy once a suitable unprecedented event occurs.
 
 
-Proposition 2 (Frequency of simple unprecedented events): This result reinforces the problem identified in Theorem 1. It states that in any environment, the complexity of the simplest unprecedented event yet to occur at any future time grows slower than every computable function that tends to infinity. This means that even as the base policy observes more data and \\( t \to \infty \\), there will always be simple, unprecedented events for the agent to exploit, preventing the \\( K(E) \\) term in Theorem 1 from becoming large enough to effectively constrain the agent. The vulnerability persists regardless of training data volume.
+**Proposition 2 (Frequency of simple unprecedented events)**: This result reinforces the problem identified in Theorem 1. It states that in any environment, the complexity of the simplest unprecedented event yet to occur at any future time grows slower than every computable function that tends to infinity. This means that even as the base policy observes more data and \\( t \to \infty \\), there will always be simple, unprecedented events for the agent to exploit, preventing the \\( K(E) \\) term in Theorem 1 from becoming large enough to effectively constrain the agent. The vulnerability persists regardless of training data volume.
 
-Theorem 2 (TVD constraint): The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), \\( \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) \\). It proves that if \\( \pi^{TVD}_c \\) is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which \\( \pi^{TVD}_c(a_t\vert x_{\lt 2t}) \gt  \beta(a_t\vert x_{\lt 2t}) \\) must be \\( V_{\xi,U_m} \\)-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
+**Theorem 2 (TVD constraint)**: The paper also contrasts KL regularization with regularization using Total Variation Distance (TVD), $$ \text{TVD}_{x_{\lt 2k},m}(\pi, \beta) $$. It proves that if \\( \pi^{TVD}_c \\) is a policy that maximizes value subject to a TVD constraint, then any action \\( a_t \\) for which $$\pi^{TVD}_c(a_t\vert x_{\lt 2t}) \gt  \beta(a_t\vert x_{\lt 2t})$$ must be \\( V_{\xi,U_m} \\)-optimal. This implies that TVD actively pushes the agent towards actions that maximize the potentially misaligned utility function, even with a perfect base policy. In contrast, KL divergence maintains that if the base policy assigns zero probability to an event, any policy with finite KL divergence must also assign zero probability, thus preventing truly catastrophic deviations. This highlights KL's superiority over TVD for safety, even with its newly identified flaws.
 
 ---
 
@@ -450,10 +456,19 @@ The motivation stems from several critical areas in RL:
 ### Method Overview
 The paper's methodology revolves around extending and applying the ODE framework for self-predictive learning to action-conditional settings.
 1.  **Action-Conditional BYOL (BYOL-AC) Analysis:** The core BYOL-AC objective, defined as minimizing the prediction error of future latent representations conditioned on actions, is formulated:
-    $\\(  \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot\vert x), y \sim T_a(\cdot\vert x)} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]  \\)$
-    This objective is then analyzed using a two-timescale optimization process within the ODE framework, where optimal action-conditional predictors \\( P_a^* \\) are found before taking a semi-gradient step for \\( \Phi \\).
+
+    $$ 
+    \min_{\Phi, \{\forall P_a\}} \text{BYOL-AC}(\Phi, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E}_{x \sim d_X, a \sim \pi(\cdot\vert x), y \sim T_a(\cdot\vert x)} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]
+    $$
+
+    This objective is then analyzed using a two-timescale optimization process within the ODE framework, where optimal action-conditional predictors \\( P_a^\star \\) are found before taking a semi-gradient step for \\( \Phi \\).
+
 2.  **Introduction of BYOL-VAR:** Based on a discovered "variance relation" between the representations learned by \\( \text{BYOL-}\Pi \\) and \\( \text{BYOL-AC} \\), a novel objective, \\( \text{BYOL-VAR} \\), is introduced. It is formulated as the difference between the \\( \text{BYOL-AC} \\) and \\( \text{BYOL-}\Pi \\) objectives:
-    $\\(  \min_{\Phi} \text{BYOL-VAR}(\Phi, P, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 - \Vert   P^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right]  \\)$
+  
+    $$ 
+    \min_{\Phi} \text{BYOL-VAR}(\Phi, P, P_{a_1}, P_{a_2}, \ldots) := \mathbb{E} \left[ \Vert   P_a^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 - \Vert   P^\top \Phi^\top x - \text{sg}(\Phi^\top y) \Vert  ^2 \right] 
+    $$
+
 3.  **Unified Theoretical Analysis:** All three objectives (\\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), \\( \text{BYOL-VAR} \\)) are studied through two complementary lenses:
     *   **Model-Based View:** This perspective shows that each objective is equivalent to learning a low-rank approximation of specific dynamics matrices (e.g., \\( T_\pi \\), \\( T_a \\), or \\( (T_a - T_\pi) \\)).
     *   **Model-Free View:** This perspective establishes relationships between the objectives and their respective abilities to fit certain 1-step value, Q-value, and advantage functions.
@@ -475,8 +490,12 @@ The paper's theoretical contributions are substantial, primarily extending previ
 
 2.  **Variance Relation between BYOL-Π and BYOL-AC Representations:**
     *   **Key Insight (Remark 1):** The paper establishes that the eigenvalues determining \\( \Phi^*_{ac} \\) (mean of squares: \\( \mathbb{E}_a[D_a^2] \\)) and \\( \Phi^* \\) (square of mean: \\( (\mathbb{E}_a[D_a])^2 \\)) are related by a variance equation:
-        $\\(  \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a)  \\)$
-        This implies \\( \text{BYOL-AC} \\) learns representations that are not only important for the average transition dynamics but also capture features that distinguish between actions.
+
+        $$  
+        \mathbb{E}_a[D_a^2] = (\mathbb{E}_a[D_a])^2 + \text{Var}_a(D_a) 
+        $$
+
+      This implies \\( \text{BYOL-AC} \\) learns representations that are not only important for the average transition dynamics but also capture features that distinguish between actions.
 
 3.  **Introduction and Analysis of BYOL-VAR:**
     *   **Novel Objective:** Introduces \\( \text{BYOL-VAR} \\) (Eq. 9) as the difference between \\( \text{BYOL-AC} \\) and \\( \text{BYOL-}\Pi \\) losses.
@@ -485,13 +504,25 @@ The paper's theoretical contributions are substantial, primarily extending previ
 
 4.  **Two Unifying Perspectives:**
     *   **Model-Based View (Theorem 4):** Demonstrates that maximizing the trace objectives (over orthogonal \\( \Phi \\)) for \\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), and \\( \text{BYOL-VAR} \\) is equivalent to finding a low-rank approximation of \\( T^\pi \\), \\( T_a \\), and \\( (T_a - T^\pi) \\) respectively, in terms of Frobenius norm:
-        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \min_P \Vert   T^\pi - \Phi P \Phi^\top \Vert_F + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_a} \Vert   T_a - \Phi P_a \Phi^\top \Vert_F + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_{\Delta a}} \Vert   (T_a - T^\pi) - \Phi P_{\Delta a} \Phi^\top \Vert_F + C  \\)$
+    
+        $$  
+        -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \min_P \Vert   T^\pi - \Phi P \Phi^\top \Vert_F + C  
+        $$
+        $$
+        -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_a} \Vert   T_a - \Phi P_a \Phi^\top \Vert_F + C  
+        $$
+        $$ -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{A}\vert ^{-1} \sum_a \min_{P_{\Delta a}} \Vert   (T_a - T^\pi) - \Phi P_{\Delta a} \Phi^\top \Vert_F + C 
+        $$
     *   **Model-Free View (Theorem 5):** Shows that these objectives are also equivalent to fitting certain 1-step value functions (under isotropic Gaussian reward):
-        $\\(  -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \min_{\theta,\omega} \Vert   T^\pi R - \Phi\theta \Vert  ^2 + \Vert   T^\pi \Phi \Phi^\top R - \Phi\omega \Vert  ^2 \right] + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   T_a R - \Phi\theta_a \Vert  ^2 + \Vert   T_a \Phi \Phi^\top R - \Phi\omega_a \Vert  ^2 \right] + C  \\)$
-        $\\(  -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   (T_a R - T^\pi R) - \Phi\theta \Vert  ^2 + \Vert   (T_a \Phi \Phi^\top R - T^\pi \Phi \Phi^\top R) - \Phi\omega \Vert  ^2 \right] + C  \\)$
+        
+        $$
+           -\text{f}_{\text{BYOL-}\Pi}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \min_{\theta,\omega} \Vert   T^\pi R - \Phi\theta \Vert  ^2 + \Vert   T^\pi \Phi \Phi^\top R - \Phi\omega \Vert  ^2 \right] + C  
+        $$
+        $$  -\text{f}_{\text{BYOL-AC}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   T_a R - \Phi\theta_a \Vert  ^2 + \Vert   T_a \Phi \Phi^\top R - \Phi\omega_a \Vert  ^2 \right] + C 
+        $$
+        $$  -\text{f}_{\text{BYOL-VAR}}(\Phi) = \vert \mathcal{X}\vert \mathbb{E} \left[ \vert \mathcal{A}\vert ^{-1} \sum_a \min_{\theta_a,\omega_a} \Vert   (T_a R - T^\pi R) - \Phi\theta \Vert  ^2 + \Vert   (T_a \Phi \Phi^\top R - T^\pi \Phi \Phi^\top R) - \Phi\omega \Vert  ^2 \right] + C  
+        $$
+
         This implies \\( \text{BYOL-}\Pi \\), \\( \text{BYOL-AC} \\), and \\( \text{BYOL-VAR} \\) are essentially trying to fit 1-step value, Q-value, and advantage functions, respectively.
 
 ---
@@ -501,7 +532,7 @@ The empirical section corroborates the theoretical findings and evaluates the pe
 
 1.  **Linear Function Approximation (Sec 6.1):**
     *   **Setup:** Randomly generated MDPs with 10 states, 4 actions, and symmetric per-action dynamics. A 4-dimensional compressed representation was learned for each objective.
-    *   **Trace Objective Minimization (Table 1):** Empirically confirmed Theorem 4 and 5 by showing that each method minimized its *corresponding* negative trace objective (e.g., \\( \Phi \\) minimized \\( -\text{f}_{\text{BYOL-}\Pi} \\), \\( \Phi_{ac} \\) minimized \\( -\text{f}_{\text{BYOL-AC}} \\), and \\( \Phi_{var} \\) minimized \\( -\text{f}_{\text{BYOL-VAR}} \\)) with high probability (99-100%).
+    *   **Trace Objective Minimization (Table 1):** Empirically confirmed Theorem 4 and 5 by showing that each method minimized its *corresponding* negative trace objective (e.g., \\( \Phi \\) minimized $$ -\text{f}_{\text{BYOL-}\Pi} $$, $$\Phi_{ac}$$ minimized $$-\text{f}_{\text{BYOL-AC}}$$, and $$\Phi_{var}$$ minimized \\( -\text{f}_{\text{BYOL-VAR}} \\)) with high probability (99-100%).
     *   **Value Function Fitting (Table 2):** Evaluated how well the learned representations fit traditional V-MSE, Q-MSE, and Advantage-MSE.
         *   \\( \Phi \\) and \\( \Phi_{ac} \\) performed competitively in fitting state-value (V-MSE of 6.32 vs. 6.48) and action-value (Q-MSE of 8.31 vs. 8.01).
         *   \\( \Phi_{var} \\) was optimal for fitting the true Advantage MSE (0.43, 100% best), confirming its role in capturing action-distinguishing features. \\( \Phi_{ac} \\) also showed better Advantage fitting than \\( \Phi \\).
@@ -557,12 +588,16 @@ The paper proposes Adversarial Policy Optimization based on Monotonic Value Prop
 ---
 
 ### Problem Statement
-The paper addresses the problem of learning optimal policies in an \\( H \\)-episodic (obliviously) adversarial Markov Decision Process (MDP). An MDP is defined by a finite set of states \\( S \\) (cardinality \\( S \\)), a finite set of actions \\( A \\) (cardinality \\( A \\)), a sequence of Markov transition kernels \\( P = (P_h)_{h \in [H-1]} \\) where \\( P_h: S \times A \to \Delta(S) \\), and a fixed-in-advance sequence of bounded time-inhomogeneous \\( H \\)-episodic reward functions \\( (r_t)_{t>1} \\) where \\( r_t = (r_{t,h})_{h \in [H]} \\) and \\( r_{t,h}: S \times A \to [0,1] \\). The number of episodes \\( T \\) is fixed and known, and each episode starts from an initial state \\( s_1 \\).
+The paper addresses the problem of learning optimal policies in an \\( H \\)-episodic (obliviously) adversarial Markov Decision Process (MDP). An MDP is defined by a finite set of states \\( S \\) (cardinality \\( S \\)), a finite set of actions \\( A \\) (cardinality \\( A \\)), a sequence of Markov transition kernels $$ P = (P_h)_{h \in [H-1]} $$ where \\( P_h: S \times A \to \Delta(S) \\), and a fixed-in-advance sequence of bounded time-inhomogeneous \\( H \\)-episodic reward functions $$(r_t)_{t\gt 1} $$ where $$ r_t = (r_{t,h})_{h \in [H]} $$ and $$ r_{t,h}: S \times A \to [0,1] $$. The number of episodes \\( T \\) is fixed and known, and each episode starts from an initial state \\( s_1 \\).
 
 At each episode \\( t \\) and stage \\( h \\), the learner chooses a stage policy \\( \pi_{t,h}: S \to \Delta(A) \\), samples an action \\( a_{t,h} \sim \pi_{t,h}(\cdot \vert  s_{t,h}) \\), moves to the next state \\( s_{t,h+1} \sim P_h(\cdot \vert  s_{t,h}, a_{t,h}) \\) (if \\( h < H \\)), and finally observes the reward function \\( r_t \\) at the end of the episode.
 
 The objective is to minimize the regret \\( R_T \\), defined as the difference between the accumulated value of the best static policy in hindsight and the accumulated value achieved by the learner's policies:
-$\\( R_T = \max_{\pi} \sum_{t=1}^T (V^{\pi, r_t, P}_1(s_1) - V^{\pi_t, r_t, P}_1(s_1)) \\)$
+
+$$
+R_T = \max_{\pi} \sum_{t=1}^T (V^{\pi, r_t, P}_1(s_1) - V^{\pi_t, r_t, P}_1(s_1)) 
+$$
+
 where \\( V^{\pi, r_t, P}_h(s) \\) denotes the value function of policy \\( \pi \\) at episode \\( t \\), stage \\( h \\), starting from state \\( s \\).
 
 ---
@@ -584,8 +619,8 @@ The proposed algorithm, APO-MVP (Adversarial Policy Optimization based on Monoto
 The algorithm proceeds as follows:
 
 1.  **Epoch Switching:** The learning process is divided into random epochs \\( E_e \subseteq [T] \\). An epoch switch occurs when, for any state-action pair \\( (s,a) \\) at stage \\( h \\), the empirical count \\( n_{t,h}(s,a) \\) (number of times \\( (s,a) \\) was visited at stage \\( h \\)) reaches a power of two, i.e., \\( 2^{\ell-1} \\) for some integer \\( \ell > 1 \\).
-2.  **Model Estimation and Bonuses:** At the beginning of each epoch \\( e \\), empirical transition kernels \\( \hat{P}^{(e)} = (\hat{P}^{(e)}_h)_{h \in [H-1]} \\) and bonus functions \\( b^{(e)} = (b^{(e)}_h)_{h \in [H]} \\) are computed and fixed for the entire epoch.
-    *   The estimated transition probability \\( \hat{P}_{t,h}(s'\vert s,a) \\) for the current epoch is \\( 1/S \\) if \\( n_{\tau,h}(s,a)=0 \\) (where \\( \tau \\) is the episode of the last epoch switch), and \\( \frac{n_{\tau,h}(s,a,s')}{n_{\tau,h}(s,a)} \\) otherwise.
+2.  **Model Estimation and Bonuses:** At the beginning of each epoch \\( e \\), empirical transition kernels $$\hat{P}^{(e)} = (\hat{P}^{(e)}_h)_{h \in [H-1]}$$ and bonus functions $$ b^{(e)} = (b^{(e)}_h)_{h \in [H]} $$ are computed and fixed for the entire epoch.
+    *   The estimated transition probability $$ \hat{P}_{t,h}(s'\vert s,a) $$ for the current epoch is \\( 1/S \\) if \\( n_{\tau,h}(s,a)=0 \\) (where \\( \tau \\) is the episode of the last epoch switch), and \\( \frac{n_{\tau,h}(s,a,s')}{n_{\tau,h}(s,a)} \\) otherwise.
     *   The bonus function \\( b_{t,h}(s,a) \\) is defined as \\( H \\) if the local epoch counter \\( \ell=0 \\) (meaning \\( n_{t,h}(s,a) \\) is low), and \\( \sqrt{\frac{2H^2 \ln(J)}{2^{\ell-1}}} \wedge H \\) otherwise, where \\( J = 2SATH \log_2(2T)/\delta \\).
 3.  **Policy Interaction:** For each episode \\( t \\) in the current epoch \\( e_t \\):
     *   The agent plays policies \\( \pi_t = (\pi_{t,h})_{h \in [H]} \\) to interact with the environment, observing states and actions.
@@ -596,7 +631,7 @@ The algorithm proceeds as follows:
     *   Estimated advantage functions are calculated as \\( A_{t,h}(s,a) = Q_{t,h}(s,a) - V_{t,h}(s) \\).
     *   A crucial technical remark is that value function clipping to \\( [0,H] \\) is *not* used to preserve the performance-difference lemma, incurring an additional \\( H \\) factor in the regret but simplifying the adversarial analysis.
 5.  **Policy Update (Online Linear Optimization):** Policies for the next episode, \\( \pi_{t+1} \\), are determined by feeding the history of estimated advantage functions from the current epoch to a black-box OLO strategy \\( \phi \\). Specifically, for each \\( (s,h) \in S \times [H] \\):
-    *   \\( \pi_{t+1,h}(\cdot \vert  s) = \phi_t((A_{\tau,h}(s, \cdot))_{\tau \in E_{e_t} \cap [t-1]}) \\).
+    *   $$\pi_{t+1,h}(\cdot \vert  s) = \phi_t((A_{\tau,h}(s, \cdot))_{\tau \in E_{e_t} \cap [t-1]})$$.
     *   The paper considers polynomial-potential and exponential-potential based OLO strategies, which provide closed-form expressions for the policies and satisfy specific performance guarantees (Definition 6).
 
 **Computational Complexity:** The algorithm's computational complexity is dominated by the dynamic programming step, which is \\( O(S^2AH) \\) per episode. The policy optimization phase adds \\( O(SAH) \\) operations, making the overall per-episode complexity \\( O(S^2AH) \\). The space complexity is \\( O(S^2AH) \\), standard for model-based RL.
@@ -607,7 +642,10 @@ The algorithm proceeds as follows:
 The paper makes the following key theoretical contributions:
 
 1.  **Improved Regret Bound:** APO-MVP achieves a regret bound of \\( \tilde{O}(\text{poly}(H)\sqrt{SAT}) \\) in the setting of adversarial episodic MDPs with full information. Specifically, with probability at least \\( 1-3\delta \\), the regret \\( R_T \\) is bounded by:
-    $\\( R_T \le \sqrt{H^7SAT} \log_2(2T) (2 \log_2(2T) + 16\sqrt{\ln(A)}) + 7\sqrt{H^4SAT \ln(2SATH \log_2(2T)/\delta)} + 2\sqrt{2H^6 T \log_2(2T) \ln(2/\delta)} + 2H^3SA \\)$
+    
+    $$ 
+    R_T \le \sqrt{H^7SAT} \log_2(2T) (2 \log_2(2T) + 16\sqrt{\ln(A)}) + 7\sqrt{H^4SAT \ln(2SATH \log_2(2T)/\delta)} + 2\sqrt{2H^6 T \log_2(2T) \ln(2/\delta)} + 2H^3SA 
+    $$
     where \\( \tilde{O}(\cdot) \\) hides all absolute constants and polylogarithmic multiplicative terms.
 
 2.  **Bridging the \\( \sqrt{S} \\) Gap:** This result improves upon the previously best-known regret bound for adversarial tabular MDPs with unknown transitions, which was \\( \tilde{O}(\sqrt{H^4S^2AT}) \\) (Rosenberg and Mansour, 2019b). APO-MVP effectively removes a \\( \sqrt{S} \\) factor, significantly narrowing the gap between adversarial and stochastic MDPs, as stochastic MDPs typically achieve \\( \tilde{O}(\sqrt{H^3SAT}) \\).
@@ -699,15 +737,20 @@ $$
 
 where \\( g_1(n, \delta) \triangleq \log(6SAH/\delta) + S \log(8e(n + 1)) \\) and \\( n_t(s, a) \\) is the visitation count for \\( (s, a) \\) in \\( t \\) episodes.
 The policy \\( \pi^{t+1}_h(\cdot) = \arg \max_{a \in A} W^t_h(\cdot, a) \\) is chosen to gather online data.
-The algorithm stops when the uncertainty measure is sufficiently small: \\( 3\sqrt{\rho_{\pi^{t+1}_1} W^t_1} + \rho_{\pi^{t+1}_1} W^t_1 \leq \sigma\beta/8 \\).
-The estimated shifted region is \\( \hat{B} \triangleq \{(s, a) \in S \times A \vert  TV(\hat{p}_{src}(\cdot \vert  s, a), \hat{p}_{tar}(\cdot \vert  s, a)) \gt \beta/2 \} \\). This step guarantees \\( \hat{B}=B \\) with high probability (Lemma 1).
+The algorithm stops when the uncertainty measure is sufficiently small: 
+
+$$
+ 3\sqrt{\rho_{\pi^{t+1}_1} W^t_1} + \rho_{\pi^{t+1}_1} W^t_1 \leq \sigma\beta/8 .
+$$
+
+The estimated shifted region is $$\hat{B} \triangleq \{(s, a) \in S \times A \vert  TV(\hat{p}_{src}(\cdot \vert  s, a), \hat{p}_{tar}(\cdot \vert  s, a)) \gt \beta/2 \} $$. This step guarantees \\( \hat{B}=B \\) with high probability (Lemma 1).
 
 2. Hybrid UCB Value Iteration (Algorithm 3):
 Once \\( \hat{B} \\) is identified, this phase leverages the source data for efficient exploration.
 
-It defines empirical transitions \\( \tilde{p}^t(\cdot \vert  s, a) \\) and visitation counts \\( \tilde{n}_t(s, a) \\):
-If \\( (s, a) \in \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_t(s, a) \\) (online count) and \\( \tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{tar}^t(\cdot \vert  s, a) \\) (empirical target transition).
-If \\( (s, a) \notin \hat{B} \\), \\( \tilde{n}_t(s, a) \triangleq n_{src}(s, a) \\) (source count) and \\( \tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{src}(\cdot \vert  s, a) \\) (empirical source transition).
+It defines empirical transitions \\( \tilde{p}^t(\cdot \vert  s, a) \\) and visitation counts $$ \tilde{n}_t(s, a) $$:
+If \\( (s, a) \in \hat{B} \\), $$\tilde{n}_t(s, a) \triangleq n_t(s, a)$$ (online count) and $$\tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{tar}^t(\cdot \vert  s, a) $$ (empirical target transition).
+If \\( (s, a) \notin \hat{B} \\), $$\tilde{n}_t(s, a) \triangleq n_{src}(s, a)$$ (source count) and \\( \tilde{p}^t(\cdot \vert  s, a) \triangleq \hat{p}_{src}(\cdot \vert  s, a) \\) (empirical source transition).
 
 
 It computes optimistic Q-functions \\( Q^t_h(s, a) \\) (Eq. 3a) and value functions \\( V^t_h(s) \\):
